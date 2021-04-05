@@ -3,6 +3,10 @@
 #include <string.h>
 #include "scanner.h"
 
+#define MAX_NAME_SIZE 200
+#define MAX_NUMBER_SIZE 200
+#define MAX_STRING_SIZE 1000
+
 char* string_repeat(int n, const char* s) {
     size_t slen = strlen(s);
     char* dest = malloc(n * slen + 1);
@@ -118,7 +122,7 @@ void scan(char code[1000], Token buf_toks[1000]) {
     while (pos < strlen(code)) {
         char ch = code[pos];
         if (isAlpha(ch)) {
-            char name[200] = {'\0'};
+            char name[MAX_NAME_SIZE] = {'\0'};
 
             int begin = pos;
             while (isAlpha(ch) || isDigit(ch)) {
@@ -138,7 +142,7 @@ void scan(char code[1000], Token buf_toks[1000]) {
             tok.col = begin;
             tokens[token_count++] = tok;
         } else if (isDigit(ch)) {
-            char num[200] = {'\0'};
+            char num[MAX_NUMBER_SIZE] = {'\0'};
             int found_dot = 0;
             TokenType tok_type = T_INT;
 
@@ -200,7 +204,7 @@ void scan(char code[1000], Token buf_toks[1000]) {
             tok.lineno = lineno;
             tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
-            char string[1000] = {'\0'};
+            char string[MAX_STING_SIZE] = {'\0'};
             char delim = ch;
             TokenType tok_type = T_STR;
 
