@@ -109,16 +109,16 @@ int in_operators(char c) {
     return (c == '+') || (c == '-') || (c == '*') || (c == '/');
 }
 
-void scan(char code[100]) {
+void scan(char code[1000], Token buf_toks[1000]) {
     int lineno = 1;
-    Token tokens[strlen(code)];
     int pos = 0;
     int token_count = 0;
+    Token tokens[strlen(code)];
 
     while (pos < strlen(code)) {
         char ch = code[pos];
         if (isAlpha(ch)) {
-            char name[25] = {'\0'};
+            char name[200] = {'\0'};
 
             int begin = pos;
             while (isAlpha(ch) || isDigit(ch)) {
@@ -128,17 +128,17 @@ void scan(char code[100]) {
 
             Token tok;
             if (!strcmp(name, "int") || !strcmp(name, "string")) {
-                tok.type = T_TYPE;
+                    tok.type = T_TYPE;
             } else {
                 tok.type = T_ID;
             }
-            strcpy(tok.value, name);
             tok.lineno = lineno;
+            strcpy(tok.value, name);
             strcpy(tok.line, code);
             tok.col = begin;
             tokens[token_count++] = tok;
         } else if (isDigit(ch)) {
-            char num[50] = {'\0'};
+            char num[200] = {'\0'};
             int found_dot = 0;
             TokenType tok_type = T_INT;
 
@@ -186,6 +186,46 @@ void scan(char code[100]) {
                 pos++;
             }
             tokens[token_count++] = tok;
+        } else if (ch == '=') {
+            Token tok;
+            if (next(code, pos) == '=') {
+                strcpy(tok.value, "==");
+                tok.type = T_EQUALS;
+            } else {
+                strcpy(tok.value, "=");
+                tok.type = T_ASSIGN;
+            }
+            tok.col = pos++;
+            strcpy(tok.line, code);
+            tok.lineno = lineno;
+            tokens[token_count++] = tok;
+        } else if (ch == '"' || ch == '\'') {
+            char string[1000] = {'\0'};
+            char delim = ch;
+            TokenType tok_type = T_STR;
+
+            int begin = pos;
+            ch = code[++pos];
+            while (ch != delim) {
+                if (ch == '\n' || ch == '\0') {
+                    printf("error: Unexpected end of input\n");
+                    return;
+                }
+                strncat(string, &ch, 1);
+                ch = code[++pos];
+            }
+            pos++;
+
+            Token tok;
+            if (strlen(string) == 1) {
+                tok_type = T_CHAR;
+            }
+            tok.type = tok_type;
+            strcpy(tok.value, string);
+            tok.lineno = lineno;
+            strcpy(tok.line, code);
+            tok.col = begin;
+            tokens[token_count++] = tok;
         } else if (ch == ' ' || ch == '\t') {
             pos++;
         } else {
@@ -193,6 +233,7 @@ void scan(char code[100]) {
             return;
         }
     }
+    int buf_tok_c = 0;
     for (int i = 0; i < strlen(code); i++) {
         if (tokens[i].type < 200 || tokens[i].type > 237) {
             break;
@@ -202,5 +243,6 @@ void scan(char code[100]) {
         printf(", %s", tokens[i].line);
         printf(", %d", tokens[i].lineno);
         printf(", %d\n", tokens[i].col);
+        buf_toks[buf_tok_c++] = tokens[i];
     }
 }
