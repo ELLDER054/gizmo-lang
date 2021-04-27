@@ -3,10 +3,6 @@
 #include <string.h>
 #include "scanner.h"
 
-#define MAX_NAME_SIZE 200
-#define MAX_NUMBER_SIZE 200
-#define MAX_STRING_SIZE 1000
-
 char* string_repeat(int n, const char* s) {
     size_t slen = strlen(s);
     char* dest = malloc(n * slen + 1);
@@ -56,8 +52,8 @@ int one_char_tokens(char c) {
     return 0;
 }
 
-char next(char code[1000], int pos) {
-    if (pos + 1 >= 1000) {
+char next(char* code, int pos) {
+    if (pos + 1 >= strlen(code)) {
         return '_';
     }
     return code[pos + 1];
@@ -113,7 +109,7 @@ int in_operators(char c) {
     return (c == '+') || (c == '-') || (c == '*') || (c == '/');
 }
 
-void scan(char code[1000], Token buf_toks[1000]) {
+void scan(char* code, Token* buf_toks) {
     int lineno = 1;
     int pos = 0;
     int token_count = 0;
@@ -122,7 +118,7 @@ void scan(char code[1000], Token buf_toks[1000]) {
     while (pos < strlen(code)) {
         char ch = code[pos];
         if (isAlpha(ch)) {
-            char name[MAX_NAME_SIZE] = {'\0'};
+            char name[1024] = {'\0'};
 
             int begin = pos;
             while (isAlpha(ch) || isDigit(ch)) {
@@ -142,7 +138,7 @@ void scan(char code[1000], Token buf_toks[1000]) {
             tok.col = begin;
             tokens[token_count++] = tok;
         } else if (isDigit(ch)) {
-            char num[MAX_NUMBER_SIZE] = {'\0'};
+            char num[1024] = {'\0'};
             int found_dot = 0;
             TokenType tok_type = T_INT;
 
@@ -174,6 +170,20 @@ void scan(char code[1000], Token buf_toks[1000]) {
             strcpy(tok.line, code);
             tok.col = pos++;
             tokens[token_count++] = tok;
+        } else if (ch == '\\' && next(code, pos) == '(') {
+            pos += 2;
+            ch = code[pos];
+            while (ch != '\\' && next(code, pos) != ')') {
+                ch = code[++pos];
+            }
+            pos += 2;
+        } else if (ch == '\\') {
+            pos++;
+            ch = code[pos];
+            while (ch != '\n') {
+                ch = code[++pos];
+            }
+            pos++;
         } else if (in_operators(ch)) {
             Token tok;
             tok.type = operators(ch, next(code, pos));
@@ -204,7 +214,7 @@ void scan(char code[1000], Token buf_toks[1000]) {
             tok.lineno = lineno;
             tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
-            char string[MAX_STING_SIZE] = {'\0'};
+            char string[1024] = {'\0'};
             char delim = ch;
             TokenType tok_type = T_STR;
 
@@ -232,6 +242,9 @@ void scan(char code[1000], Token buf_toks[1000]) {
             tokens[token_count++] = tok;
         } else if (ch == ' ' || ch == '\t') {
             pos++;
+        } else if (ch == '\n') {
+            pos++;
+            lineno++;
         } else {
             printf("error: Unexpected character `%c`\n", ch);
             return;
