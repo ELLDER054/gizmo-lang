@@ -109,8 +109,41 @@ int in_operators(char c) {
     return (c == '+') || (c == '-') || (c == '*') || (c == '/');
 }
 
+int split (const char *txt, char delim, char ***tokens) {
+    int *tklen, *t, count = 1;
+    char **arr, *p = (char *) txt;
+
+    while (*p != '\0') if (*p++ == delim) count += 1;
+    t = tklen = calloc (count, sizeof (int));
+    for (p = (char *) txt; *p != '\0'; p++) *p == delim ? *t++ : (*t)++;
+    *tokens = arr = malloc (count * sizeof (char *));
+    t = tklen;
+    p = *arr++ = calloc (*(t++) + 1, sizeof (char *));
+    while (*txt != '\0')
+    {
+        if (*txt == delim)
+        {
+            p = *arr++ = calloc (*(t++) + 1, sizeof (char *));
+            txt++;
+        }
+        else *p++ = *txt++;
+    }
+    free (tklen);
+    return count;
+}
+
+void repeat_c(char c, int n, char string[1024]) {
+    for (int i = 0; i < n; i++) {
+        strncat(string, &c, 1);
+    }
+}
+
 void scan(char* code, Token* buf_toks) {
     int lineno = 1;
+    char** lines;
+    int count, i;
+    count = split (code, '\n', &lines);
+    for (i = 0; i < count; i++) printf("%s\n", lines[i]);
     int pos = 0;
     int token_count = 0;
     Token tokens[strlen(code)];
@@ -139,20 +172,24 @@ void scan(char* code, Token* buf_toks) {
             tokens[token_count++] = tok;
         } else if (isDigit(ch)) {
             char num[1024] = {'\0'};
-            int found_dot = 0;
             TokenType tok_type = T_INT;
 
             int begin = pos;
-            while (isDigit(ch) || ch == '.') {
-                if (ch == '.' && found_dot) {
-                    printf("error: Too many dots in floating point number\n");
-                    return;
-                } else if (ch == '.' && !found_dot) {
-                    found_dot = 1;
-                    tok_type = T_REAL;
-                }
+            while (isDigit(ch)) {
                 strncat(num, &ch, 1);
                 ch = code[++pos];
+            }
+            if (ch == '.' && isDigit(next(code, pos))) {
+                while (isDigit(ch)) {
+                    strncat(num, &ch, 1);
+                    ch = code[++pos];
+                    if (ch == '.') {
+                        char specifier[1024] = {'\0'};
+                        repeat_c(' ', pos, specifier);
+                        strncat(specifier, "^", 1);
+                        printf("On line %d:\nToo many dots in floating point number\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
+                    }
+                }
             }
 
             Token tok;
@@ -222,7 +259,10 @@ void scan(char* code, Token* buf_toks) {
             ch = code[++pos];
             while (ch != delim) {
                 if (ch == '\n' || ch == '\0') {
-                    printf("error: Unexpected end of input\n");
+                    char specifier[1024] = {'\0'};
+                    repeat_c(' ', pos, specifier);
+                    strncat(specifier, "^", 1);
+                    printf("On line %d:\nUnterminated string literal\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
                     return;
                 }
                 strncat(string, &ch, 1);
@@ -246,7 +286,10 @@ void scan(char* code, Token* buf_toks) {
             pos++;
             lineno++;
         } else {
-            printf("error: Unexpected character `%c`\n", ch);
+            char specifier[1024] = {'\0'};
+            repeat_c(' ', pos, specifier);
+            strncat(specifier, "^", 1);
+            printf("On line %d:\nUnexpected character `%c`\n%s\n%s\n", lineno, ch, lines[lineno - 1], specifier);
             return;
         }
     }
@@ -262,4 +305,6 @@ void scan(char* code, Token* buf_toks) {
         printf(", %d\n", tokens[i].col);
         buf_toks[buf_tok_c++] = tokens[i];
     }
+    for (i = 0; i < count; i++) free (lines[i]);
+    free(lines);
 }
