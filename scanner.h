@@ -24,6 +24,7 @@ typedef enum {
     T_COMMA,
     T_COLON,
     T_SEMI_COLON,
+    T_ASSIGN,
     T_EQUALS,
     T_LESS_THAN,
     T_GREATER_THAN,
@@ -48,9 +49,9 @@ typedef enum {
 
 typedef struct {
     int type;
-    char value[25];
+    char value[86];
     int col;
-    char line[100];
+    char line[1024];
     int lineno;
 } Token;
 
