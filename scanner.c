@@ -55,8 +55,6 @@ int operators(char ch, char nch) {
         return T_PLUS_EQUALS;
     } else if (ch == '+') {
         return T_PLUS;
-    } else {
-        return 0;
     }
 
     // minus operators
@@ -66,8 +64,6 @@ int operators(char ch, char nch) {
         return T_MINUS_EQUALS;
     } else if (ch == '-') {
         return T_MINUS;
-    } else {
-        return 0;
     }
 
     // times operators
@@ -77,8 +73,6 @@ int operators(char ch, char nch) {
         return T_TIMES_EQUALS;
     } else if (ch == '*') {
         return T_TIMES;
-    } else {
-        return 0;
     }
 
     // plus operators
@@ -155,7 +149,7 @@ void scan(char* code, Token* buf_toks) {
             }
             tok.lineno = lineno;
             strcpy(tok.value, name);
-            strcpy(tok.line, code);
+            strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
             tokens[token_count++] = tok;
         } else if (isDigit(ch)) {
@@ -184,7 +178,7 @@ void scan(char* code, Token* buf_toks) {
             tok.type = tok_type;
             strcpy(tok.value, num);
             tok.lineno = lineno;
-            strcpy(tok.line, code);
+            strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
             tokens[token_count++] = tok;
         } else if (is_one_char_token(ch)) {
@@ -192,7 +186,7 @@ void scan(char* code, Token* buf_toks) {
             tok.type = one_char_tokens(ch);
             strcpy(tok.value, &ch);
             tok.lineno = lineno;
-            strcpy(tok.line, code);
+            strcpy(tok.line, lines[lineno - 1]);
             tok.col = pos++;
             tokens[token_count++] = tok;
         } else if (ch == '\\' && next(code, pos) == '(') {
@@ -213,8 +207,8 @@ void scan(char* code, Token* buf_toks) {
             Token tok;
             tok.type = operators(ch, next(code, pos));
             tok.lineno = lineno;
-            strcpy(tok.line, code);
-            if (next(code, pos) == '=' || in_operators(next(code, pos))) {
+            strcpy(tok.line, lines[lineno - 1]);
+            if (next(code, pos) == '=' || next(code, pos) == ch) {
                 tok.col = pos;
                 strcpy(tok.value, &ch);
                 char nch = next(code, pos);
@@ -222,6 +216,7 @@ void scan(char* code, Token* buf_toks) {
                 pos += 2;
             } else {
                 tok.col = pos;
+                strcpy(tok.value, &ch);
                 pos++;
             }
             tokens[token_count++] = tok;
@@ -235,7 +230,7 @@ void scan(char* code, Token* buf_toks) {
                 tok.type = T_ASSIGN;
             }
             tok.col = pos++;
-            strcpy(tok.line, code);
+            strcpy(tok.line, lines[lineno - 1]);
             tok.lineno = lineno;
             tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
@@ -265,7 +260,7 @@ void scan(char* code, Token* buf_toks) {
             tok.type = tok_type;
             strcpy(tok.value, string);
             tok.lineno = lineno;
-            strcpy(tok.line, code);
+            strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
             tokens[token_count++] = tok;
         } else if (ch == ' ' || ch == '\t') {
@@ -283,7 +278,7 @@ void scan(char* code, Token* buf_toks) {
     }
     int buf_tok_c = 0;
     for (int i = 0; i < strlen(code); i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 237) {
+        if (tokens[i].type < 200 || tokens[i].type > 238) {
             break;
         }
         printf("%d", tokens[i].type);
