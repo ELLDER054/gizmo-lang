@@ -199,7 +199,7 @@ Node* incomplete_var_declaration(int start, Token tokens[1024]) {
         }
     }
     strcpy(node.name, id);
-    node.type = *type;
+    node.type = type;
     node.value = NULL;
     return convert_to_node((Node*) &node);
 }
@@ -222,7 +222,7 @@ Node* var_declaration(int start, Token tokens[1024]) {
         return NULL;
     }
     char b[1] = {'\0'};
-    consume(tokens, T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon\n", b);
+    consume(tokens, T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
     Node* expr = expression(ind, tokens);
     if (expr == NULL) {
         ind = start;
@@ -234,7 +234,7 @@ Node* var_declaration(int start, Token tokens[1024]) {
     }
     consume(tokens, T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
     strcpy(node.name, id);
-    node.type = *type;
+    node.type = type;
     return convert_to_node((Node*) &node);
 }
 
