@@ -1,10 +1,12 @@
-
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "ast.h"
 #include "scanner.h"
 
 int ind = 0;
+
+void go();
 
 void repeat_char(char c, int n, char string[1024]) {
     for (int i = 0; i < n; i++) {
@@ -25,14 +27,22 @@ int tokslen(Token tokens[1024]) {
 
 void consume(Token tokens[1024], TokenType type, char err[100], char buffer[150]) {
     if (ind >= tokslen(tokens)) {
-        printf("%s", err);
+        char specifier[100] = "";
+        repeat_char(' ', tokens[ind - 1].col, specifier);
+        strncat(specifier, "^", 1);
+        printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno + 1, err, tokens[ind - 1].line, specifier);
+        exit(0);
         return;
     }
     if (tokens[ind].type == type) {
         strcpy(buffer, tokens[ind++].value);
         return;
     }
-    printf("%s", err);
+    char specifier[100] = "";
+    repeat_char(' ', tokens[ind - 1].col, specifier);
+    strncat(specifier, "^", 1);
+    printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno + 1, err, tokens[ind - 1].line, specifier);
+    exit(0);
     return;
 }
 
@@ -80,8 +90,11 @@ Node* expression2(int start, Token tokens[1024]) {
     }
     Node* expr = expression(ind, tokens);
     if (expr == NULL) {
-        ind = start;
-        return NULL;
+        char specifier[100] = "";
+        repeat_char(' ', tokens[ind].col, specifier);
+        strncat(specifier, "^", 1);
+        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
+        exit(0);
     }
     Operator_node n;
     n.left = *t;
@@ -129,8 +142,11 @@ Node* term2(int start, Token tokens[1024]) {
     }
     Node* t = term(ind, tokens);
     if (t == NULL) {
-        ind = start;
-        return NULL;
+        char specifier[100] = "";
+        repeat_char(' ', tokens[ind].col, specifier);
+        strncat(specifier, "^", 1);
+        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
+        exit(0);
     }
     Operator_node n;
     n.left = *f;
@@ -208,7 +224,7 @@ Node* var_declaration(int start, Token tokens[1024]) {
         return NULL;
     }
     char b[1] = {'\0'};
-    consume(tokens, T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon", b);
+    consume(tokens, T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon\n", b);
     Node* expr = expression(ind, tokens);
     if (expr == NULL) {
         ind = start;
