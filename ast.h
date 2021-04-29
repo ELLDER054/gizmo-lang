@@ -19,3 +19,8 @@ typedef struct {
     char name[126];
     char* value;
 } Var_declaration_node;
+
+typedef struct {
+    NodeType node;
+    int value;
+}
