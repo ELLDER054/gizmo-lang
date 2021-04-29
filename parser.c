@@ -1,3 +1,4 @@
+
 #include <stdio.h>
 #include <string.h>
 #include "ast.h"
@@ -82,7 +83,11 @@ Node* expression2(int start, Token tokens[1024]) {
         ind = start;
         return NULL;
     }
-    return convert_to_node((Node*) &t);
+    Operator_node n;
+    n.left = *t;
+    n.right = *expr;
+    strcpy(n.oper, "+");
+    return convert_to_node((Node*) &n);
 }
 
 Node* expression(int start, Token tokens[1024]) {
@@ -117,8 +122,8 @@ Node* term2(int start, Token tokens[1024]) {
         ind = start;
         return NULL;
     }
-    char* plus = expect_type(T_MINUS, tokens);
-    if (plus == NULL) {
+    char* times = expect_type(T_TIMES, tokens);
+    if (times == NULL) {
         ind = start;
         return NULL;
     }
@@ -127,7 +132,11 @@ Node* term2(int start, Token tokens[1024]) {
         ind = start;
         return NULL;
     }
-    return convert_to_node((Node*) &term);
+    Operator_node n;
+    n.left = *f;
+    n.right = *t;
+    strcpy(n.oper, "*");
+    return convert_to_node((Node*) &n);
 }
 
 Node* term(int start, Token tokens[1024]) {
