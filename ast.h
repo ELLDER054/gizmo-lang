@@ -23,4 +23,11 @@ typedef struct {
 typedef struct {
     NodeType node;
     int value;
-}
+} Integer_node;
+
+typedef struct {
+    NodeType node;
+    Node left;
+    Node right;
+    char oper[3];
+} Operator_node;
