@@ -6,8 +6,6 @@
 
 int ind = 0;
 
-void go();
-
 void repeat_char(char c, int n, char string[1024]) {
     for (int i = 0; i < n; i++) {
         strncat(string, &c, 1);
