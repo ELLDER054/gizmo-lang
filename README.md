@@ -1,7 +1,7 @@
 # The Gizmo Programming Language
 Gizmo is a small language designed not only to be fast and strongly typed, but also to give the programming more ease when writing code.
 
-A small example:
+An example:
 
 ```
 string hello(string name) {
@@ -9,3 +9,5 @@ string hello(string name) {
 }
 write(hello("World"));
 ```
+
+This would output "Hello, World!".
