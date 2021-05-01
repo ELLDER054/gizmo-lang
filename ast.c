@@ -4,12 +4,11 @@
 #include "ast.h"
 
 void print_oper(Node* n) {
-    printf(".%c.\n", *((Operator_node*) &n)->oper);
+    printf("%s\n", ((Operator_node*) n)->oper);
 }
 
 void print_var(Var_declaration_node* v) {
-    printf("%s, %s\n", v->type, v->name);
-    printf("%d\n", v->value->n_type);
+    printf("variable: %s, %s, ", v->type, v->name);
     print_oper(v->value);
 }
 

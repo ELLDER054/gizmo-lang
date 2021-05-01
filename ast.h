@@ -1,3 +1,6 @@
+#ifndef AST_H
+#define AST_H
+
 #include "scanner.h"
 
 #define MAX_NAME_LEN  128
@@ -38,4 +41,8 @@ typedef struct {
 } Operator_node;
 
 void free_node(Node* n);
+Var_declaration_node* new_Var_declaration_node(char* name, char* type, Node* value);
+Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
+Integer_node* new_Integer_node(int val);
 
+#endif

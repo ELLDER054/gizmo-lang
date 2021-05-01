@@ -6,10 +6,6 @@
 
 int ind = 0;
 Token tokens[1024];
-Var_declaration_node* new_Var_declaration_node(char* name, char* type, Node* value);
-Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
-Integer_node* new_Integer_node(int val);
-
 
 void repeat_char(char c, int n, char string[1024]) {
     for (int i = 0; i < n; i++) {
