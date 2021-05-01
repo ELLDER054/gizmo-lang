@@ -24,7 +24,10 @@ Var_declaration_node* new_Var_declaration_node(char* type, char* name, Node* val
     return var;
 }
 
+void free_node(Node* n);
+
 void free_Var_declaration_node(Var_declaration_node *n) {
+    free_node(n->value);
     free(n);
 }
 
@@ -39,6 +42,8 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right) {
 }
 
 void free_Operator_node(Operator_node *n) {
+    free_node(n->left);
+    free_node(n->right);
     free(n);
 }
 
@@ -52,4 +57,20 @@ Integer_node* new_Integer_node(int val) {
 
 void free_Integer_node(Integer_node *n) {
     free(n);
+}
+
+void free_node(Node* n) {
+    switch (n->n_type) {
+        case INTEGER_NODE:
+            free_Integer_node((Integer_node*) n);
+            break;
+        case VAR_DECLARATION_NODE:
+            free_Var_declaration_node((Var_declaration_node*) n);
+            break;
+        case OPERATOR_NODE:
+            free_Operator_node((Operator_node*) n);
+            break;
+        case NODE_NODE:
+            break;
+    }
 }
