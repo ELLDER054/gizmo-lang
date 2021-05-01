@@ -95,7 +95,7 @@ Node* expression2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
         exit(0);
     }
-    return (Node*) new_Operator_node(plus, t, expr);
+    return (Node*) new_Operator_node("+", t, expr);
 }
 
 Node* expression(int start) {
@@ -141,7 +141,7 @@ Node* term2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
         exit(0);
     }
-    return (Node*) new_Operator_node(times, f, t);
+    return (Node*) new_Operator_node("*", f, t);
 }
 
 Node* term(int start) {
