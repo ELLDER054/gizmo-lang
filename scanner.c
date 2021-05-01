@@ -208,13 +208,13 @@ void scan(char* code, Token* tokens) {
             strcpy(tok.line, lines[lineno - 1]);
             if (next(code, pos) == '=' || next(code, pos) == ch) {
                 tok.col = pos;
-                strcpy(tok.value, &ch);
+                tok.value[0] = ch;
                 char nch = next(code, pos);
                 strncat(tok.value, &nch, 1);
                 pos += 2;
             } else {
                 tok.col = pos;
-                strcpy(tok.value, &ch);
+                tok.value[0] = ch;
                 pos++;
             }
             tokens[token_count++] = tok;
