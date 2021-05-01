@@ -207,7 +207,7 @@ Node* var_declaration(int start) {
         printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
         return NULL;
     }
-    char b[1] = {'\0'};
+    char b[MAX_NAME_LEN];
     consume(T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
     Node* expr = expression(ind);
     if (expr == NULL) {
