@@ -120,15 +120,13 @@ void repeat_c(char c, int n, char string[1024]) {
     }
 }
 
-void scan(char* code, Token* buf_toks) {
+void scan(char* code, Token* tokens) {
     int lineno = 1;
     char** lines;
     int count, i;
     count = split (code, '\n', &lines);
-    for (i = 0; i < count; i++) printf("%s\n", lines[i]);
     int pos = 0;
     int token_count = 0;
-    Token tokens[strlen(code)];
 
     while (pos < strlen(code)) {
         char ch = code[pos];
@@ -276,7 +274,7 @@ void scan(char* code, Token* buf_toks) {
             return;
         }
     }
-    int buf_tok_c = 0;
+
     for (int i = 0; i < strlen(code); i++) {
         if (tokens[i].type < 200 || tokens[i].type > 238) {
             break;
@@ -286,7 +284,6 @@ void scan(char* code, Token* buf_toks) {
         printf(", %s", tokens[i].line);
         printf(", %d", tokens[i].lineno);
         printf(", %d\n", tokens[i].col);
-        buf_toks[buf_tok_c++] = tokens[i];
     }
     for (i = 0; i < count; i++) free (lines[i]);
     free(lines);

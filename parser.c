@@ -5,6 +5,11 @@
 #include "scanner.h"
 
 int ind = 0;
+Token tokens[1024];
+Var_declaration_node* new_Var_declaration_node(char* name, char* type, Node* value);
+Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
+Integer_node* new_Integer_node(int val);
+
 
 void repeat_char(char c, int n, char string[1024]) {
     for (int i = 0; i < n; i++) {
@@ -23,7 +28,7 @@ int tokslen(Token tokens[1024]) {
     return len;
 }
 
-void consume(Token tokens[1024], TokenType type, char err[100], char buffer[150]) {
+void consume(TokenType type, char err[100], char buffer[150]) {
     if (ind >= tokslen(tokens)) {
         char specifier[100] = "";
         repeat_char(' ', tokens[ind - 1].col, specifier);
@@ -44,7 +49,7 @@ void consume(Token tokens[1024], TokenType type, char err[100], char buffer[150]
     return;
 }
 
-char* expect_type(TokenType type, Token tokens[1024]) {
+char* expect_type(TokenType type) {
     if (ind >= tokslen(tokens)) {
         return NULL;
     }
@@ -54,7 +59,7 @@ char* expect_type(TokenType type, Token tokens[1024]) {
     return NULL;
 }
 
-TokenType expect_value(char* val, Token tokens[1024]) {
+TokenType expect_value(char* val) {
     if (ind >= tokslen(tokens)) {
         return 0;
     }
@@ -64,29 +69,25 @@ TokenType expect_value(char* val, Token tokens[1024]) {
     return 0;
 }
 
-Node* convert_to_node(Node* n) {
-    return n;
-}
-
-Node* expression(int start, Token tokens[1024]);
-Node* term(int start, Token tokens[1024]);
-Node* term2(int start, Token tokens[1024]);
-Node* factor(int start, Token tokens[1024]);
+Node* expression(int start);
+Node* term(int start);
+Node* term2(int start);
+Node* factor(int start);
 
 // begin expressions parsing
-Node* expression2(int start, Token tokens[1024]) {
+Node* expression2(int start) {
     ind = start;
-    Node* t = term(start, tokens);
+    Node* t = term(start);
     if (t == NULL) {
         ind = start;
         return NULL;
     }
-    char* plus = expect_type(T_PLUS, tokens);
+    char* plus = expect_type(T_PLUS);
     if (plus == NULL) {
         ind = start;
         return NULL;
     }
-    Node* expr = expression(ind, tokens);
+    Node* expr = expression(ind);
     if (expr == NULL) {
         char specifier[100] = "";
         repeat_char(' ', tokens[ind].col, specifier);
@@ -94,51 +95,45 @@ Node* expression2(int start, Token tokens[1024]) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
         exit(0);
     }
-    Operator_node n;
-    n.left = *t;
-    n.right = *expr;
-    strcpy(n.oper, "+");
-    return convert_to_node((Node*) &n);
+    return (Node*) new_Operator_node(plus, t, expr);
 }
 
-Node* expression(int start, Token tokens[1024]) {
+Node* expression(int start) {
     ind = start;
-    Node* expr2 = expression2(start, tokens);
+    Node* expr2 = expression2(start);
     if (expr2 != NULL) {
-        return convert_to_node((Node*) &expr2);
+        return expr2;
     }
-    Node* t = term(start, tokens);
+    Node* t = term(start);
     if (t != NULL) {
-        return convert_to_node((Node*) &t);
+        return t;
     }
     ind = start;
     return NULL;
 }
 
-Node* factor(int start, Token tokens[1024]) {
-    char* integer = expect_type(T_INT, tokens);
+Node* factor(int start) {
+    char* integer = expect_type(T_INT);
     if (integer != NULL) {
-        Integer_node i_node;
-        i_node.value = (int) integer;
-        return convert_to_node((Node*) &i_node);
+        return (Node*) new_Integer_node(atoi(integer));
     }
     ind = start;
     return NULL;
 }
 
-Node* term2(int start, Token tokens[1024]) {
+Node* term2(int start) {
     ind = start;
-    Node* f = factor(start, tokens);
+    Node* f = factor(start);
     if (f == NULL) {
         ind = start;
         return NULL;
     }
-    char* times = expect_type(T_TIMES, tokens);
+    char* times = expect_type(T_TIMES);
     if (times == NULL) {
         ind = start;
         return NULL;
     }
-    Node* t = term(ind, tokens);
+    Node* t = term(ind);
     if (t == NULL) {
         char specifier[100] = "";
         repeat_char(' ', tokens[ind].col, specifier);
@@ -146,22 +141,18 @@ Node* term2(int start, Token tokens[1024]) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
         exit(0);
     }
-    Operator_node n;
-    n.left = *f;
-    n.right = *t;
-    strcpy(n.oper, "*");
-    return convert_to_node((Node*) &n);
+    return (Node*) new_Operator_node(times, f, t);
 }
 
-Node* term(int start, Token tokens[1024]) {
+Node* term(int start) {
     ind = start;
-    Node* t2 = term2(start, tokens);
+    Node* t2 = term2(start);
     if (t2 != NULL) {
-        return convert_to_node((Node*) &t2);
+        return t2;
     }
-    Node* f = factor(start, tokens);
+    Node* f = factor(start);
     if (f != NULL) {
-        return convert_to_node((Node*) &f);
+        return f;
     }
     ind = start;
     return NULL;
@@ -170,15 +161,14 @@ Node* term(int start, Token tokens[1024]) {
 // end expressions parsing
 // begin statement parsing
 
-Node* incomplete_var_declaration(int start, Token tokens[1024]) {
-    Var_declaration_node node;
+Node* incomplete_var_declaration(int start) {
     ind = start;
-    char* type = expect_type(T_TYPE, tokens);
+    char* type = expect_type(T_TYPE);
     if (type == NULL) {
         ind = start;
         return NULL;
     }
-    char* id = expect_type(T_ID, tokens);
+    char* id = expect_type(T_ID);
     if (id == NULL) {
         ind = start;
         char specifier[1024] = {'\0'};
@@ -187,9 +177,9 @@ Node* incomplete_var_declaration(int start, Token tokens[1024]) {
         printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
         return NULL;
     }
-    char* end = expect_type(T_SEMI_COLON, tokens);
+    char* end = expect_type(T_SEMI_COLON);
     if (end == NULL) {
-        end = expect_type(T_ASSIGN, tokens);
+        end = expect_type(T_ASSIGN);
         if (end == NULL) {
             ind = start;
             return NULL;
@@ -198,21 +188,17 @@ Node* incomplete_var_declaration(int start, Token tokens[1024]) {
             return NULL;
         }
     }
-    strcpy(node.name, id);
-    node.type = type;
-    node.value = NULL;
-    return convert_to_node((Node*) &node);
+    return (Node*) new_Var_declaration_node(id, type, NULL);
 }
 
-Node* var_declaration(int start, Token tokens[1024]) {
-    Var_declaration_node node;
+Node* var_declaration(int start) {
     ind = start;
-    char* type = expect_type(T_TYPE, tokens);
+    char* type = expect_type(T_TYPE);
     if (type == NULL) {
         ind = start;
         return NULL;
     }
-    char* id = expect_type(T_ID, tokens);
+    char* id = expect_type(T_ID);
     if (id == NULL) {
         ind = start;
         char specifier[1024] = {'\0'};
@@ -222,8 +208,8 @@ Node* var_declaration(int start, Token tokens[1024]) {
         return NULL;
     }
     char b[1] = {'\0'};
-    consume(tokens, T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
-    Node* expr = expression(ind, tokens);
+    consume(T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
+    Node* expr = expression(ind);
     if (expr == NULL) {
         ind = start;
         char specifier[1024] = {'\0'};
@@ -232,19 +218,17 @@ Node* var_declaration(int start, Token tokens[1024]) {
         printf("On line %d:\nExpected expression after assignment operator\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
         return NULL;
     }
-    consume(tokens, T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
-    strcpy(node.name, id);
-    node.type = type;
-    return convert_to_node((Node*) &node);
+    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
+    return (Node*) new_Var_declaration_node(id, type, expr);
 }
 
-Node* statement(int start, Token tokens[1024]) {
+Node* statement(int start) {
     ind = start;
-    Node* i_var = incomplete_var_declaration(start, tokens);
+    Node* i_var = incomplete_var_declaration(start);
     if (i_var != NULL) {
         return i_var;
     }
-    Node* var = var_declaration(start, tokens);
+    Node* var = var_declaration(start);
     if (var != NULL) {
         return var;
     }
@@ -254,15 +238,18 @@ Node* statement(int start, Token tokens[1024]) {
 
 // end statement parsing
 
-void parse(Token tokens[1024], Node program[1024]) {
+void parse(Token toks[1024], Node* program) {
     int stmt_c = 0;
+    for (int i = 0; i < tokslen(toks); i++) {
+        tokens[i] = toks[i];
+    }
     int len = tokslen(tokens);
     while (ind < len) {
-        Node* stmt = statement(ind, tokens);
+        Node* stmt = statement(ind);
         if (stmt == NULL) {
             break;
         }
-        program[stmt_c] = *stmt;
+        program[stmt_c++] = *stmt;
         printf("success!\n");
     }
     return;
