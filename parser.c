@@ -85,6 +85,7 @@ Node* expression2(int start) {
     char* plus = expect_type(T_PLUS);
     if (plus == NULL) {
         ind = start;
+        free_node(t);
         return NULL;
     }
     Node* expr = expression(ind);
@@ -106,6 +107,7 @@ Node* expression(int start) {
     }
     Node* t = term(start);
     if (t != NULL) {
+        free_node(expr2);
         return t;
     }
     ind = start;
@@ -131,6 +133,7 @@ Node* term2(int start) {
     char* times = expect_type(T_TIMES);
     if (times == NULL) {
         ind = start;
+        free_node(f);
         return NULL;
     }
     Node* t = term(ind);

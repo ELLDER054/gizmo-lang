@@ -36,3 +36,6 @@ typedef struct {
     Node* right;
     char oper[MAX_OPER_LEN];
 } Operator_node;
+
+void free_node(Node* n);
+
