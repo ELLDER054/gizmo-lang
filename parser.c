@@ -238,7 +238,7 @@ Node* statement(int start) {
 
 // end statement parsing
 
-void parse(Token toks[1024], Node* program) {
+void parse(Token toks[1024], Node** program) {
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
@@ -249,7 +249,7 @@ void parse(Token toks[1024], Node* program) {
         if (stmt == NULL) {
             break;
         }
-        program[stmt_c++] = *stmt;
+        program[stmt_c++] = stmt;
         printf("success!\n");
     }
     return;
