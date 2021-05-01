@@ -182,7 +182,7 @@ void scan(char* code, Token* tokens) {
         } else if (is_one_char_token(ch)) {
             Token tok;
             tok.type = one_char_tokens(ch);
-            tok.value[0] = ch
+            tok.value[0] = ch;
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = pos++;
