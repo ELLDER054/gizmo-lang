@@ -28,9 +28,9 @@ int tokslen(Token tokens[1024]) {
     return len;
 }
 
-void consume(TokenType type, char err[100], char buffer[150]) {
+void consume(TokenType type, char err[100], char* buffer) {
     if (ind >= tokslen(tokens)) {
-        char specifier[100] = "";
+        char specifier[MAX_LINE_LEN] = "";
         repeat_char(' ', tokens[ind - 1].col, specifier);
         strncat(specifier, "^", 1);
         printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno + 1, err, tokens[ind - 1].line, specifier);
@@ -38,7 +38,7 @@ void consume(TokenType type, char err[100], char buffer[150]) {
         return;
     }
     if (tokens[ind].type == type) {
-        strcpy(buffer, tokens[ind++].value);
+        strncpy(buffer, tokens[ind++].value, MAX_NAME_LEN);
         return;
     }
     char specifier[100] = "";

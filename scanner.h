@@ -1,6 +1,9 @@
 #ifndef SCANNER_H
 #define SCANNER_H
 
+#define MAX_LINE_LEN 1024
+#define MAX_NAME_LEN 128
+
 typedef enum {
     T_INT = 200,
     T_REAL,
@@ -49,9 +52,9 @@ typedef enum {
 
 typedef struct {
     int type;
-    char value[86];
+    char value[MAX_NAME_LEN];
     int col;
-    char line[1024];
+    char line[MAX_LINE_LEN];
     int lineno;
 } Token;
 
