@@ -2,6 +2,7 @@
 
 #define MAX_NAME_LEN  128
 #define MAX_TYPE_LEN  8
+#define MAX_OPER_LEN 3
 
 struct Node;
 
@@ -33,5 +34,5 @@ typedef struct {
     NodeType n_type;
     Node* left;
     Node* right;
-    char oper[3];
+    char oper[MAX_OPER_LEN];
 } Operator_node;

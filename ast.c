@@ -32,7 +32,7 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right) {
     Operator_node* op = malloc(sizeof(Operator_node));
     memset(op, 0, sizeof(Operator_node));
 
-    strncpy(op->oper, oper, MAX_NAME_LEN);
+    strncpy(op->oper, oper, MAX_OPER_LEN);
     op->left = left;
     op->right = right;
     return op;
