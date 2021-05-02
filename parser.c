@@ -227,7 +227,7 @@ Node* incomplete_var_declaration(int start) {
     Symbol* s = new_symbol("var", id, type, 0);
     if (contains_symbol(s)) {
         char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start].col, specifier);
+        repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 1);
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
@@ -266,7 +266,7 @@ Node* var_declaration(int start) {
     Symbol* s = new_symbol("var", id, type, 0);
     if (contains_symbol(s)) {
         char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start - 4].col, specifier);
+        repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 1);
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
