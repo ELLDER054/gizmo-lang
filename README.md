@@ -3,19 +3,9 @@ Gizmo is a fast and strongly typed language, and sometimes those types of langua
 
 Take this example:
 
-```cpp
-class Bird() {
-    init() {
-        string this.home = "New York";
-    }
-    
-    none flyTo(string city) {
-        write("Flying to " + city);
-        this.home = city;
-    }
+```rust
+string greet(string name) {
+    write("Hello, " + name + "!");
 }
-Bird bird = new Bird();
-write(bird.city);
-bird.flyTo("New Jersey");
-write(bird.city);
+greet("World");
 ```
