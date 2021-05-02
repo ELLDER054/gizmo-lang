@@ -3,13 +3,42 @@
 #include <stdlib.h>
 #include "ast.h"
 
-void print_oper(Node* n) {
-    printf("%s\n", ((Operator_node*) n)->oper);
+void print_node(Node* n);
+
+void print_oper(Operator_node* n) {
+    printf("(OPER_NODE, %s, ", n->oper);
+    print_node(n->left);
+    printf(", ");
+    print_node(n->right);
+    printf(")");
+}
+
+void print_int(Integer_node* i) {
+    printf("(INT_NODE, %d)", i->value);
+}
+
+void print_var(Var_declaration_node* v);
+
+void print_node(Node* n) {
+    switch (n->n_type) {
+        case VAR_DECLARATION_NODE:
+            print_var((Var_declaration_node*) n);
+            break;
+        case OPERATOR_NODE:
+            print_oper((Operator_node*) n);
+            break;
+        case INTEGER_NODE:
+            print_int((Integer_node*) n);
+            break;
+        case NODE_NODE:
+            break;
+    }
 }
 
 void print_var(Var_declaration_node* v) {
-    printf("variable: %s, %s, ", v->type, v->name);
-    print_oper(v->value);
+    printf("(VAR_NODE, %s, %s, ", v->type, v->name);
+    print_node(v->value);
+    printf(")");
 }
 
 Var_declaration_node* new_Var_declaration_node(char* type, char* name, Node* value) {
