@@ -27,9 +27,9 @@ int tokslen(Token* tokens) {
 void consume(TokenType type, char* err, char* buffer) {
     if (ind >= tokslen(tokens)) {
         char specifier[MAX_LINE_LEN] = "";
-        repeat_char(' ', tokens[ind - 1].col, specifier);
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno + 1, err, tokens[ind - 1].line, specifier);
+        printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
         exit(0);
         return;
     }
@@ -38,11 +38,10 @@ void consume(TokenType type, char* err, char* buffer) {
         return;
     }
     char specifier[100] = "";
-    repeat_char(' ', tokens[ind - 1].col, specifier);
+    repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
     strncat(specifier, "^", 1);
-    printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno + 1, err, tokens[ind - 1].line, specifier);
+    printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
     exit(0);
-    return;
 }
 
 char* expect_type(TokenType type) {
@@ -87,9 +86,9 @@ Node* expression2(int start) {
     Node* expr = expression(ind);
     if (expr == NULL) {
         char specifier[100] = "";
-        repeat_char(' ', tokens[ind].col, specifier);
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
+        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
     return (Node*) new_Operator_node("+", t, expr);
@@ -135,9 +134,9 @@ Node* term2(int start) {
     Node* t = term(ind);
     if (t == NULL) {
         char specifier[100] = "";
-        repeat_char(' ', tokens[ind].col, specifier);
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
+        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
     return (Node*) new_Operator_node("*", f, t);
@@ -169,12 +168,11 @@ Node* incomplete_var_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        ind = start;
         char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[ind].col, specifier);
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
-        return NULL;
+        printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+        exit(0);
     }
     char* end = expect_type(T_SEMI_COLON);
     if (end == NULL) {
@@ -199,23 +197,21 @@ Node* var_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        ind = start;
         char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[ind].col, specifier);
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
-        return NULL;
+        printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+        exit(0);
     }
     char b[MAX_NAME_LEN];
     consume(T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
     Node* expr = expression(ind);
     if (expr == NULL) {
-        ind = start;
         char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[ind].col, specifier);
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\nExpected expression after assignment operator\n%s\n%s\n", tokens[ind].lineno, tokens[ind].line, specifier);
-        return NULL;
+        printf("On line %d:\nExpected expression after assignment operator\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+        exit(0);
     }
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
     return (Node*) new_Var_declaration_node(id, type, expr);

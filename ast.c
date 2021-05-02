@@ -37,7 +37,11 @@ void print_node(Node* n) {
 
 void print_var(Var_declaration_node* v) {
     printf("(VAR_NODE, %s, %s, ", v->type, v->name);
-    print_node(v->value);
+    if (NULL == v->value) {
+        printf("NULL");
+    } else {
+        print_node(v->value);
+    }
     printf(")");
 }
 
