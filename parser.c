@@ -19,6 +19,17 @@ typedef struct {
 int sym_c = 0;
 Symbol* symbol_table[1024];
 
+int contains_symbol(Symbol* s) {
+    for (int i = 0; i < sym_c; i++) {
+        if (!strcmp(symbol_table[i]->name, s->name)) {
+            free(s);
+            return 1;
+        }
+    }
+    free(s);
+    return 0;
+}
+
 Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
     Symbol* s = malloc(sizeof(Symbol));
     s->name = name;
@@ -213,6 +224,14 @@ Node* incomplete_var_declaration(int start) {
             return NULL;
         }
     }
+    Symbol* s = new_symbol("var", id, type, 0);
+    if (contains_symbol(s)) {
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[start].col, specifier);
+        strncat(specifier, "^", 1);
+        printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
+        exit(0);
+    }
     char* info[2] = {id, type};
     push_symbol("var", info, 0);
     return (Node*) new_Var_declaration_node(id, type, NULL);
@@ -244,6 +263,14 @@ Node* var_declaration(int start) {
         exit(0);
     }
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
+    Symbol* s = new_symbol("var", id, type, 0);
+    if (contains_symbol(s)) {
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[start - 4].col, specifier);
+        strncat(specifier, "^", 1);
+        printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
+        exit(0);
+    }
     char* info[2] = {id, type};
     push_symbol("var", info, 0);
     return (Node*) new_Var_declaration_node(id, type, expr);
