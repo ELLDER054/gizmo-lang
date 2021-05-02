@@ -7,13 +7,13 @@
 int ind = 0;
 Token tokens[1024];
 
-void repeat_char(char c, int n, char string[1024]) {
+void repeat_char(char c, int n, char* string) {
     for (int i = 0; i < n; i++) {
         strncat(string, &c, 1);
     }
 }
 
-int tokslen(Token tokens[1024]) {
+int tokslen(Token* tokens) {
     int len = 0;
     for (int i = 0; i < 1024; i++) {
         if (tokens[i].type < 200 || tokens[i].type > 236) {
@@ -24,7 +24,7 @@ int tokslen(Token tokens[1024]) {
     return len;
 }
 
-void consume(TokenType type, char err[100], char* buffer) {
+void consume(TokenType type, char* err, char* buffer) {
     if (ind >= tokslen(tokens)) {
         char specifier[MAX_LINE_LEN] = "";
         repeat_char(' ', tokens[ind - 1].col, specifier);
@@ -237,7 +237,7 @@ Node* statement(int start) {
 
 // end statement parsing
 
-void parse(Token toks[1024], Node** program) {
+void parse(Token* toks, Node** program) {
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];

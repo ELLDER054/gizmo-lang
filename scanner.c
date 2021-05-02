@@ -114,7 +114,7 @@ int split (const char *txt, char delim, char ***tokens) {
     return count;
 }
 
-void repeat_c(char c, int n, char string[1024]) {
+void repeat_c(char c, int n, char* string) {
     for (int i = 0; i < n; i++) {
         strncat(string, &c, 1);
     }
