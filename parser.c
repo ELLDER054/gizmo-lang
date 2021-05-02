@@ -7,6 +7,34 @@
 int ind = 0;
 Token tokens[1024];
 
+// symbol table
+
+typedef struct {
+    char* name;
+    char* type;
+    char* sym_type;
+    int args_len;
+} Symbol;
+
+int sym_c = 0;
+Symbol* symbol_table[1024];
+
+Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
+    Symbol* s = malloc(sizeof(Symbol));
+    s->name = name;
+    s->type = type;
+    s->sym_type = s_type;
+    s->args_len = args_len;
+    return s;
+}
+
+void push_symbol(char* type, char** info, int args_len) {
+    Symbol* sym = new_symbol(type, info[0], info[1], args_len);
+    symbol_table[sym_c++] = sym;
+}
+
+// end symbol table
+
 void repeat_char(char c, int n, char* string) {
     for (int i = 0; i < n; i++) {
         strncat(string, &c, 1);
@@ -185,6 +213,8 @@ Node* incomplete_var_declaration(int start) {
             return NULL;
         }
     }
+    char* info[2] = {id, type};
+    push_symbol("var", info, 0);
     return (Node*) new_Var_declaration_node(id, type, NULL);
 }
 
@@ -214,6 +244,8 @@ Node* var_declaration(int start) {
         exit(0);
     }
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
+    char* info[2] = {id, type};
+    push_symbol("var", info, 0);
     return (Node*) new_Var_declaration_node(id, type, expr);
 }
 
@@ -246,6 +278,12 @@ void parse(Token* toks, Node** program) {
         }
         program[stmt_c++] = stmt;
         printf("success!\n");
+    }
+    for (int i = 0; i < sizeof(symbol_table)/sizeof(Symbol*); i++) {
+        if (NULL != symbol_table[i]) {
+            printf("name = %s, type = %s, kind = %s, len args = %d\n", symbol_table[i]->name, symbol_table[i]->type, symbol_table[i]->sym_type, symbol_table[i]->args_len);
+            free(symbol_table[i]);
+        }
     }
     return;
 }
