@@ -5,7 +5,7 @@
 
 void scan(char code[1024], Token buf_toks[1024]);
 void parse(Token tokens[1024], Node** program);
-void print_var(Var_declaration_node* n);
+void print_node(Node* n);
 void free_node(Node* n);
 
 int main(void) {
@@ -21,7 +21,12 @@ int main(void) {
     memset(program, 0, sizeof(program));
     scan(code, tokens);
     parse(tokens, program);
-    print_var((Var_declaration_node*) program[0]);
+    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
+        if (NULL != program[i]) {
+            print_node(program[i]);
+            printf("\n");
+        }
+    }
     fclose(f);
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         free_node(program[i]);
