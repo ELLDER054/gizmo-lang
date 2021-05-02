@@ -3,7 +3,7 @@ Gizmo is a fast and strongly typed language, and sometimes those types of langua
 
 Take this example:
 
-```rust
+```go
 string greet(string name) {
     write("Hello, " + name + "!");
 }
