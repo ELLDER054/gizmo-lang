@@ -6,6 +6,6 @@ Gizmo is fast and strongly typed (due to it being compiled) and easy to learn.
 You can read [this](https://ellder054.github.io/gizmolang/docs.html) documentation on it.
 If you still need help, go to our [ask](https://ellder054.github.io/gizmolang/ask.html) section.
 
-## I'm Ready to try it!
+### I'm Ready to try it!
 If you are looking to try Gizmo, you're in luck!. Go to [this](https://ellder054.github.io/gizmolang/try-out.html) page.
 Before you try it out, make sure to learn the language first.
