@@ -21,7 +21,7 @@ Symbol* symbol_table[1024];
 
 int contains_symbol(Symbol* s) {
     for (int i = 0; i < sym_c; i++) {
-        if (!strcmp(symbol_table[i]->name, s->name)) {
+        if (!strcmp(symbol_table[i]->name, s->name) && !strcmp(symbol_table[i]->sym_type, s->sym_type)) {
             free(s);
             return 1;
         }

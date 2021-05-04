@@ -1,1 +1,1 @@
-int a = "Hello, World";
+string a = "Hello, World";
