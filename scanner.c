@@ -163,16 +163,21 @@ void scan(char* code, Token* tokens) {
                 col++;
             }
             if (ch == '.' && isDigit(next(code, pos))) {
+                ch = code[++pos];
+                strncat(num, ".", 1);
                 while (isDigit(ch)) {
                     strncat(num, &ch, 1);
                     ch = code[++pos];
                     col++;
-                    if (ch == '.') {
-                        char specifier[1024] = {'\0'};
-                        repeat_c(' ', col, specifier);
-                        strncat(specifier, "^", 1);
-                        printf("On line %d:\nToo many dots in floating point number\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
-                    }
+                }
+                if (ch == '.') {
+                    char specifier[1024] = {'\0'};
+                    repeat_c(' ', col, specifier);
+                    strncat(specifier, "^", 1);
+                    printf("On line %d:\nToo many dots in floating point number\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
+                    exit(0);
+                } else {
+                    tok_type = T_REAL;
                 }
             }
 
@@ -205,7 +210,7 @@ void scan(char* code, Token* tokens) {
             pos++;
             col++;
             ch = code[pos];
-            while (ch != '\n') {
+            while (ch != '\n' && ch != '\0') {
                 ch = code[++pos];
                 col++;
             }
@@ -244,7 +249,7 @@ void scan(char* code, Token* tokens) {
             tok.lineno = lineno;
             tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
-            char string[1024] = {'\0'};
+            char string[1024] = {ch, '\0'};
             char delim = ch;
             TokenType tok_type = T_STR;
 
@@ -256,7 +261,7 @@ void scan(char* code, Token* tokens) {
                     repeat_c(' ', col, specifier);
                     strncat(specifier, "^", 1);
                     printf("On line %d:\nUnterminated string literal\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
-                    return;
+                    exit(0);
                 }
                 strncat(string, &ch, 1);
                 ch = code[++pos];
@@ -270,6 +275,7 @@ void scan(char* code, Token* tokens) {
                 tok_type = T_CHAR;
             }
             tok.type = tok_type;
+            strncat(string, &delim, 1);
             strcpy(tok.value, string);
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
@@ -287,7 +293,7 @@ void scan(char* code, Token* tokens) {
             repeat_c(' ', col, specifier);
             strncat(specifier, "^", 1);
             printf("On line %d:\nUnexpected character `%c`\n%s\n%s\n", lineno, ch, lines[lineno - 1], specifier);
-            return;
+            exit(0);
         }
     }
 

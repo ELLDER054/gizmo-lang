@@ -17,6 +17,14 @@ void print_int(Integer_node* i) {
     printf("(INT_NODE, %d)", i->value);
 }
 
+void print_real(Real_node* r) {
+    printf("(REAL_NODE, %f)", r->value);
+}
+
+void print_str(String_node* s) {
+    printf("(STR_NODE, %s)", s->value);
+}
+
 void print_var(Var_declaration_node* v);
 
 void print_node(Node* n) {
@@ -29,6 +37,12 @@ void print_node(Node* n) {
             break;
         case INTEGER_NODE:
             print_int((Integer_node*) n);
+            break;
+        case STRING_NODE:
+            print_str((String_node*) n);
+            break;
+        case REAL_NODE:
+            print_real((Real_node*) n);
             break;
         case NODE_NODE:
             break;
@@ -96,6 +110,32 @@ void free_Integer_node(Integer_node *n) {
     free(n);
 }
 
+Real_node* new_Real_node(double val) {
+    Real_node* real = malloc(sizeof(Real_node));
+    memset(real, 0, sizeof(Real_node));
+
+    real->n_type = REAL_NODE;
+    real->value = val;
+    return real;
+}
+
+void free_Real_node(Real_node *n) {
+    free(n);
+}
+
+String_node* new_String_node(char* val) {
+    String_node* str = malloc(sizeof(String_node));
+    memset(str, 0, sizeof(String_node));
+
+    str->n_type = STRING_NODE;
+    str->value = val;
+    return str;
+}
+
+void free_String_node(String_node *n) {
+    free(n);
+}
+
 void free_node(Node* n) {
     if (NULL == n) {
         return;
@@ -104,6 +144,12 @@ void free_node(Node* n) {
         case INTEGER_NODE:
             free_Integer_node((Integer_node*) n);
             break;
+        case STRING_NODE:
+            free_String_node((String_node*) n);
+            break;
+        case REAL_NODE:
+            free_Real_node((Real_node*) n);
+            break;
         case VAR_DECLARATION_NODE:
             free_Var_declaration_node((Var_declaration_node*) n);
             break;
@@ -111,7 +157,6 @@ void free_node(Node* n) {
             free_Operator_node((Operator_node*) n);
             break;
         case NODE_NODE:
-            printf("ERROR: Should never see this!\n");
             break;
     }
 }

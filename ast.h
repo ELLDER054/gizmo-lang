@@ -13,8 +13,18 @@ typedef enum {
     VAR_DECLARATION_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
+    STRING_NODE,
+    REAL_NODE,
     NODE_NODE,
 } NodeType;
+
+typedef enum {
+    INT_TYPE,
+    STRING_TYPE,
+    CHAR_TYPE,
+    BOOL_TYPE,
+    REAL_TYPE,
+} Type;
 
 typedef struct {
     NodeType n_type;
@@ -31,18 +41,34 @@ typedef struct {
 typedef struct {
     NodeType n_type;
     int value;
+    Type type;
 } Integer_node;
+
+typedef struct {
+    NodeType n_type;
+    double value;
+    Type type;
+} Real_node;
+
+typedef struct {
+    NodeType n_type;
+    char* value;
+    Type type;
+} String_node;
 
 typedef struct {
     NodeType n_type;
     Node* left;
     Node* right;
     char oper[MAX_OPER_LEN];
+    Type type;
 } Operator_node;
 
 void free_node(Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* type, Node* value);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
+String_node* new_String_node(char* val);
+Real_node* new_Real_node(double val);
 
 #endif

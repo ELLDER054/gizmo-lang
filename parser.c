@@ -153,6 +153,14 @@ Node* factor(int start) {
     if (integer != NULL) {
         return (Node*) new_Integer_node(atoi(integer));
     }
+    char* string = expect_type(T_STR);
+    if (string != NULL) {
+        return (Node*) new_String_node(string);
+    }
+    char* real = expect_type(T_REAL);
+    if (real != NULL) {
+        return (Node*) new_Real_node(strtod(real, NULL));
+    }
     ind = start;
     return NULL;
 }
