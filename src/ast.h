@@ -15,6 +15,7 @@ typedef enum {
     INTEGER_NODE,
     STRING_NODE,
     REAL_NODE,
+    ID_NODE,
     NODE_NODE,
 } NodeType;
 
@@ -37,6 +38,11 @@ typedef struct {
     char name[MAX_NAME_LEN];
     Node* value;
 } Var_declaration_node;
+
+typedef struct {
+    NodeType n_type;
+    char* name;
+} Identifier_node;
 
 typedef struct {
     NodeType n_type;
@@ -70,5 +76,6 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
 Real_node* new_Real_node(double val);
+Identifier_node new_Id_node(char* name);
 
 #endif
