@@ -323,7 +323,7 @@ Node* incomplete_var_declaration(int start) {
 
 Node* var_declaration(int start) {
     ind = start;
-    char* type = expect_type(T_TYPE);
+    char* var_type = expect_type(T_TYPE);
     if (type == NULL) {
         ind = start;
         return NULL;
@@ -355,16 +355,16 @@ Node* var_declaration(int start) {
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
-    if (strcmp(type(expr), type)) {
+    if (strcmp(type(expr), var_type)) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\nType of value(%s) must match type given(%s) for variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, type(expr), type, tokens[start + 1].value, tokens[start + 1].line, specifier);
+        printf("On line %d:\nType of value(%s) must match type given(%s) for variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, type(expr), var_type, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
-    char* info[2] = {id, type};
+    char* info[2] = {id, var_type};
     push_symbol("var", info, 0);
-    return (Node*) new_Var_declaration_node(id, type, expr);
+    return (Node*) new_Var_declaration_node(id, var_type, expr);
 }
 
 Node* statement(int start) {
