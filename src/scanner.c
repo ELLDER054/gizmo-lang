@@ -42,7 +42,7 @@ int one_char_tokens(char c) {
 }
 
 char next(char* code, int pos) {
-    if (pos + 1 >= strlen(code)) {
+    if (pos + 1 >= sizeof(code)) {
         return '_';
     }
     return code[pos + 1];
