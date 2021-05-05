@@ -236,6 +236,10 @@ Node* factor(int start) {
     if (real != NULL) {
         return (Node*) new_Real_node(strtod(real, NULL));
     }
+    char* id = expected_type(T_ID);
+    if (real != NULL) {
+        return (Node*) new_Id_node(id);
+    }
     ind = start;
     return NULL;
 }
