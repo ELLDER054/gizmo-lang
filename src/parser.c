@@ -126,6 +126,8 @@ char* type(Node* n) {
             return t;
         case VAR_DECLARATION_NODE:
             break;
+        case ID_NODE:
+            strcpy(t, sym_find(((Identifier_node*) n)->name));
         case NODE_NODE:
             break;
     }
