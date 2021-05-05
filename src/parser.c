@@ -109,6 +109,80 @@ Node* term2(int start);
 Node* factor(int start);
 
 // begin expressions parsing
+
+char* type(Node* n) {
+    char t[MAX_TYPE_LEN];
+    switch (n->n_type) {
+        case OPERATOR_NODE:
+            return type(((Operator_node*) n)->left);
+        case INTEGER_NODE:
+            strcpy(t, "int");
+            return t;
+        case STRING_NODE:
+            strcpy(t, "string");
+            return t;
+        case REAL_NODE:
+            strcpy(t, "real");
+            return t;
+        case VAR_DECLARATION_NODE:
+            break;
+        case NODE_NODE:
+            break;
+    }
+    return NULL;
+}
+
+void check_type(Node* left, Node* right, char* oper) {
+    if (!strcmp(oper, "+")) {
+        if (!strcmp(type(left), "int")) {
+            if (strcmp(type(right), "int")) {
+                char specifier[MAX_LINE_LEN] = "";
+                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+                strncat(specifier, "^", 1);
+                printf("On line %d:\nExpected integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
+            }
+        }
+        if (!strcmp(type(left), "string")) {
+            if (strcmp(type(right), "string")) {
+                char specifier[MAX_LINE_LEN] = "";
+                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+                strncat(specifier, "^", 1);
+                printf("On line %d:\nExpected string on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
+            }
+        }
+        if (!strcmp(type(left), "real")) {
+            if (strcmp(type(right), "real")) {
+                char specifier[MAX_LINE_LEN] = "";
+                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+                strncat(specifier, "^", 1);
+                printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
+            }
+        }
+    } else {
+        if (!strcmp(type(left), "int")) {
+            if (strcmp(type(right), "int")) {
+                char specifier[MAX_LINE_LEN] = "";
+                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+                strncat(specifier, "^", 1);
+                printf("On line %d:\nExpected integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
+            }
+        }
+        if (!strcmp(type(left), "real")) {
+            if (strcmp(type(right), "real")) {
+                char specifier[MAX_LINE_LEN] = "";
+                repeat_char(' ', tokens[ind - 1].col, specifier);
+                strncat(specifier, "^", 1);
+                printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
+            }
+        }
+    }
+}
+
 Node* expression2(int start) {
     ind = start;
     Node* t = term(start);
@@ -130,6 +204,7 @@ Node* expression2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
+    check_type(t, expr, "+");
     return (Node*) new_Operator_node("+", t, expr);
 }
 
@@ -186,6 +261,7 @@ Node* term2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
+    check_type(f, t, "*");
     return (Node*) new_Operator_node("*", f, t);
 }
 
