@@ -16,7 +16,7 @@ int main(void) {
 
     FILE* f = fopen("test.gizmo", "r");
     fread(code, 1, sizeof(code), f);
-    Token tokens[strlen(code)];
+    Token tokens[sizeof(code)];
     Node* program[1024];
     memset(program, 0, sizeof(program));
     scan(code, tokens);
