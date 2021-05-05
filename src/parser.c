@@ -111,19 +111,15 @@ Node* factor(int start);
 // begin expressions parsing
 
 char* type(Node* n) {
-    char t[MAX_TYPE_LEN];
     switch (n->n_type) {
         case OPERATOR_NODE:
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
-            strcpy(t, "int");
-            return t;
+            return "int";
         case STRING_NODE:
-            strcpy(t, "string");
-            return t;
+            return "string";
         case REAL_NODE:
-            strcpy(t, "real");
-            return t;
+            return "real";
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
