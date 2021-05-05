@@ -21,7 +21,7 @@ int one_char_tokens(char c) {
             return T_LEFT_PAREN;
         case ')':
             return T_RIGHT_PAREN;
-        case '[:
+        case '[':
             return T_LEFT_BRACKET;
         case ']':
             return T_RIGHT_BRACKET;
