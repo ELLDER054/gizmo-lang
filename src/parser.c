@@ -324,7 +324,7 @@ Node* incomplete_var_declaration(int start) {
 Node* var_declaration(int start) {
     ind = start;
     char* var_type = expect_type(T_TYPE);
-    if (type == NULL) {
+    if (var_type == NULL) {
         ind = start;
         return NULL;
     }
@@ -347,7 +347,7 @@ Node* var_declaration(int start) {
         exit(0);
     }
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
-    Symbol* s = new_symbol("var", id, type, 0);
+    Symbol* s = new_symbol("var", id, var_type, 0);
     if (contains_symbol(s)) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
