@@ -16,26 +16,27 @@ int is_one_char_token(char c) {
 }
 
 int one_char_tokens(char c) {
-    if (c == '(') {
-        return T_LEFT_PAREN;
-    } else if (c == ')') {
-        return T_RIGHT_PAREN;
-    } else if (c == '[') {
-        return T_LEFT_BRACKET;
-    } else if (c == ']') {
-        return T_RIGHT_BRACKET;
-    } else if (c == '{') {
-        return T_LEFT_BRACE;
-    } else if (c == '}') {
-        return T_RIGHT_BRACE;
-    } else if (c == '.') {
-        return T_DOT;
-    } else if (c == ',') {
-        return T_COMMA;
-    } else if (c == ':') {
-        return T_COLON;
-    } else if (c == ';') {
-        return T_SEMI_COLON;
+    switch(c) {
+        case '(':
+            return T_LEFT_PAREN;
+        case ')':
+            return T_RIGHT_PAREN;
+        case '[:
+            return T_LEFT_BRACKET;
+        case ']':
+            return T_RIGHT_BRACKET;
+        case '{':
+            return T_LEFT_BRACE;
+        case '}':
+            return T_RIGHT_BRACE;
+        case '.':
+            return T_DOT;
+        case ',':
+            return T_COMMA;
+        case ':':
+            return T_COLON;
+        case ';':
+            return T_SEMI_COLON;
     }
     return 0;
 }
