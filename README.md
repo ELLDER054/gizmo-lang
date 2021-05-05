@@ -10,8 +10,8 @@ If you still need help, go to our [ask](https://ellder054.github.io/gizmolang/as
 If you are looking to try Gizmo, you're in luck!. Go to [this](https://ellder054.github.io/gizmolang/try-out.html) page.
 Before you try it out, make sure to learn the language first.
 
-### How do I help?
+### How can I help?
 Contributions are permitted in the development of Gizmo. Some ways to help are:
 1. Fix issues and help design our website.
 2. Create helpful packages and modules for others to use.
-3. Get support for gizmo on your favorite IDE if it doesn't already have it.
+3. Get support for gizmo on your favorite IDE if it isn't already supported.
