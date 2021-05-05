@@ -13,6 +13,10 @@ void print_oper(Operator_node* n) {
     printf(")");
 }
 
+void print_id(Identifier_node* n) {
+    printf("(ID_NODE, %s)", n->name);
+}
+
 void print_int(Integer_node* i) {
     printf("(INT_NODE, %d)", i->value);
 }
@@ -40,6 +44,9 @@ void print_node(Node* n) {
             break;
         case STRING_NODE:
             print_str((String_node*) n);
+            break;
+        case ID_NODE:
+            print_id((Identifier_node*) n);
             break;
         case REAL_NODE:
             print_real((Real_node*) n);
@@ -91,10 +98,22 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right) {
     return op;
 }
 
-void free_Operator_node(Operator_node *n) {
+void free_Operator_node(Operator_node* n) {
     free_node(n->left);
     free_node(n->right);
     free(n);
+}
+
+Identifier_node* new_Identifier_node(char* name) {
+    Identifier_node* i = malloc(sizeof(Identifier_node));
+    memset(op, 0, sizeof(Operator_node));
+    
+    strcpy(i->name, name);
+    return i;
+}
+
+void free_Identifier_node(Identifier_node* i) {
+    free(i);
 }
 
 Integer_node* new_Integer_node(int val) {
@@ -155,6 +174,9 @@ void free_node(Node* n) {
             break;
         case OPERATOR_NODE:
             free_Operator_node((Operator_node*) n);
+            break;
+        case ID_NODE:
+            free_Identifier_node((Identifier_node*) n);
             break;
         case NODE_NODE:
             break;
