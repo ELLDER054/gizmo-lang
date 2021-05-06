@@ -26,4 +26,9 @@ cd gizmo-lang
 ```
 By default code is read from the `test.gizmo` file.  
 If you want to change this, enter the `src` directory and enter `compiler.c`.  
-Replace all `test.gizmo`'s with what ever file you are trying to execute it on.
+Replace all `test.gizmo`'s with what ever file you are trying to execute it on.  
+  
+To make sure you have the most recent version of Gizmo, run the following.
+```shell
+git pull https://github.com/ellder054/gizmo-lang
+```
