@@ -47,19 +47,16 @@ typedef struct {
 typedef struct {
     NodeType n_type;
     int value;
-    Type type;
 } Integer_node;
 
 typedef struct {
     NodeType n_type;
     double value;
-    Type type;
 } Real_node;
 
 typedef struct {
     NodeType n_type;
     char* value;
-    Type type;
 } String_node;
 
 typedef struct {
@@ -67,7 +64,6 @@ typedef struct {
     Node* left;
     Node* right;
     char oper[MAX_OPER_LEN];
-    Type type;
 } Operator_node;
 
 void free_node(Node* n);
@@ -76,6 +72,6 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
 Real_node* new_Real_node(double val);
-Identifier_node new_Id_node(char* name);
+Identifier_node new_Identifier_node(char* name);
 
 #endif
