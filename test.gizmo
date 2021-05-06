@@ -1,1 +1,2 @@
 string a = "Hello, World";
+int b = a;
