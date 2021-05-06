@@ -276,7 +276,7 @@ Node* term2(int start) {
     char* times = expect_type(T_TIMES);
     if (times == NULL) {
         ind = start;
-        free_node(f);
+        // free_node(f);
         return NULL;
     }
     Node* t = term(ind);
