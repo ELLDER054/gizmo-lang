@@ -18,7 +18,8 @@ Contributors are always welcome! Some ways to help are:
 
 ## Building Gizmo From Source
 Warning: If you build Gizmo now, there is a chance that Gizmo will be updated and you will not have the most recent version.
-Run this code in your terminal to build Gizmo.
+Make sure git is installed in your terminal.
+Once you have, run this code in your terminal to build Gizmo.
 
 ```shell
 git clone https://github.com/ellder054/gizmo-lang
