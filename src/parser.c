@@ -149,7 +149,6 @@ char* type(Node* n) {
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
-            printf("TESTING ID\n");
             return sym_find(((Identifier_node*) n)->name)->type;
         case NODE_NODE:
             break;
@@ -424,11 +423,9 @@ void parse(Token* toks, Node** program) {
             break;
         }
         program[stmt_c++] = stmt;
-        printf("success!\n");
     }
     for (int i = 0; i < sizeof(symbol_table) / sizeof(Symbol*); i++) {
         if (NULL != symbol_table[i]) {
-            printf("name = %s, type = %s, kind = %s, len args = %d\n", symbol_table[i]->name, symbol_table[i]->type, symbol_table[i]->sym_type, symbol_table[i]->args_len);
             free(symbol_table[i]);
         }
     }
