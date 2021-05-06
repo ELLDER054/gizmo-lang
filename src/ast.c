@@ -106,7 +106,7 @@ void free_Operator_node(Operator_node* n) {
 
 Identifier_node* new_Identifier_node(char* name) {
     Identifier_node* i = malloc(sizeof(Identifier_node));
-    memset(op, 0, sizeof(Operator_node));
+    memset(i, 0, sizeof(Identifier_node));
     
     strcpy(i->name, name);
     return i;
