@@ -134,6 +134,9 @@ Node* factor(int start);
 // begin expressions parsing
 
 char* type(Node* n) {
+    if (n == NULL) {
+        return NULL;
+    }
     switch (n->n_type) {
         case OPERATOR_NODE:
             return type(((Operator_node*) n)->left);
