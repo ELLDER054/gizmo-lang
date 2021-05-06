@@ -108,6 +108,7 @@ Identifier_node* new_Identifier_node(char* name) {
     Identifier_node* i = malloc(sizeof(Identifier_node));
     memset(i, 0, sizeof(Identifier_node));
     
+    i->n_type = ID_NODE;
     strcpy(i->name, name);
     return i;
 }
