@@ -93,7 +93,7 @@ int contains_symbol(Symbol* s) {
 Symbol* new_symbol(char* s_type, char* name, char* type, int args_len);
 
 Symbol* sym_find(char* name) {
-    Symbol* s = new_symbol(NULL, name, NULL, NULL);
+    Symbol* s = new_symbol(NULL, name, NULL, 0);
     if (contains_symbol(s)) {
         for (int i = 0; i < sym_c; i++) {
             if (!strcmp(symbol_table[i]->name, name)) {
