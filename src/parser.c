@@ -146,6 +146,7 @@ char* type(Node* n) {
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
+            printf("TESTING ID\n");
             return sym_find(((Identifier_node*) n)->name)->type;
         case NODE_NODE:
             break;
