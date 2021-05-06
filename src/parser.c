@@ -137,7 +137,6 @@ char* type(Node* n) {
     if (n == NULL) {
         return NULL;
     }
-    printf("%d\n", n == NULL);
     switch (n->n_type) {
         case OPERATOR_NODE:
             return type(((Operator_node*) n)->left);
@@ -376,6 +375,7 @@ Node* var_declaration(int start) {
         printf("On line %d:\nExpected expression after assignment operator\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
+    printf("%d", expr->n_type);
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
     Symbol* s = new_symbol("var", id, var_type, 0);
     if (contains_symbol(s)) {
