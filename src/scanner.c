@@ -301,7 +301,7 @@ void scan(char* code, Token* tokens) {
         }
     }
 
-    for (int i = 0; i < strlen(code); i++) {
+    /*for (int i = 0; i < strlen(code); i++) {
         if (tokens[i].type < 200 || tokens[i].type > 238) {
             break;
         }
@@ -310,7 +310,7 @@ void scan(char* code, Token* tokens) {
         printf(", %s", tokens[i].line);
         printf(", %d", tokens[i].lineno);
         printf(", %d\n", tokens[i].col);
-    }
+    }*/
     for (i = 0; i < count; i++) free (lines[i]);
     free(lines);
 }
