@@ -137,6 +137,7 @@ char* type(Node* n) {
     if (n == NULL) {
         return NULL;
     }
+    printf("%d", n->n_type);
     switch (n->n_type) {
         case OPERATOR_NODE:
             return type(((Operator_node*) n)->left);
