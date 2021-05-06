@@ -72,6 +72,6 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
 Real_node* new_Real_node(double val);
-Identifier_node new_Identifier_node(char* name);
+Identifier_node* new_Identifier_node(char* name);
 
 #endif
