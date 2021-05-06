@@ -206,7 +206,6 @@ void scan(char* code, Token* tokens) {
             ch = code[pos];
             col += 2;
             while (1) {
-                printf("%d\n", col);
                 if (ch != '\\' && next(code, pos) != ')') {
                     break;
                 } else if (ch == '\0') {
