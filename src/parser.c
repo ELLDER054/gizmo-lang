@@ -7,6 +7,66 @@
 int ind = 0;
 Token tokens[1024];
 
+// begin helper functions
+
+void repeat_char(char c, int n, char* string) {
+    for (int i = 0; i < n; i++) {
+        strncat(string, &c, 1);
+    }
+}
+
+int tokslen(Token* tokens) {
+    int len = 0;
+    for (int i = 0; i < 1024; i++) {
+        if (tokens[i].type < 200 || tokens[i].type > 236) {
+            break;
+        }
+        len++;
+    }
+    return len;
+}
+
+void consume(TokenType type, char* err, char* buffer) {
+    if (ind >= tokslen(tokens)) {
+        char specifier[MAX_LINE_LEN] = "";
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+        strncat(specifier, "^", 1);
+        printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
+        exit(0);
+    }
+    if (tokens[ind].type == type) {
+        strncpy(buffer, tokens[ind++].value, MAX_NAME_LEN);
+        return;
+    }
+    char specifier[100] = "";
+    repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+    strncat(specifier, "^", 1);
+    printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
+    exit(0);
+}
+
+char* expect_type(TokenType type) {
+    if (ind >= tokslen(tokens)) {
+        return NULL;
+    }
+    if (tokens[ind].type == type) {
+        return tokens[ind++].value;
+    }
+    return NULL;
+}
+
+TokenType expect_value(char* val) {
+    if (ind >= tokslen(tokens)) {
+        return 0;
+    }
+    if (!strcmp(tokens[ind].value, val)) {
+        return tokens[ind++].type;
+    }
+    return 0;
+}
+
+// end helper functions
+
 // symbol table
 
 typedef struct {
@@ -65,62 +125,6 @@ void push_symbol(char* type, char** info, int args_len) {
 
 // end symbol table
 
-void repeat_char(char c, int n, char* string) {
-    for (int i = 0; i < n; i++) {
-        strncat(string, &c, 1);
-    }
-}
-
-int tokslen(Token* tokens) {
-    int len = 0;
-    for (int i = 0; i < 1024; i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 236) {
-            break;
-        }
-        len++;
-    }
-    return len;
-}
-
-void consume(TokenType type, char* err, char* buffer) {
-    if (ind >= tokslen(tokens)) {
-        char specifier[MAX_LINE_LEN] = "";
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
-        printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
-        exit(0);
-    }
-    if (tokens[ind].type == type) {
-        strncpy(buffer, tokens[ind++].value, MAX_NAME_LEN);
-        return;
-    }
-    char specifier[100] = "";
-    repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-    strncat(specifier, "^", 1);
-    printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
-    exit(0);
-}
-
-char* expect_type(TokenType type) {
-    if (ind >= tokslen(tokens)) {
-        return NULL;
-    }
-    if (tokens[ind].type == type) {
-        return tokens[ind++].value;
-    }
-    return NULL;
-}
-
-TokenType expect_value(char* val) {
-    if (ind >= tokslen(tokens)) {
-        return 0;
-    }
-    if (!strcmp(tokens[ind].value, val)) {
-        return tokens[ind++].type;
-    }
-    return 0;
-}
-
 Node* expression(int start);
 Node* term(int start);
 Node* term2(int start);
@@ -141,7 +145,7 @@ char* type(Node* n) {
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
-            strcpy(t, sym_find(((Identifier_node*) n)->name)->type);
+            return sym_find(((Identifier_node*) n)->name)->type;
         case NODE_NODE:
             break;
     }
@@ -155,7 +159,8 @@ void check_type(Node* left, Node* right, char* oper) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
                 strncat(specifier, "^", 1);
-                printf("On line %d:\nExpected integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                printf("On line %d:\n
+                       integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
         }
@@ -252,7 +257,7 @@ Node* factor(int start) {
     if (real != NULL) {
         return (Node*) new_Real_node(strtod(real, NULL));
     }
-    char* id = expected_type(T_ID);
+    char* id = expect_type(T_ID);
     if (real != NULL) {
         return (Node*) new_Id_node(id);
     }
