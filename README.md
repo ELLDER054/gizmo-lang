@@ -8,7 +8,7 @@ If you still need help, go to our [ask](https://ellder054.github.io/gizmolang/as
 
 ### I'm Ready to Try it!
 If you are looking to try Gizmo, you're in luck!.  
-Go to [this](https://ellder054.github.io/gizmolang/try_it.html) Gizmo Code editor with syntax highlighting or [build Gizmo from source](#-building-gizmo-from-source).
+Go to [this](https://ellder054.github.io/gizmolang/try_it.html) Gizmo Code editor with syntax highlighting or [build Gizmo from source](https://github.com/ELLDER054/gizmo-lang/blob/main/README.md#building-gizmo-from-source).
 
 ### How Can I Help?
 Contributors are always welcome! Some ways to help are:  
