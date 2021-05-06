@@ -388,7 +388,7 @@ Node* var_declaration(int start) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 1);
-        printf("On line %d:\nType of value(%s) must match type given(%s) for variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, type(expr), var_type, tokens[start + 1].value, tokens[start + 1].line, specifier);
+        printf("On line %d:\nFor variable `%s`\nCannot set value of type %s to variable of type %s\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, type(expr), var_type, tokens[start + 1].line, specifier);
         exit(0);
     }
     char* info[2] = {id, var_type};
