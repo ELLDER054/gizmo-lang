@@ -21,13 +21,32 @@ Symbol* symbol_table[1024];
 
 int contains_symbol(Symbol* s) {
     for (int i = 0; i < sym_c; i++) {
-        if (!strcmp(symbol_table[i]->name, s->name) && !strcmp(symbol_table[i]->sym_type, s->sym_type)) {
+        if (!strcmp(symbol_table[i]->name, s->name)) {
             free(s);
             return 1;
         }
     }
     free(s);
     return 0;
+}
+
+Symbol* new_symbol(char* s_type, char* name, char* type, int args_len);
+
+Symbol* sym_find(char* name) {
+    Symbol* s = new_symbol(NULL, name, NULL, NULL);
+    if (contains_symbol(s)) {
+        for (int i = 0; i < sym_c; i++) {
+            if (!strcmp(symbol_table[i]->name, name)) {
+                return symbol_table[i];
+            }
+        }
+    } else {
+        char specifier[MAX_LINE_LEN] = "";
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+        strncat(specifier, "^", 1);
+        printf("On line %d:\nUndefined name `%s`\n%s\n%s\n", tokens[ind - 1].lineno, name, tokens[ind - 1].line, specifier);
+        exit(0);
+    }
 }
 
 Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
@@ -70,7 +89,6 @@ void consume(TokenType type, char* err, char* buffer) {
         strncat(specifier, "^", 1);
         printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
         exit(0);
-        return;
     }
     if (tokens[ind].type == type) {
         strncpy(buffer, tokens[ind++].value, MAX_NAME_LEN);
@@ -123,7 +141,7 @@ char* type(Node* n) {
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
-            strcpy(t, sym_find(((Identifier_node*) n)->name));
+            strcpy(t, sym_find(((Identifier_node*) n)->name)->type);
         case NODE_NODE:
             break;
     }
