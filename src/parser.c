@@ -215,7 +215,7 @@ Node* expression2(int start) {
     char* plus = expect_type(T_PLUS);
     if (plus == NULL) {
         ind = start;
-        free_node(t);
+        // free_node(t);
         return NULL;
     }
     Node* expr = expression(ind);
