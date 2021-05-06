@@ -107,6 +107,7 @@ Symbol* sym_find(char* name) {
         printf("On line %d:\nUndefined name `%s`\n%s\n%s\n", tokens[ind - 1].lineno, name, tokens[ind - 1].line, specifier);
         exit(0);
     }
+    return NULL;
 }
 
 Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
