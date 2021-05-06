@@ -109,7 +109,7 @@ Identifier_node* new_Identifier_node(char* name) {
     memset(i, 0, sizeof(Identifier_node));
     
     i->n_type = ID_NODE;
-    strcpy(i->name, name);
+    strncpy(i->name, name, MAX_NAME_LEN);
     return i;
 }
 
