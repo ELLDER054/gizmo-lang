@@ -1,24 +1,26 @@
 # The Gizmo Programming Language
-Gizmo is a small, user-friendly programming language. See the main website [here](https://ellder054.github.io/gizmolang/) to learn more.
+Gizmo is a small, user-friendly programming language.  
+See the main website [here](https://ellder054.github.io/gizmolang/) to learn more.
 
 ### How Would I Learn Gizmo?
-You can read [this](https://ellder054.github.io/gizmolang/docs.html) documentation on it.
+You can read [this](https://ellder054.github.io/gizmolang/docs.html) documentation on it.  
 If you still need help, go to our [ask](https://ellder054.github.io/gizmolang/ask.html) section.
 
 ### I'm Ready to Try it!
-If you are looking to try Gizmo, you're in luck!. Go to [this](https://ellder054.github.io/gizmolang/try_it.html) Gizmo Code editor with syntax highlighting or build Gizmo from source.
+If you are looking to try Gizmo, you're in luck!.  
+Go to [this](https://ellder054.github.io/gizmolang/try_it.html) Gizmo Code editor with syntax highlighting or [build Gizmo from source](#-building-gizmo-from-source).
 
 ### How Can I Help?
-Contributors are always welcome! Some ways to help are:
-1. Fix issues and help design our website.
-2. Create helpful packages and modules for others to use.
-3. Get support for gizmo on your favorite IDE if it isn't already supported.
-4. Report any bugs that you might find.
+Contributors are always welcome! Some ways to help are:  
+1. Fix issues and help design our website.  
+2. Create helpful packages and modules for others to use.  
+3. Get support for gizmo on your favorite IDE if it isn't already supported.  
+4. Report any bugs that you might find.  
 5. Play around with Gizmo and spread the word.
 
 ## Building Gizmo From Source
-Warning: If you build Gizmo now, there is a chance that Gizmo will be updated and you will not have the most recent version.
-Make sure git is installed in your terminal.
+Warning: If you build Gizmo now, there is a chance that Gizmo will be updated and you will not have the most recent version.  
+Make sure git is installed in your terminal.  
 Once you have it installed, run this code in your terminal to build Gizmo.
 
 ```shell
@@ -30,6 +32,6 @@ The Gizmo source will be put in the directory `gizmo-lang` and you can run Gizmo
 cd gizmo-lang
 ./main.sh
 ```
-By default code is read from the `test.gizmo` file. 
-If you want to change this, enter the `src` directory and enter `compiler.c`. 
+By default code is read from the `test.gizmo` file.  
+If you want to change this, enter the `src` directory and enter `compiler.c`.  
 Replace all `test.gizmo`'s with what ever file you are trying to execute it on.
