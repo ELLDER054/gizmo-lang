@@ -1,20 +1,9 @@
 #include <stdio.h>
 #include <string.h>
 #include "ast.h"
-
-typedef struct Item;
+#include "codegen.h"
 
 char empty[1024]
-
-typedef struct {
-    Item* next;
-    char* key;
-    char* val;
-} Item;
-
-typedef struct {
-    Item* begin;
-} Dict;
 
 Item* new_Item(Item* next, char* key, char* val) {
     Item* i = malloc(sizeof(Item));
