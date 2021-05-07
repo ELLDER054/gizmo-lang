@@ -10,7 +10,7 @@ void free_node(Node* n);
 
 int main(int argc, char** argv) {
     if (!(argc >= 2)) {
-        printf("Error: Expected file as argument\n");
+        printf("Error: Expected a file to execute\nAborting execution\n");
         return 0;
     }
     char code[1024];
