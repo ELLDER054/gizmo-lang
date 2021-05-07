@@ -203,12 +203,10 @@ void scan(char* code, Token* tokens) {
             tokens[token_count++] = tok;
         } else if (ch == '\\' && next(code, pos) == '(') {
             pos += 2;
-            ch = code[pos];
             col += 2;
-            while (1) {
-                if (ch == '\\' && next(code, pos) == ')') {
-                    break;
-                } else if (ch == '\0') {
+            ch = code[pos];
+            while (ch != '\0' && (ch != '\\' && next(code, pos) != ')')) {
+                if (ch == '\0') {
                     char specifier[1024] = {'\0'};
                     repeat_c(' ', col, specifier);
                     strncat(specifier, "^", 1);
@@ -218,8 +216,8 @@ void scan(char* code, Token* tokens) {
                 ch = code[++pos];
                 col++;
             }
-            pos += 2;
             col += 2;
+            pos += 2;
         } else if (ch == '\\') {
             pos++;
             col++;
