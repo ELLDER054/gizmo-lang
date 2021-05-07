@@ -20,7 +20,7 @@ Warning: If you build Gizmo now, there is a chance that Gizmo will be updated an
 git clone https://github.com/ellder054/gizmo-lang
 ```
 
-The Gizmo source will be put in the directory `gizmo-lang` and you can run Gizmo source code with the following.
+The Gizmo source will be put in the directory `gizmo-lang` and you can tell Gizmo to execute a file with the following.
 ```shell
 cd gizmo-lang
 ./main.sh filename.gizmo
