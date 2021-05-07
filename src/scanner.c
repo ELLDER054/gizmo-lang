@@ -206,7 +206,7 @@ void scan(char* code, Token* tokens) {
             ch = code[pos];
             col += 2;
             while (1) {
-                if (ch != '\\' && next(code, pos) != ')') {
+                if (ch == '\\' && next(code, pos) == ')') {
                     break;
                 } else if (ch == '\0') {
                     char specifier[1024] = {'\0'};
