@@ -22,11 +22,9 @@ git clone https://github.com/ellder054/gizmo-lang
 The Gizmo source will be put in the directory `gizmo-lang` and you can run Gizmo source code with the following.
 ```shell
 cd gizmo-lang
-./main.sh
+./main.sh filename.gizmo
 ```
-By default code is read from the `test.gizmo` file.  
-If you want to change this, enter the `src` directory and enter `compiler.c`.  
-Replace `test.gizmo` (on line 17) with what ever file you are trying to execute it on.  
+Replace `filename.gizmo` (on line 17) with whatever file you are trying to execute it on.  
   
 To make sure you have the most recent version of Gizmo, run the following.
 ```shell
