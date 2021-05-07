@@ -15,12 +15,14 @@ Contributors are always welcome! Some ways to help are:
 Warning: If you clone Gizmo now, there is a chance that Gizmo will be updated and you will not have the most recent version.  
 1. Make sure git is installed in your terminal.  
 2. Run this code in your terminal to clone Gizmo.
-
 ```shell
 git clone https://github.com/ellder054/gizmo-lang
 ```
 
-The Gizmo source will be put in the directory `gizmo-lang` and you can tell Gizmo to execute a file with the following.
+The Gizmo source will then be put in the directory `gizmo-lang`.
+
+### Executing a file
+You can tell Gizmo to execute a file with the following.
 ```shell
 cd gizmo-lang
 ./main.sh filename.gizmo
