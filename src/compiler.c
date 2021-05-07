@@ -3,8 +3,8 @@
 #include "scanner.h"
 #include "ast.h"
 
-void scan(char code[1024], Token buf_toks[1024]);
-void parse(Token tokens[1024], Node** program);
+void scan(char* code, Token* buf_toks);
+void parse(Token* tokens, Node** program);
 void print_node(Node* n);
 void free_node(Node* n);
 
