@@ -43,12 +43,13 @@ int one_char_tokens(char c) {
 
 char next(char* code, int pos) {
     if (pos + 1 >= sizeof(code)) {
-        return '_';
+        return ' ';
     }
     return code[pos + 1];
 }
 
 int operators(char ch, char nch) {
+    // there's probably a better way to do this, but I haven't cared enough to think about it
     // plus operators
     if (ch == '+' && nch == '+') {
         return T_PLUS_PLUS;
