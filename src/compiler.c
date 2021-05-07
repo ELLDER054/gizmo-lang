@@ -8,13 +8,13 @@ void parse(Token tokens[1024], Node** program);
 void print_node(Node* n);
 void free_node(Node* n);
 
-int main(void) {
+int main(int argc, char** argv) {
     char code[1024];
     char c;
 
     memset(code, 0, sizeof(code));
 
-    FILE* f = fopen("test.gizmo", "r");
+    FILE* f = fopen(argv[1], "r");
     fread(code, 1, sizeof(code), f);
     Token tokens[sizeof(code)];
     Node* program[1024];
