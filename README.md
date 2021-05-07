@@ -24,7 +24,7 @@ The Gizmo source will be put in the directory `gizmo-lang` and you can run Gizmo
 cd gizmo-lang
 ./main.sh filename.gizmo
 ```
-Replace `filename.gizmo` (on line 17) with whatever file you are trying to execute it on.  
+Replace `filename.gizmo` with whatever file you are trying to execute it on.  
   
 To make sure you have the most recent version of Gizmo, run the following.
 ```shell
