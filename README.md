@@ -1,5 +1,5 @@
 # The Gizmo Programming Language
-![gizmo-logo](https://user-images.githubusercontent.com/76635411/117458638-7f045b80-af18-11eb-8bbe-33fb328ea454.png)
+![gizmo-logo](https://user-images.githubusercontent.com/76635411/117458638-7f045b80-af18-11eb-8bbe-33fb328ea454.png)  
 Gizmo is a small, user-friendly programming language.  
 See the main website [here](https://ellder054.github.io/gizmolang/) to learn more.
 
