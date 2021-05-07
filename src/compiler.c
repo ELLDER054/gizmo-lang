@@ -9,6 +9,10 @@ void print_node(Node* n);
 void free_node(Node* n);
 
 int main(int argc, char** argv) {
+    if (!(argc >= 2)) {
+        printf("Error: Expected file as argument\n");
+        return 0;
+    }
     char code[1024];
     char c;
 
