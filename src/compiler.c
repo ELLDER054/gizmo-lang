@@ -1,12 +1,13 @@
 #include <stdio.h>
 #include <string.h>
-#include "front-end/scanner.h"
-#include "front-end/ast.h"
+#include "front-end/scanner.c"
+#include "front-end/ast.c"
+#include "front-end/parser.c"
 
-void scan(char* code, Token* buf_toks);
+/*void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program);
 void print_node(FILE* f, Node* n);
-void free_node(Node* n);
+void free_node(Node* n);*/
 
 int main(int argc, char** argv) {
     if (!(argc >= 3)) {
@@ -28,7 +29,6 @@ int main(int argc, char** argv) {
     FILE* output_f = fopen(argv[2], "w");
     fprintf(output_f, "This is a tang tang\n");
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
-        printf("%d", NULL == program[i]);
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
             fprintf(output_f, "\n");
