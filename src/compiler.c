@@ -18,7 +18,8 @@ int main(int argc, char** argv) {
 
     memset(code, 0, sizeof(code));
     char file[sizeof(argv[1])] = {'K', ':', '/', '\0'};
-    strncpy(file, argv[1], sizeof(argv[1]));
+    int size = sizeof(argv[1]);
+    strncpy(file, argv[1], size);
     FILE* input_f = fopen(file, "r");
     fread(code, 1, sizeof(code), input_f);
     printf("code is %s in compiler.c\n", code);
