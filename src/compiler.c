@@ -5,7 +5,7 @@
 
 void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program);
-void print_node(Node* n);
+void print_node(FILE* f, Node* n);
 void free_node(Node* n);
 
 int main(int argc, char** argv) {
