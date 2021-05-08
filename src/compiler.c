@@ -19,7 +19,6 @@ int main(int argc, char** argv) {
     memset(code, 0, sizeof(code));
     FILE* input_f = fopen(argv[1], "r");
     fread(code, 1, sizeof(code), input_f);
-    printf("code is %s in compiler.c\n", code);
     Token tokens[strlen(code)];
     memset(tokens, 0, sizeof(tokens));
     Node* program[1024];
