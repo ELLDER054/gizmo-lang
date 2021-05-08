@@ -4,16 +4,25 @@
 #include "codegen.h"
 #include "../front-end/ast.h"
 
+char* needs_freeing[1024];
+int j = 0;
+
 char* generate_oper_asm(char* oper, Node* left, Node* right) {
+    char* l = malloc(sizeof(char));
+    char* r = malloc(sizeof(char));
+    needs_freeing[j++] = l;
+    needs_freeing[j++] = r;
+    generate_expression(left, l);
+    generate_expression(right, r);
     switch (oper) {
         case '+':
-            return "add %s, %s", generate_expression(left), generate_expression(right);
+            return "add %s, %s", l, r;
         case '-':
-            return "sub %s, %s", generate_expression(left), generate_expression(right);
+            return "sub %s, %s", l, r;
         case '*':
-            return "mul %s, %s", generate_expression(left), generate_expression(right);
+            return "mul %s, %s", l, r;
         case '/':
-            return "div %s, %s", generate_expression(left), generate_expression(right);
+            return "div %s, %s", l, r;
     }
 }
 
@@ -47,5 +56,8 @@ void generate(Node** ast, char* code) {
             printf("code is %s\n", additional_code);
             strncat(code, additional_code, strlen(additional_code));
         }
+    }
+    for (int i = 0; i < sizeof(needs_freeing) / sizeof(char*); i++) {
+        free(needs_freeing[i]);
     }
 }
