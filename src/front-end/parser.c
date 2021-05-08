@@ -104,9 +104,6 @@ void push_symbol(char* type, char** info, int args_len) {
     symbol_table[sym_c++] = sym;
 }
 
-char* i[1024] = {"none", "none"};
-push_symbol("built-in", i, 0);
-
 Symbol* sym_find(char* name) {
     Symbol* s = new_symbol(NULL, name, NULL, 0);
     if (contains_symbol(s)) {
@@ -419,6 +416,8 @@ Node* statement(int start) {
 // end statement parsing
 
 void parse(Token* toks, Node** program) {
+    char* none_info[1024] = {"none", "none"};
+    push_symbol("built-in", i, 0);
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
