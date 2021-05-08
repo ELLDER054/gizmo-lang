@@ -7,6 +7,7 @@ void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program);
 void print_node(FILE* f, Node* n);
 void free_node(Node* n);
+void generate(Node** ast, char* code);
 
 int main(int argc, char** argv) {
     if (!(argc >= 3)) {
@@ -32,6 +33,8 @@ int main(int argc, char** argv) {
             fprintf(output_f, "\n");
         }
     }
+    char output[1024];
+    generate(program, output);
     fclose(input_f);
     fclose(output_f);
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
