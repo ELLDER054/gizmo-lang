@@ -2,6 +2,7 @@
 #include <string.h>
 #include "front-end/scanner.h"
 #include "front-end/ast.h"
+#include "back-end/codegen.h"
 
 void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program);
