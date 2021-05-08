@@ -25,7 +25,7 @@ int main(int argc, char** argv) {
     memset(program, 0, sizeof(program));
     scan(code, tokens);
     parse(tokens, program);
-    FILE* output_f = fopen(argv[1], "w");
+    FILE* output_f = fopen(argv[2], "w");
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
