@@ -76,9 +76,8 @@ typedef struct {
     int args_len;
 } Symbol;
 
-int sym_c = 0;
+int sym_c = 1;
 Symbol* symbol_table[1024];
-new_symbol("built-in", "none", "none", 0);
 
 int contains_symbol(Symbol* s) {
     for (int i = 0; i < sym_c; i++) {
@@ -91,7 +90,16 @@ int contains_symbol(Symbol* s) {
     return 0;
 }
 
-Symbol* new_symbol(char* s_type, char* name, char* type, int args_len);
+Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
+    Symbol* s = malloc(sizeof(Symbol));
+    s->name = name;
+    s->type = type;
+    s->sym_type = s_type;
+    s->args_len = args_len;
+    return s;
+}
+
+symbol_table[0] = new_symbol("built-in", "none", "none", 0);
 
 Symbol* sym_find(char* name) {
     Symbol* s = new_symbol(NULL, name, NULL, 0);
@@ -109,15 +117,6 @@ Symbol* sym_find(char* name) {
         exit(0);
     }
     return NULL;
-}
-
-Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
-    Symbol* s = malloc(sizeof(Symbol));
-    s->name = name;
-    s->type = type;
-    s->sym_type = s_type;
-    s->args_len = args_len;
-    return s;
 }
 
 void push_symbol(char* type, char** info, int args_len) {
