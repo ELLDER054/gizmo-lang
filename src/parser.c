@@ -214,11 +214,14 @@ Node* expression2(int start) {
         ind = start;
         return NULL;
     }
-    char* plus = expect_type(T_PLUS);
-    if (plus == NULL) {
-        ind = start;
-        free_node(t);
-        return NULL;
+    char* oper = expect_type(T_PLUS);
+    if (oper == NULL) {
+        oper = expect_type(T_MINUS);
+        if (oper == NULL) {
+            ind = start;
+            free_node(t);
+            return NULL;
+        }
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
@@ -228,8 +231,8 @@ Node* expression2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
-    check_type(t, expr, "+");
-    return (Node*) new_Operator_node("+", t, expr);
+    check_type(t, expr, oper);
+    return (Node*) new_Operator_node(oper, t, expr);
 }
 
 Node* expression(int start) {
@@ -275,11 +278,14 @@ Node* term2(int start) {
         ind = start;
         return NULL;
     }
-    char* times = expect_type(T_TIMES);
-    if (times == NULL) {
-        ind = start;
-        free_node(f);
-        return NULL;
+    char* oper = expect_type(T_TIMES);
+    if (oper == NULL) {
+        oper = expect_type(T_DIVIDE);
+        if (oper == NULL) {
+            ind = start;
+            free_node(f);
+            return NULL;
+        }
     }
     Node* t = term(ind);
     if (t == NULL) {
@@ -289,8 +295,8 @@ Node* term2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
-    check_type(f, t, "*");
-    return (Node*) new_Operator_node("*", f, t);
+    check_type(f, t, oper);
+    return (Node*) new_Operator_node(oper, f, t);
 }
 
 Node* term(int start) {
