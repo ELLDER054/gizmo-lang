@@ -362,7 +362,7 @@ Node* incomplete_var_declaration(int start) {
     }
     char* info[2] = {id, "none"};
     push_symbol("var", info, 0);
-    return (Node*) new_Var_declaration_node(id, type, (Node*) new_Identifier_node("none"));
+    return (Node*) new_Var_declaration_node(type, id, (Node*) new_Identifier_node("none"));
 }
 
 Node* var_declaration(int start) {
@@ -408,7 +408,7 @@ Node* var_declaration(int start) {
     }
     char* info[2] = {id, var_type};
     push_symbol("var", info, 0);
-    return (Node*) new_Var_declaration_node(id, var_type, expr);
+    return (Node*) new_Var_declaration_node(var_type, id, expr);
 }
 
 Node* statement(int start) {
