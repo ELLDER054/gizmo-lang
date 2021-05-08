@@ -57,13 +57,13 @@ void print_node(FILE* f, Node* n) {
 }
 
 void print_var(FILE* f, Var_declaration_node* v) {
-    printf("(VAR_NODE, %s, %s, ", v->type, v->name);
+    fprintf(f, "(VAR_NODE, %s, %s, ", v->type, v->name);
     if (NULL == v->value) {
         fprintf(f, "NULL");
     } else {
         print_node(f, v->value);
     }
-    printf(")");
+    fprintf(f, ")");
 }
 
 Var_declaration_node* new_Var_declaration_node(char* type, char* name, Node* value) {
