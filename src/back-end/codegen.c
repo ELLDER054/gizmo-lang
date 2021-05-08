@@ -54,6 +54,7 @@ void generate_expression(Node* v, char* code) {
 }
 
 void generate(Node** ast, char* code) {
+    printf("%d\n", sizeof(ast) / sizeof(Node*));
     for (int i = 0; i < sizeof(ast) / sizeof(Node*); i++) {
         Node* n = ast[i];
         printf("tang: %u\n", n->n_type);
