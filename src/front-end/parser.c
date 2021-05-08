@@ -184,7 +184,7 @@ void check_type(int start, Node* left, Node* right, char* oper) {
             }
         } else {
             char specifier[MAX_LINE_LEN] = "";
-            repeat_char(' ', tokens[start].col + strlen(tokens[start].value), specifier);
+            repeat_char(' ', tokens[start].col, specifier);
             strncat(specifier, "^", 1);
             printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[start].lineno, tokens[start].line, specifier);
             exit(0);
@@ -209,7 +209,7 @@ void check_type(int start, Node* left, Node* right, char* oper) {
             }
         } else {
             char specifier[MAX_LINE_LEN] = "";
-            repeat_char(' ', tokens[start].col + strlen(tokens[start].value), specifier);
+            repeat_char(' ', tokens[start].col, specifier);
             strncat(specifier, "^", 1);
             printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[start].lineno, tokens[start].line, specifier);
             exit(0);
