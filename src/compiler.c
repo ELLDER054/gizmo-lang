@@ -10,17 +10,13 @@ void free_node(Node* n);
 
 int main(int argc, char** argv) {
     if (!(argc >= 3)) {
-        printf("Error: Expected a file to compile and a file to write output to\nAborting execution\n");
+        fprintf(stderr, "Error: Expected a file to compile and a file to write output to\nAborting execution\n");
         return 0;
     }
     char code[1024];
     char c;
 
     memset(code, 0, sizeof(code));
-    /*char file[strlen(argv[1]) + 4] = "K:/";
-    int size = strlen(argv[1]);
-    strncpy(file, argv[1], size);
-    printf("%s\n", file);*/
     FILE* input_f = fopen(argv[1], "r");
     fread(code, 1, sizeof(code), input_f);
     printf("code is %s in compiler.c\n", code);
