@@ -1,13 +1,12 @@
 #include <stdio.h>
 #include <string.h>
-#include "front-end/scanner.c"
-#include "front-end/ast.c"
-#include "front-end/parser.c"
+#include "front-end/scanner.h"
+#include "front-end/ast.h"
 
-/*void scan(char* code, Token* buf_toks);
+void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program);
 void print_node(FILE* f, Node* n);
-void free_node(Node* n);*/
+void free_node(Node* n);
 
 int main(int argc, char** argv) {
     if (!(argc >= 3)) {
