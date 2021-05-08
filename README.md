@@ -21,13 +21,13 @@ git clone https://github.com/ellder054/gizmo-lang
 
 The Gizmo source will then be put in the directory `gizmo-lang`.
 
-### Executing a file
-You can tell Gizmo to execute a file with the following.
+### Compiling a file
+You can tell Gizmo to compile a Gizmo file with the following.
 ```shell
 cd gizmo-lang
-./main.sh filename.gizmo
+./main.sh filename.gizmo output
 ```
-Replace `filename.gizmo` with whatever file you are trying to execute it on.  
+Replace `filename.gizmo` with whatever file you are trying to compile and replace `output` with your output file.  
   
 To make sure you have the most recent version of Gizmo, run the following.
 ```shell
