@@ -18,7 +18,7 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
     generate_expression(right, r);
     char* ret = malloc(sizeof(char*));
     needs_freeing[j++] = ret;
-    switch (oper) {
+    switch (*oper) {
         case '+':
             snprintf(ret, 6 + strlen(l) + strlen(r), "add %s, %s", l, r);
             return ret;
