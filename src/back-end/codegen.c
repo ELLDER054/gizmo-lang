@@ -20,16 +20,16 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
     needs_freeing[j++] = ret;
     switch (oper) {
         case '+':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "add %s, %s", l, r;
+            snprintf(ret, 6 + strlen(l) + strlen(r), "add %s, %s", l, r);
             return ret;
         case '-':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "sub %s, %s", l, r;
+            snprintf(ret, 6 + strlen(l) + strlen(r), "sub %s, %s", l, r);
             return ret;
         case '*':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "mul %s, %s", l, r;
+            snprintf(ret, 6 + strlen(l) + strlen(r), "mul %s, %s", l, r);
             return ret;
         case '/':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "div %s, %s", l, r;
+            snprintf(ret, 6 + strlen(l) + strlen(r), "div %s, %s", l, r);
             return ret;
     }
 }
