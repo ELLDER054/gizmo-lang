@@ -20,13 +20,14 @@ int main(int argc, char** argv) {
 
     FILE* input_f = fopen(argv[1], "r");
     fread(code, 1, sizeof(code), input_f);
+    printf("code is %s in compiler.c\n", code);
     Token tokens[sizeof(code)];
+    memset(tokens, 0, sizeof(tokens));
     Node* program[1024];
     memset(program, 0, sizeof(program));
     scan(code, tokens);
     parse(tokens, program);
     FILE* output_f = fopen(argv[2], "w");
-    fprintf(output_f, "This is a tang tang\n");
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
