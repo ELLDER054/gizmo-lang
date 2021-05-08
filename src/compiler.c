@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <string.h>
-#include "scanner.h"
-#include "ast.h"
+#include "front-end/scanner.h"
+#include "front-end/ast.h"
 
 void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program);
