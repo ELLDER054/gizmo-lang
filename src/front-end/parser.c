@@ -355,7 +355,7 @@ Node* incomplete_var_declaration(int start) {
     }
     char* info[2] = {id, type};
     push_symbol("var", info, 0);
-    return (Node*) new_Var_declaration_node(id, type, NULL);
+    return (Node*) new_Var_declaration_node(id, type, new_Identifier_node("none"));
 }
 
 Node* var_declaration(int start) {
