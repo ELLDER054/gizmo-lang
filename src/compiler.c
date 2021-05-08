@@ -17,11 +17,11 @@ int main(int argc, char** argv) {
     char c;
 
     memset(code, 0, sizeof(code));
-    char file[strlen(argv[1]) + 4] = "K:/";
+    /*char file[strlen(argv[1]) + 4] = "K:/";
     int size = strlen(argv[1]);
     strncpy(file, argv[1], size);
-    printf("%s\n", file);
-    FILE* input_f = fopen(file, "r");
+    printf("%s\n", file);*/
+    FILE* input_f = fopen(argv[1], "r");
     fread(code, 1, strlen(code), input_f);
     printf("code is %s in compiler.c\n", code);
     Token tokens[strlen(code)];
