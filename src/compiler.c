@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     char c;
 
     memset(code, 0, sizeof(code));
-    char file[sizeof(argv[1]) + 4] = {'K', ':', '/', '\0'};
+    char file[sizeof(argv[1]) + 4] = "K:/"};
     int size = sizeof(argv[1]);
     strncpy(file, argv[1], size);
     printf("%s\n", file);
