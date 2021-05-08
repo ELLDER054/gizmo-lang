@@ -22,6 +22,7 @@ git clone https://github.com/ellder054/gizmo-lang
 The Gizmo source will then be put in the directory `gizmo-lang`.
 
 ### Compiling a file
+Example files can be found in the `examples` folder.
 You can tell Gizmo to compile a Gizmo file with the following.
 ```shell
 cd gizmo-lang
