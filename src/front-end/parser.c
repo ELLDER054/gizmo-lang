@@ -78,6 +78,7 @@ typedef struct {
 
 int sym_c = 0;
 Symbol* symbol_table[1024];
+new_symbol("built-in", "none", "none", 0);
 
 int contains_symbol(Symbol* s) {
     for (int i = 0; i < sym_c; i++) {
@@ -149,9 +150,6 @@ char* type(Node* n) {
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
-            if (!strcmp(((Identifier_node*) n)->name, "none")) {
-                return "none";
-            }
             return sym_find(((Identifier_node*) n)->name)->type;
         case NODE_NODE:
             break;
