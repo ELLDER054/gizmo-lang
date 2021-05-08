@@ -174,7 +174,7 @@ void check_type(Node* left, Node* right, char* oper) {
                 exit(0);
             }
         }
-        else if if (!strcmp(type(left), "real")) {
+        else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
