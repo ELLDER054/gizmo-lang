@@ -7,8 +7,8 @@
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
         char b[1024];
-        itoa(((Integer_node*) v)->value, b, 10);
-        strcat(code, b);
+        sprintf(b, 1024, "%d", ((Integer_node*) v)->value);
+        strncat(code, b, 1024);
         return;
     }
 }
