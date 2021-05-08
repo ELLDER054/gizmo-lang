@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     memset(program, 0, sizeof(program));
     scan(code, tokens);
     parse(tokens, program);
-    printf("name: %s\n", ((Var_declaration_node*) program[0])->name);
+    printf("name: %s\n", ((Var_declaration_node*) program[0])->type);
     FILE* output_f = fopen(argv[2], "w");
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
