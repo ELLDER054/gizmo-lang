@@ -165,7 +165,7 @@ void check_type(Node* left, Node* right, char* oper) {
                 exit(0);
             }
         }
-        if (!strcmp(type(left), "string")) {
+        else if (!strcmp(type(left), "string")) {
             if (strcmp(type(right), "string")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
@@ -174,7 +174,7 @@ void check_type(Node* left, Node* right, char* oper) {
                 exit(0);
             }
         }
-        if (!strcmp(type(left), "real")) {
+        else if if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
@@ -182,6 +182,12 @@ void check_type(Node* left, Node* right, char* oper) {
                 printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
+        } else {
+            char specifier[MAX_LINE_LEN] = "";
+                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+                strncat(specifier, "^", 1);
+                printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
         }
     } else {
         if (!strcmp(type(left), "int")) {
@@ -193,7 +199,7 @@ void check_type(Node* left, Node* right, char* oper) {
                 exit(0);
             }
         }
-        if (!strcmp(type(left), "real")) {
+        else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col, specifier);
@@ -201,6 +207,12 @@ void check_type(Node* left, Node* right, char* oper) {
                 printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
+        } else {
+            char specifier[MAX_LINE_LEN] = "";
+                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+                strncat(specifier, "^", 1);
+                printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
         }
     }
 }
