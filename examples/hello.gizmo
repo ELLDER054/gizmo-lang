@@ -1,2 +1,1 @@
-string hello = "Hello, World!";
-\ write(hello);
+\ write("Hello, Gizmo!");
