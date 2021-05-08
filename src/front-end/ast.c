@@ -59,9 +59,9 @@ void print_node(FILE* f, Node* n) {
 void print_var(FILE* f, Var_declaration_node* v) {
     printf("(VAR_NODE, %s, %s, ", v->type, v->name);
     if (NULL == v->value) {
-        printf("NULL");
+        fprintf(f, "NULL");
     } else {
-        print_node(v->value);
+        print_node(f, v->value);
     }
     printf(")");
 }
