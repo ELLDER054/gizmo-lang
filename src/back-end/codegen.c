@@ -18,7 +18,7 @@ void generate(Node** ast, char* code) {
         Node* n = ast[i];
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
-            char additional_code[1024] = "%%%s = ", v->name;
+            char additional_code[1024] = "%%%s = ", (v->name);
             int size;
             generate_expression(v->value, additional_code);
             printf("code is %s\n", additional_code);
