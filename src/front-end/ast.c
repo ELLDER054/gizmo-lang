@@ -6,7 +6,7 @@
 void print_node(FILE* f, Node* n);
 
 void print_oper(FILE* f, Operator_node* n) {
-    fprintf("(OPER_NODE, %s, ", n->oper);
+    fprintf(f, "(OPER_NODE, %s, ", n->oper);
     print_node(f, n->left);
     fprintf(f", ");
     print_node(f, n->right);
