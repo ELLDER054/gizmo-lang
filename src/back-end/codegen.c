@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "codegen.h"
 #include "../front-end/ast.h"
 
