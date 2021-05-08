@@ -14,6 +14,8 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
             return "mul %s, %s", generate_expression(left), generate_expression(right);
         case '/':
             return "div %s, %s", generate_expression(left), generate_expression(right);
+    }
+}
 
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
