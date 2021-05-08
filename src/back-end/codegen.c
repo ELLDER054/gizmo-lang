@@ -10,21 +10,27 @@ int j = 0;
 void generate_expression(Node* v, char* code);
 
 char* generate_oper_asm(char* oper, Node* left, Node* right) {
-    char* l = malloc(sizeof(char));
-    char* r = malloc(sizeof(char));
+    char* l = malloc(sizeof(char*));
+    char* r = malloc(sizeof(char*));
     needs_freeing[j++] = l;
     needs_freeing[j++] = r;
     generate_expression(left, l);
     generate_expression(right, r);
+    char* ret = malloc(sizeof(char*));
+    needs_freeing[j++] = ret;
     switch (oper) {
         case '+':
-            return ("add %s, %s", l, r);
+            snprintf(ret, 6 + strlen(l) + strlen(r), "add %s, %s", l, r;
+            return ret;
         case '-':
-            return ("sub %s, %s", l, r);
+            snprintf(ret, 6 + strlen(l) + strlen(r), "sub %s, %s", l, r;
+            return ret;
         case '*':
-            return ("mul %s, %s", l, r);
+            snprintf(ret, 6 + strlen(l) + strlen(r), "mul %s, %s", l, r;
+            return ret;
         case '/':
-            return ("div %s, %s", l, r);
+            snprintf(ret, 6 + strlen(l) + strlen(r), "div %s, %s", l, r;
+            return ret;
     }
 }
 
