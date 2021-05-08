@@ -4,6 +4,17 @@
 #include "codegen.h"
 #include "../front-end/ast.h"
 
+char* generate_oper_asm(char* oper, Node* left, Node* right) {
+    switch (oper) {
+        case '+':
+            return "add %s, %s", generate_expression(left), generate_expression(right);
+        case '-':
+            return "sub %s, %s", generate_expression(left), generate_expression(right);
+        case '*':
+            return "mul %s, %s", generate_expression(left), generate_expression(right);
+        case '/':
+            return "div %s, %s", generate_expression(left), generate_expression(right);
+
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
         char b[1024];
@@ -16,6 +27,9 @@ void generate_expression(Node* v, char* code) {
         strncat(code, id, strlen(id));
         return;
     }
+    
+    char* oper_asm = generate_oper_asm(((Operator_node*) v)->oper, ((Operator_node*) v)->left, ((Operator_node*) v)->right);
+    strncat(code, oper_asm, strlen(oper_asm));
 }
 
 void generate(Node** ast, char* code) {
