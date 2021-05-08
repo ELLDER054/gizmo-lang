@@ -22,7 +22,7 @@ int main(int argc, char** argv) {
     strncpy(file, argv[1], size);
     printf("%s\n", file);
     FILE* input_f = fopen(file, "r");
-    fread(code, 1, dtrlen(code), input_f);
+    fread(code, 1, strlen(code), input_f);
     printf("code is %s in compiler.c\n", code);
     Token tokens[strlen(code)];
     memset(tokens, 0, sizeof(tokens));
