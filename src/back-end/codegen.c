@@ -10,6 +10,11 @@ void generate_expression(Node* v, char* code) {
         snprintf(b, 1024, "%d", ((Integer_node*) v)->value);
         strncat(code, b, 1024);
         return;
+    } else if (v->n_type == ID_NODE) {
+        char id[1024] = "%";
+        strncat(id, (Identifier_node*) v)->name, strlen((Identifier_node*) v)->name));
+        strncat(code, id, strlen(id));
+        return;
     }
 }
 
