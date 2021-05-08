@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "ast.h"
 
-void print_node(Node* n);
+void print_node(FILE* f, Node* n);
 
 void print_oper(FILE* f, Operator_node* n) {
     fprintf("(OPER_NODE, %s, ", n->oper);
