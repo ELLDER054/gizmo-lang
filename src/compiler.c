@@ -18,17 +18,18 @@ int main(int argc, char** argv) {
 
     memset(code, 0, sizeof(code));
 
-    FILE* f = fopen(argv[1], "r");
-    fread(code, 1, sizeof(code), f);
+    FILE* input_f = fopen(argv[1], "r");
+    fread(code, 1, sizeof(code), input_f);
     Token tokens[sizeof(code)];
     Node* program[1024];
     memset(program, 0, sizeof(program));
     scan(code, tokens);
     parse(tokens, program);
+    FILE* output_f = fopen(argv[1], "w");
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
-            print_node(program[i]);
-            printf("\n");
+            print_node(output_f, program[i]);
+            fprintf(output_f, "\n");
         }
     }
     fclose(f);
