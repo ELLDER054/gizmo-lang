@@ -26,12 +26,12 @@ int main(int argc, char** argv) {
     scan(code, tokens);
     parse(tokens, program);
     FILE* output_f = fopen(argv[2], "w");
+    printf("%d", sizeof(program) / sizeof(Node*));
     fprintf(output_f, "This is a tang tang\n");
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
             fprintf(output_f, "\n");
-            printf("one too tree\n");
         }
     }
     fclose(input_f);
