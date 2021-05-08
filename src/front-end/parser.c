@@ -154,7 +154,7 @@ char* type(Node* n) {
     return NULL;
 }
 
-void check_type(Node* left, Node* right, char* oper) {
+void check_type(int start, Node* left, Node* right, char* oper) {
     if (!strcmp(oper, "+")) {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
@@ -209,9 +209,9 @@ void check_type(Node* left, Node* right, char* oper) {
             }
         } else {
             char specifier[MAX_LINE_LEN] = "";
-            repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+            repeat_char(' ', tokens[start].col + strlen(tokens[start].value), specifier);
             strncat(specifier, "^", 1);
-            printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+            printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[start].lineno, tokens[start].line, specifier);
             exit(0);
         }
     }
@@ -241,7 +241,7 @@ Node* expression2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
-    check_type(t, expr, oper);
+    check_type(start, t, expr, oper);
     return (Node*) new_Operator_node(oper, t, expr);
 }
 
@@ -305,7 +305,7 @@ Node* term2(int start) {
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
-    check_type(f, t, oper);
+    check_type(start, f, t, oper);
     return (Node*) new_Operator_node(oper, f, t);
 }
 
