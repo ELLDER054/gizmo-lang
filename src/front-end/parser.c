@@ -149,6 +149,9 @@ char* type(Node* n) {
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
+            if (!strcmp(((Identifier_node*) n)->name, "none")) {
+                return "none";
+            }
             return sym_find(((Identifier_node*) n)->name)->type;
         case NODE_NODE:
             break;
