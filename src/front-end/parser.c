@@ -76,7 +76,7 @@ typedef struct {
     int args_len;
 } Symbol;
 
-int sym_c = 1;
+int sym_c = 0;
 Symbol* symbol_table[1024];
 
 int contains_symbol(Symbol* s) {
@@ -99,7 +99,8 @@ Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
     return s;
 }
 
-symbol_table[0] = new_symbol("built-in", "none", "none", 0);
+char* i[1024] = {"none", "none"};
+push_symbol("built-in", i, 0);
 
 Symbol* sym_find(char* name) {
     Symbol* s = new_symbol(NULL, name, NULL, 0);
