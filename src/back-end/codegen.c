@@ -7,6 +7,8 @@
 char* needs_freeing[1024];
 int j = 0;
 
+void generate_expression(Node* v, char* code);
+
 char* generate_oper_asm(char* oper, Node* left, Node* right) {
     char* l = malloc(sizeof(char));
     char* r = malloc(sizeof(char));
@@ -16,13 +18,13 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
     generate_expression(right, r);
     switch (oper) {
         case '+':
-            return "add %s, %s", l, r;
+            return ("add %s, %s", l, r);
         case '-':
-            return "sub %s, %s", l, r;
+            return ("sub %s, %s", l, r);
         case '*':
-            return "mul %s, %s", l, r;
+            return ("mul %s, %s", l, r);
         case '/':
-            return "div %s, %s", l, r;
+            return ("div %s, %s", l, r);
     }
 }
 
