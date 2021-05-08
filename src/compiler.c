@@ -2,6 +2,7 @@
 #include <string.h>
 #include "front-end/scanner.c"
 #include "front-end/ast.c"
+#include "front-end/parser.c"
 #include "front-end/scanner.h"
 #include "front-end/ast.h"
 
