@@ -126,7 +126,6 @@ void repeat_c(char c, int n, char* string) {
 }
 
 void scan(char* code, Token* tokens) {
-    printf("code is %s\n", code);
     int lineno = 1;
     char** lines;
     int count, i;
