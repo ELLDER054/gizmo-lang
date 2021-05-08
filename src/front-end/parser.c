@@ -348,7 +348,7 @@ Node* incomplete_var_declaration(int start) {
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
-    char* info[2] = {id, type};
+    char* info[2] = {id, "none"};
     push_symbol("var", info, 0);
     return (Node*) new_Var_declaration_node(id, type, (Node*) new_Identifier_node("none"));
 }
