@@ -26,7 +26,7 @@ int main(int argc, char** argv) {
     scan(code, tokens);
     parse(tokens, program);
     FILE* output_f = fopen(argv[2], "w");
-    printf("%s", argv[2]);
+    fprintf(output_f, "This is a tang tang\n");
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
