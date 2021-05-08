@@ -54,10 +54,8 @@ void generate_expression(Node* v, char* code) {
 }
 
 void generate(Node** ast, char* code) {
-    printf("%lu\n", sizeof(ast) / sizeof(Node*));
     for (int i = 0; i < sizeof(ast) / sizeof(Node*); i++) {
         Node* n = ast[i];
-        printf("tang: %u\n", n->n_type);
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char additional_code[1024] = "%";
