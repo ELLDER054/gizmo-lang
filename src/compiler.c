@@ -17,7 +17,7 @@ int main(int argc, char** argv) {
     char c;
 
     memset(code, 0, sizeof(code));
-    char file[sizeof(argv[1])];
+    char file[sizeof(argv[1])] = {'K', ':', '/', '\0'};
     strncpy(file, argv[1], sizeof(argv[1]));
     FILE* input_f = fopen(file, "r");
     fread(code, 1, sizeof(code), input_f);
