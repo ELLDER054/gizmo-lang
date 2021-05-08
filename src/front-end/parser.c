@@ -417,7 +417,7 @@ Node* statement(int start) {
 
 void parse(Token* toks, Node** program) {
     char* none_info[1024] = {"none", "none"};
-    push_symbol("built-in", i, 0);
+    push_symbol("built-in", none_info, 0);
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
