@@ -5,7 +5,9 @@
 
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
-        strcat(code, ((Integer_node*) v)->value);
+        char b[1024];
+        itoa(((Integer_node*) v)->value, b, 10);
+        strcat(code, b);
         return;
     }
 }
