@@ -3,7 +3,7 @@
 #include "codegen.h"
 #include "../front-end/ast.h"
 
-void generate_expression(Node* v) {
+void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
         strcat(code, ((Integer_node*) v)->value);
         return;
@@ -13,7 +13,7 @@ void generate_expression(Node* v) {
 void generate(Node** ast, char* code) {
     for (int i = 0; i < sizeof(ast) / sizeof(Node*); i++) {
         Node* n = ast[i];
-        if (n->n_type == VARIABLE_NODE) {
+        if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char additional_code[1024] = "%%%s = ";
             int size;
