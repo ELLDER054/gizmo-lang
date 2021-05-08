@@ -12,6 +12,8 @@ struct Node;
 typedef enum {
     VAR_DECLARATION_NODE,
     OPERATOR_NODE,
+    DIVIDE_NODE,
+    MULTIPLY_NODE,
     INTEGER_NODE,
     STRING_NODE,
     REAL_NODE,
