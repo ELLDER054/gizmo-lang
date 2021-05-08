@@ -7,7 +7,7 @@
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
         char b[1024];
-        sprintf(b, 1024, "%d", ((Integer_node*) v)->value);
+        snprintf(b, 1024, "%d", ((Integer_node*) v)->value);
         strncat(code, b, 1024);
         return;
     }
