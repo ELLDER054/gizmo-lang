@@ -99,6 +99,11 @@ Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
     return s;
 }
 
+void push_symbol(char* type, char** info, int args_len) {
+    Symbol* sym = new_symbol(type, info[0], info[1], args_len);
+    symbol_table[sym_c++] = sym;
+}
+
 char* i[1024] = {"none", "none"};
 push_symbol("built-in", i, 0);
 
@@ -118,11 +123,6 @@ Symbol* sym_find(char* name) {
         exit(0);
     }
     return NULL;
-}
-
-void push_symbol(char* type, char** info, int args_len) {
-    Symbol* sym = new_symbol(type, info[0], info[1], args_len);
-    symbol_table[sym_c++] = sym;
 }
 
 // end symbol table
