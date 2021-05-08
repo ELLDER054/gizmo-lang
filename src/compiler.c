@@ -31,6 +31,7 @@ int main(int argc, char** argv) {
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
             fprintf(output_f, "\n");
+            printf("one too tree\n");
         }
     }
     fclose(input_f);
