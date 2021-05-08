@@ -31,6 +31,8 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
         case '/':
             snprintf(ret, 6 + strlen(l) + strlen(r), "div %s, %s", l, r);
             return ret;
+        default:
+            return NULL;
     }
 }
 
