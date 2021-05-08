@@ -126,6 +126,7 @@ void repeat_c(char c, int n, char* string) {
 }
 
 void scan(char* code, Token* tokens) {
+    printf("code is %s\n", code);
     int lineno = 1;
     char** lines;
     int count, i;
@@ -310,7 +311,7 @@ void scan(char* code, Token* tokens) {
         }
     }
 
-    /*for (int i = 0; i < strlen(code); i++) {
+    for (int i = 0; i < strlen(code); i++) {
         if (tokens[i].type < 200 || tokens[i].type > 238) {
             break;
         }
@@ -319,7 +320,7 @@ void scan(char* code, Token* tokens) {
         printf(", %s", tokens[i].line);
         printf(", %d", tokens[i].lineno);
         printf(", %d\n", tokens[i].col);
-    }*/
+    }
     for (i = 0; i < count; i++) free (lines[i]);
     free(lines);
 }
