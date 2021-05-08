@@ -5,58 +5,58 @@
 
 void print_node(Node* n);
 
-void print_oper(Operator_node* n) {
-    printf("(OPER_NODE, %s, ", n->oper);
-    print_node(n->left);
-    printf(", ");
-    print_node(n->right);
-    printf(")");
+void print_oper(FILE* f, Operator_node* n) {
+    fprintf("(OPER_NODE, %s, ", n->oper);
+    print_node(f, n->left);
+    fprintf(f", ");
+    print_node(f, n->right);
+    fprintf(f, ")");
 }
 
-void print_id(Identifier_node* n) {
-    printf("(ID_NODE, %s)", n->name);
+void print_id(FILE* f, Identifier_node* n) {
+    fprintf(f, "(ID_NODE, %s)", n->name);
 }
 
-void print_int(Integer_node* i) {
-    printf("(INT_NODE, %d)", i->value);
+void print_int(FILE* f, Integer_node* i) {
+    fprintf(f, "(INT_NODE, %d)", i->value);
 }
 
-void print_real(Real_node* r) {
-    printf("(REAL_NODE, %f)", r->value);
+void print_real(FILE* f, Real_node* r) {
+    fprintf(f, "(REAL_NODE, %f)", r->value);
 }
 
-void print_str(String_node* s) {
-    printf("(STR_NODE, %s)", s->value);
+void print_str(FILE* f, String_node* s) {
+    fprintf(f, "(STR_NODE, %s)", s->value);
 }
 
-void print_var(Var_declaration_node* v);
+void print_var(FILE* f, Var_declaration_node* v);
 
-void print_node(Node* n) {
+void print_node(FILE* f, Node* n) {
     switch (n->n_type) {
         case VAR_DECLARATION_NODE:
-            print_var((Var_declaration_node*) n);
+            print_var(f, (Var_declaration_node*) n);
             break;
         case OPERATOR_NODE:
-            print_oper((Operator_node*) n);
+            print_oper(f, (Operator_node*) n);
             break;
         case INTEGER_NODE:
-            print_int((Integer_node*) n);
+            print_int(f, (Integer_node*) n);
             break;
         case STRING_NODE:
-            print_str((String_node*) n);
+            print_str(f, (String_node*) n);
             break;
         case ID_NODE:
-            print_id((Identifier_node*) n);
+            print_id(f, (Identifier_node*) n);
             break;
         case REAL_NODE:
-            print_real((Real_node*) n);
+            print_real(f, (Real_node*) n);
             break;
         case NODE_NODE:
             break;
     }
 }
 
-void print_var(Var_declaration_node* v) {
+void print_var(FILE* f, Var_declaration_node* v) {
     printf("(VAR_NODE, %s, %s, ", v->type, v->name);
     if (NULL == v->value) {
         printf("NULL");
