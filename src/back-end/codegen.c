@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <string.h>
+#include "codegen.h"
 
 void generate_expression(Node* v) {
     if (v->n_type == INTEGER_NODE) {
