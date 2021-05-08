@@ -184,10 +184,10 @@ void check_type(Node* left, Node* right, char* oper) {
             }
         } else {
             char specifier[MAX_LINE_LEN] = "";
-                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 1);
-                printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+            repeat_char(' ', tokens[start].col + strlen(tokens[start].value), specifier);
+            strncat(specifier, "^", 1);
+            printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[start].lineno, tokens[start].line, specifier);
+            exit(0);
         }
     } else {
         if (!strcmp(type(left), "int")) {
@@ -209,10 +209,10 @@ void check_type(Node* left, Node* right, char* oper) {
             }
         } else {
             char specifier[MAX_LINE_LEN] = "";
-                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 1);
-                printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+            repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+            strncat(specifier, "^", 1);
+            printf("On line %d:\nInvalid type on left side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+            exit(0);
         }
     }
 }
