@@ -9,6 +9,26 @@ int j = 0;
 
 void generate_expression(Node* v, char* code);
 
+int appendToStr(char *target, size_t targetSize, const char * restrict format, ...) {
+  va_list args;
+  char temp[targetSize];
+  int result;
+
+  va_start(args, format);
+  result = vsnprintf(temp, targetSize, format, args);
+  if (result != EOF)
+  {
+    if (strlen(temp) + strlen(target) > targetSize)
+    {
+      fprintf(stderr, "appendToStr: target buffer not large enough to hold additional string");
+      return 0;
+    }
+    strcat(target, temp);
+  }
+  va_end(args);
+  return result;
+}
+
 char* generate_oper_asm(char* oper, Node* left, Node* right) {
     char* l = malloc(sizeof(char*));
     char* r = malloc(sizeof(char*));
@@ -20,16 +40,16 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
     needs_freeing[j++] = ret;
     switch (*oper) {
         case '+':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "add %s, %s", l, r);
+            str_append(ret, 6 + strlen(l) + strlen(r), "add %s, %s", l, r);
             return ret;
         case '-':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "sub %s, %s", l, r);
+            str_append(ret, 6 + strlen(l) + strlen(r), "sub %s, %s", l, r);
             return ret;
         case '*':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "mul %s, %s", l, r);
+            str_append(ret, 6 + strlen(l) + strlen(r), "mul %s, %s", l, r);
             return ret;
         case '/':
-            snprintf(ret, 6 + strlen(l) + strlen(r), "div %s, %s", l, r);
+            str_append(ret, 6 + strlen(l) + strlen(r), "div %s, %s", l, r);
             return ret;
         default:
             return NULL;
@@ -38,16 +58,16 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
 
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
-        snprintf(code, 1024, "%d", ((Integer_node*) v)->value);
+        str_append(code, 1024, "%d", ((Integer_node*) v)->value);
         return;
     } else if (v->n_type == ID_NODE) {
-        snprintf(code, 2, "%%");
-        snprintf(code, sizeof(((Identifier_node*) v)->name), "%s", ((Identifier_node*) v)->name);
+        str_append(code, 2, "%%");
+        str_append(code, sizeof(((Identifier_node*) v)->name), "%s", ((Identifier_node*) v)->name);
         return;
     }
     
     char* oper_asm = generate_oper_asm(((Operator_node*) v)->oper, ((Operator_node*) v)->left, ((Operator_node*) v)->right);
-    snprintf(code, sizeof(oper_asm), "%s", oper_asm);
+    str_append(code, sizeof(oper_asm), "%s", oper_asm);
 }
 
 void generate(Node** ast, int size, char* code) {
@@ -59,12 +79,12 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char additional_code[1024] = "%";
-            snprintf(additional_code, sizeof(v->name), "%s", v->name);
-            snprintf(additional_code, 3, " = ");
+            str_append(additional_code, sizeof(v->name), "%s", v->name);
+            str_append(additional_code, 3, " = ");
             printf("a_code is: %s\n", additional_code);
             generate_expression(v->value, additional_code);
             printf("code is %s\n", additional_code);
-            snprintf(code, sizeof(additional_code), "%s", additional_code);
+            str_append(code, sizeof(additional_code), "%s", additional_code);
         }
     }
     for (int i = 0; i < sizeof(needs_freeing) / sizeof(char*); i++) {
