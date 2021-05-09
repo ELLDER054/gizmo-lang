@@ -7,7 +7,7 @@
 void generate_expression_asm(Node* n, char* code);
 
 int str_append_c = 0;
-freeing[1024];
+char* freeing[1024];
 int j;
 
 char* generate_oper_asm(char* oper, Node* left, Node* right, char* code) {
