@@ -4,6 +4,8 @@
 #include "codegen.h"
 #include "../front-end/ast.h"
 
+void generate_expression_asm(Node* n, char* code);
+
 int str_append_c = 0;
 freeing[1024];
 int j;
