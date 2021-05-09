@@ -59,7 +59,7 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char additional_code[1024] = "%";
-            snprintf(additional_code, sizeof(v->name), v->name);
+            snprintf(additional_code, sizeof(v->name), "%s", v->name);
             snprintf(additional_code, 3, " = ");
             int size;
             generate_expression(v->value, additional_code);
