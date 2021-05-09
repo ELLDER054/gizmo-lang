@@ -58,7 +58,7 @@ void generate(Node** ast, int size, char* code) {
             printf("%s\n", code);
         }
     }
-    for (i = 0; i < j; i++) {
+    for (int i = 0; i < j; i++) {
         free(freeing[i]);
     }
 }
