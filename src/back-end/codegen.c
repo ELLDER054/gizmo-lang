@@ -18,16 +18,16 @@ char* generate_oper_asm(char* oper, Node* left, Node* right, char* code) {
     generate_expression_asm(right, r);
     switch (*oper) {
         case '+':
-            str_append_c += snprintf(code + str_append_c, 100, "add %s, %s", (l, r);
+            str_append_c += snprintf(code + str_append_c, 100, "add %s, %s", l, r);
             break;
         case '-':
-            str_append_c += snprintf(code + str_append_c, 100, "sub %s, %s", (l, r));
+            str_append_c += snprintf(code + str_append_c, 100, "sub %s, %s", l, r);
             break;
         case '*':
-            str_append_c += snprintf(code + str_append_c, 100, "mul %s, %s", (l, r);
+            str_append_c += snprintf(code + str_append_c, 100, "mul %s, %s", l, r);
             break;
         case '/':
-            str_append_c += snprintf(code + str_append_c, 100, "div %s, %s", (l, r);
+            str_append_c += snprintf(code + str_append_c, 100, "div %s, %s", l, r);
             break;
         default:
             break;
