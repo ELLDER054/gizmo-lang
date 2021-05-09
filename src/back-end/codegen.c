@@ -9,7 +9,7 @@ int j = 0;
 
 void generate_expression(Node* v, char* code);
 
-int appendToStr(char *target, size_t targetSize, const char * restrict format, ...) {
+int str_append(char *target, size_t targetSize, const char * restrict format, ...) {
   va_list args;
   char temp[targetSize];
   int result;
