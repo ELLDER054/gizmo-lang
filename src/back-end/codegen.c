@@ -40,17 +40,17 @@ void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
         char b[1024];
         snprintf(b, 1024, "%d", ((Integer_node*) v)->value);
-        strncat(code, b, 1024);
+        snprintf(code, b, 1024);
         return;
     } else if (v->n_type == ID_NODE) {
         char id[1024] = "%";
-        strncat(id, ((Identifier_node*) v)->name, strlen(((Identifier_node*) v)->name));
-        strncat(code, id, strlen(id));
+        snprintf(id, e, sizeof(((Identifier_node*) v)->name), ((Identifier_node*) v)->name);
+        snprintf(code, 1024, "%s", id);
         return;
     }
     
     char* oper_asm = generate_oper_asm(((Operator_node*) v)->oper, ((Operator_node*) v)->left, ((Operator_node*) v)->right);
-    strncat(code, oper_asm, strlen(oper_asm));
+    snprintf(code, sizeof(oper_asm), oper_asm);
 }
 
 void generate(Node** ast, int size, char* code) {
