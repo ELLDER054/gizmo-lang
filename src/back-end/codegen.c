@@ -10,7 +10,7 @@ int str_append_c = 0;
 freeing[1024];
 int j;
 
-char* generate_oper_asm(char* oper, Node* left, Node* right) {
+char* generate_oper_asm(char* oper, Node* left, Node* right, char* code) {
     char* ret = malloc(sizeof(char*));
     char* l = malloc(sizeof(char*));
     char* r = malloc(sizeof(char*));
@@ -18,19 +18,19 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
     generate_expression_asm(right, r);
     switch (*oper) {
         case '+':
-            str_append_c += snprintf(ret + str_append_c, 100, "add %s, %s", (l, r);
-            return ret;
+            str_append_c += snprintf(code + str_append_c, 100, "add %s, %s", (l, r);
+            break;
         case '-':
-            str_append_c += snprintf(ret + str_append_c, 100, "sub %s, %s", (l, r));
-            return ret;
+            str_append_c += snprintf(code + str_append_c, 100, "sub %s, %s", (l, r));
+            break;
         case '*':
-            str_append_c += snprintf(ret + str_append_c, 100, "mul %s, %s", (l, r);
-            return ret;
+            str_append_c += snprintf(code + str_append_c, 100, "mul %s, %s", (l, r);
+            break;
         case '/':
-            str_append_c += snprintf(ret + str_append_c, 100, "div %s, %s", (l, r);
-            return ret;
+            str_append_c += snprintf(code + str_append_c, 100, "div %s, %s", (l, r);
+            break;
         default:
-            return '_';
+            break;
     }
 }
 
