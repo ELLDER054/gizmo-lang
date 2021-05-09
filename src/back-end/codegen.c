@@ -5,38 +5,43 @@
 #include "../front-end/ast.h"
 
 int str_append_c = 0;
+freeing[1024];
+int j;
 
 char* generate_oper_asm(char* oper, Node* left, Node* right) {
-    char ret[1024];
+    char* ret = malloc(sizeof(char*));
+    char* l = malloc(sizeof(char*));
+    char* r = malloc(sizeof(char*));
+    generate_expression_asm(left, l);
+    generate_expression_asm(right, r);
     switch (*oper) {
         case '+':
-            str_append_c += snprintf(ret + str_append_c, 100, "add %s, %s", (gnerate_expression_asm(left), gnerate_expression_asm(right));
+            str_append_c += snprintf(ret + str_append_c, 100, "add %s, %s", (l, r);
             return ret;
         case '-':
-            str_append_c += snprintf(ret + str_append_c, 100, "sub %s, %s", (gnerate_expression_asm(left), gnerate_expression_asm(right));
+            str_append_c += snprintf(ret + str_append_c, 100, "sub %s, %s", (l, r));
             return ret;
         case '*':
-            str_append_c += snprintf(ret + str_append_c, 100, "mul %s, %s", (gnerate_expression_asm(left), gnerate_expression_asm(right));
+            str_append_c += snprintf(ret + str_append_c, 100, "mul %s, %s", (l, r);
             return ret;
         case '/':
-            str_append_c += snprintf(ret + str_append_c, 100, "div %s, %s", (gnerate_expression_asm(left), gnerate_expression_asm(right));
+            str_append_c += snprintf(ret + str_append_c, 100, "div %s, %s", (l, r);
             return ret;
         default:
             return '_';
     }
 }
 
-char* generate_expression_asm(Node* n) {
-    char code[1024];
+void generate_expression_asm(Node* n, char* code) {
     if (n->n_type == INTEGER_NODE) {
         str_append_c += snprintf(code + str_append_c, 100, "%d", ((Integer_node*) n)->value);
-        return code;
+        return;
     } else if (n->n_type == ID_NODE) {
         str_append_c += snprintf(code + str_append_c, 100, "%%%s", ((Identifier_node*) n)->name);
-        return code;
+        return;
     }
     
-    return generate_oper_asm(((Operator_node*) n)->oper, ((Operator_node*) n)->left, ((Operator_node*) n)->right);
+    generate_oper_asm(((Operator_node*) n)->oper, ((Operator_node*) n)->left, ((Operator_node*) n)->right, code);
 }
 
 void generate(Node** ast, int size, char* code) {
@@ -47,8 +52,13 @@ void generate(Node** ast, int size, char* code) {
         }
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
-            str_append_c += snprintf(code + str_append_c, 100, "%%%s = %s", v->name, generate_expression_asm(v->value));
+            char code[1024];
+            generate_expression_asm(v->value, code);
+            str_append_c += snprintf(code + str_append_c, 100, "%%%s = %s", v->name, code);
             printf("%s\n", code);
         }
+    }
+    for (i = 0; i < j; i++) {
+        free(freeing[i]);
     }
 }
