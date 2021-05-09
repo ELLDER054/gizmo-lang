@@ -60,8 +60,8 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char code[2056];
-            generate_expression_asm(v->value, code);
             str_append_c += snprintf(code + str_append_c, 100, "%%%s = %s\n", v->name, code);
+            generate_expression_asm(v->value, code);
             printf("%s\n", code);
         }
     }
