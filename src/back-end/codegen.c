@@ -56,6 +56,9 @@ void generate_expression(Node* v, char* code) {
 void generate(Node** ast, int size, char* code) {
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
+        if (n == NULL) {
+            break;
+        }
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char additional_code[1024] = "%%";
