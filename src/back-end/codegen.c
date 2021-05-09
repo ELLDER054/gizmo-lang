@@ -40,7 +40,7 @@ void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
         char b[1024];
         snprintf(b, 1024, "%d", ((Integer_node*) v)->value);
-        snprintf(code, b, 1024);
+        snprintf(code, 1024, "%s", b);
         return;
     } else if (v->n_type == ID_NODE) {
         char id[1024] = "%%";
