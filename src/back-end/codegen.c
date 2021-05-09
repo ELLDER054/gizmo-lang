@@ -15,7 +15,7 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             str_append_c += snprintf(code + str_append_c, 100, "%%%s = ", v->name);
-          printf("%s\n", code);
+            printf("%s\n", code);
         }
     }
 }
