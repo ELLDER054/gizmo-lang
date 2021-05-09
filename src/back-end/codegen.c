@@ -41,7 +41,7 @@ void generate_expression(Node* v, char* code) {
         snprintf(code, 1024, "%d", ((Integer_node*) v)->value);
         return;
     } else if (v->n_type == ID_NODE) {
-        char id[1024] = "%";
+        snprintf(code, 2, "%%");
         snprintf(code, sizeof(((Identifier_node*) v)->name), "%s", ((Identifier_node*) v)->name);
         return;
     }
@@ -61,7 +61,7 @@ void generate(Node** ast, int size, char* code) {
             char additional_code[1024] = "%";
             snprintf(additional_code, sizeof(v->name), "%s", v->name);
             snprintf(additional_code, 3, " = ");
-            int size;
+            printf("a_code is: %s\n", additional_code);
             generate_expression(v->value, additional_code);
             printf("code is %s\n", additional_code);
             snprintf(code, sizeof(additional_code), "%s", additional_code);
