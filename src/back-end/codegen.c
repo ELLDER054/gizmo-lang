@@ -38,14 +38,11 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
 
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
-        char b[1024];
-        snprintf(b, 1024, "%d", ((Integer_node*) v)->value);
-        snprintf(code, 1024, "%s", b);
+        snprintf(code, 1024, "%d", ((Integer_node*) v)->value);
         return;
     } else if (v->n_type == ID_NODE) {
         char id[1024] = "%%";
-        snprintf(id, sizeof(((Identifier_node*) v)->name), "%s", ((Identifier_node*) v)->name);
-        snprintf(code, 1024, "%s", id);
+        snprintf(code, sizeof(((Identifier_node*) v)->name), "%s", ((Identifier_node*) v)->name);
         return;
     }
     
