@@ -43,14 +43,14 @@ void generate_expression(Node* v, char* code) {
         snprintf(code, b, 1024);
         return;
     } else if (v->n_type == ID_NODE) {
-        char id[1024] = "%";
-        snprintf(id, e, sizeof(((Identifier_node*) v)->name), ((Identifier_node*) v)->name);
+        char id[1024] = "%%";
+        snprintf(id, sizeof(((Identifier_node*) v)->name), "%s", ((Identifier_node*) v)->name);
         snprintf(code, 1024, "%s", id);
         return;
     }
     
     char* oper_asm = generate_oper_asm(((Operator_node*) v)->oper, ((Operator_node*) v)->left, ((Operator_node*) v)->right);
-    snprintf(code, sizeof(oper_asm), oper_asm);
+    snprintf(code, sizeof(oper_asm), "%s", oper_asm);
 }
 
 void generate(Node** ast, int size, char* code) {
@@ -58,7 +58,7 @@ void generate(Node** ast, int size, char* code) {
         Node* n = ast[i];
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
-            char additional_code[1024] = "%";
+            char additional_code[1024] = "%%";
             strncat(additional_code, v->name, strlen(v->name));
             strncat(additional_code, " = ", 3);
             int size;
