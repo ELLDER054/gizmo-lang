@@ -8,7 +8,7 @@ void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program);
 void print_node(FILE* f, Node* n);
 void free_node(Node* n);
-void generate(Node** ast, char* code);
+void generate(Node** ast, int length, char* code);
 
 int main(int argc, char** argv) {
     if (!(argc >= 3)) {
