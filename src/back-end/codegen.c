@@ -53,8 +53,8 @@ void generate_expression(Node* v, char* code) {
     strncat(code, oper_asm, strlen(oper_asm));
 }
 
-void generate(Node** ast, char* code) {
-    for (int i = 0; i < sizeof(ast) / sizeof(Node*); i++) {
+void generate(Node** ast, int size, char* code) {
+    for (int i = 0; i < size; i++) {
         Node* n = ast[i];
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
