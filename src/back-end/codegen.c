@@ -61,7 +61,7 @@ void generate_expression(Node* v, char* code) {
         str_append(code, 100, "%d", ((Integer_node*) v)->value);
         return;
     } else if (v->n_type == ID_NODE) {
-        str_append(code, sizeof(((Identifier_node*) v)->name), "%%%s", ((Identifier_node*) v)->name);
+        str_append(code, 102, "%%%s", ((Identifier_node*) v)->name);
         return;
     }
     
