@@ -64,7 +64,7 @@ void generate(Node** ast, int size, char* code) {
             int size;
             generate_expression(v->value, additional_code);
             printf("code is %s\n", additional_code);
-            snprintf(code, sizeof(additional_code), additional_code);
+            snprintf(code, sizeof(additional_code), "%s", additional_code);
         }
     }
     for (int i = 0; i < sizeof(needs_freeing) / sizeof(char*); i++) {
