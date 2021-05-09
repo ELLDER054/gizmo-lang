@@ -48,7 +48,7 @@ void generate_expression_asm(Node* n, char* c) {
         return;
     }
     
-    generate_oper_asm(((Operator_node*) n)->oper, ((Operator_node*) n)->left, ((Operator_node*) n)->right, code);
+    generate_oper_asm(((Operator_node*) n)->oper, ((Operator_node*) n)->left, ((Operator_node*) n)->right, c);
 }
 
 void generate(Node** ast, int size, char* code) {
