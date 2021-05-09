@@ -58,7 +58,7 @@ char* generate_oper_asm(char* oper, Node* left, Node* right) {
 
 void generate_expression(Node* v, char* code) {
     if (v->n_type == INTEGER_NODE) {
-        str_append(code, 1024, "%d", ((Integer_node*) v)->value);
+        str_append(code, 100, "%d", ((Integer_node*) v)->value);
         return;
     } else if (v->n_type == ID_NODE) {
         str_append(code, 2, "%%");
