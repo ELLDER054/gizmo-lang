@@ -4,7 +4,7 @@
 #include "codegen.h"
 #include "../front-end/ast.h"
 
-int i = 0;
+int str_append_c = 0;
 
 void generate(Node** ast, int size, char* code) {
     for (int i = 0; i < size; i++) {
@@ -14,7 +14,7 @@ void generate(Node** ast, int size, char* code) {
         }
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
-            i += snprintf(code + i, 100, "%s", v->name);
+            str_append_c += snprintf(code + str_append_c, 100, "%%%s = ", v->name);
           printf("%s\n", code);
         }
     }
