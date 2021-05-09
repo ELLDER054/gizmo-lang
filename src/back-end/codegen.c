@@ -15,6 +15,9 @@ char* generate_oper_asm(char* oper, Node* left, Node* right, char* code) {
     char* ret = malloc(sizeof(char*));
     char* l = malloc(sizeof(char*));
     char* r = malloc(sizeof(char*));
+    freeing[j++] = l;
+    freeing[j++] = r;
+    freeing[j++] = ret;
     generate_expression_asm(left, l);
     generate_expression_asm(right, r);
     switch (*oper) {
