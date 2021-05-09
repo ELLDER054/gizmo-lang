@@ -10,7 +10,7 @@ int str_append_c = 0;
 char* freeing[1024];
 int j;
 
-void generate_oper_asm(char* oper, Node* left, Node* right, char* code) {
+void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
     int oper_append_c = 0;
     char* ret = malloc(sizeof(char*));
     char* l = malloc(sizeof(char*));
@@ -22,29 +22,29 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* code) {
     generate_expression_asm(right, r);
     switch (*oper) {
         case '+':
-            str_append_c += snprintf(code + str_append_c, 100, "add %s, %s", l, r);
+            str_append_c += snprintf(c + str_append_c, 100, "add %s, %s", l, r);
             break;
         case '-':
-            str_append_c += snprintf(code + str_append_c, 100, "sub %s, %s", l, r);
+            str_append_c += snprintf(c + str_append_c, 100, "sub %s, %s", l, r);
             break;
         case '*':
-            str_append_c += snprintf(code + str_append_c, 100, "mul %s, %s", l, r);
+            str_append_c += snprintf(c + str_append_c, 100, "mul %s, %s", l, r);
             break;
         case '/':
-            str_append_c += snprintf(code + str_append_c, 100, "div %s, %s", l, r);
+            str_append_c += snprintf(c + str_append_c, 100, "div %s, %s", l, r);
             break;
         default:
             break;
     }
 }
 
-void generate_expression_asm(Node* n, char* code) {
+void generate_expression_asm(Node* n, char* c) {
     int expr_append_c = 0;
     if (n->n_type == INTEGER_NODE) {
-        str_append_c += snprintf(code + str_append_c, 100, "%d", ((Integer_node*) n)->value);
+        str_append_c += snprintf(c + str_append_c, 100, "%d", ((Integer_node*) n)->value);
         return;
     } else if (n->n_type == ID_NODE) {
-        str_append_c += snprintf(code + str_append_c, 100, "%%%s", ((Identifier_node*) n)->name);
+        str_append_c += snprintf(c + str_append_c, 100, "%%%s", ((Identifier_node*) n)->name);
         return;
     }
     
