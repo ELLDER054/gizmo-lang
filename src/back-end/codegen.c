@@ -69,6 +69,12 @@ void generate_expression_asm(Node* n, char* c) {
     generate_oper_asm(((Operator_node*) n)->oper, ((Operator_node*) n)->left, ((Operator_node*) n)->right, c);
 }
 
+char* types(char* t) {
+    if (!strcmp(t, "int")) {
+        return "i32";
+    }
+}
+
 void generate(Node** ast, int size, char* code) {
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -78,6 +84,8 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             strncat(code, "%", 1);
+            strcat(code, v->name);
+            strncat(code, " ", 1);
             strcat(code, v->name);
             strncat(code, " = ", 3);
             generate_expression_asm(v->value, code);
