@@ -27,14 +27,15 @@ int main(int argc, char** argv) {
     scan(code, tokens);
     parse(tokens, program);
     FILE* output_f = fopen("gizmo_llvm_ir", "w");
-    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
+    /*for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
             fprintf(output_f, "\n");
         }
-    }
+    }*/
     char output[1024];
     generate(program, sizeof(program) / sizeof(Node*), output);
+    fprintf(output_f, output);
     fclose(input_f);
     fclose(output_f);
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
