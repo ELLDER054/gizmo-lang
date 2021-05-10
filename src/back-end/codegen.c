@@ -10,7 +10,6 @@ char* freeing[1024];
 int j;
 
 void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
-    int oper_append_c = 0;
     char* ret = malloc(1024);
     char* l = malloc(1024);
     char* r = malloc(1024);
@@ -21,27 +20,27 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
     generate_expression_asm(right, r);
     switch (*oper) {
         case '+':
-            strcat(c, "add ");
+            strncat(c, "add ", 4);
             strcat(c, l);
-            strcat(c, ", ");
+            strncat(c, ", ", 2);
             strcat(c, r);
             break;
         case '-':
-            strcat(c, "sub ");
+            strncat(c, "sub ", 4);
             strcat(c, l);
-            strcat(c, ", ");
+            strncat(c, ", ", 2);
             strcat(c, r);
             break;
         case '*':
-            strcat(c, "mul ");
+            strncat(c, "mul ", 4);
             strcat(c, l);
-            strcat(c, ", ");
+            strncat(c, ", ", 2);
             strcat(c, r);
             break;
         case '/':
-            strcat(c, "div ");
+            strncat(c, "div ", 4);
             strcat(c, l);
-            strcat(c, ", ");
+            strncat(c, ", ", 2);
             strcat(c, r);
             break;
         default:
@@ -54,10 +53,10 @@ void generate_expression_asm(Node* n, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char integer[100];
         snprintf(integer, 100, "%d", ((Integer_node*) n)->value);
-        strcat(c, integer);
+        strncat(c, integer, 100);
         return;
     } else if (n->n_type == ID_NODE) {
-        strncat(c, "%");
+        strncat(c, "%", 1);
         strcat(c, ((Identifier_node*) n)->name);
         return;
     }
@@ -74,9 +73,9 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char code[2056];
-            strcpy(code, "%");
+            strncpy(code, "%", 1);
             strcat(code, v->name);
-            strcat(code, " = ");
+            strncat(code, " = ", 3);
             generate_expression_asm(v->value, code);
             printf("%s\n", code);
         }
