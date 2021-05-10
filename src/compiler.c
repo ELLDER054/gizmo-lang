@@ -35,7 +35,7 @@ int main(int argc, char** argv) {
     }*/
     char output[1024];
     generate(program, sizeof(program) / sizeof(Node*), output);
-    fprintf(output_f, output);
+    fprintf(output_f, "%s", output);
     fclose(input_f);
     fclose(output_f);
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
