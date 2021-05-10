@@ -57,7 +57,7 @@ void generate_expression_asm(Node* n, char* c) {
     int expr_append_c = 0;
     if (n->n_type == INTEGER_NODE) {
         char integer[100];
-        snprintf(integer, 100, "%d", ((Integer_node*) n)->value);
+        snprintf(integer, 100, "add %d, 0", ((Integer_node*) n)->value);
         strcat(c, integer);
         return;
     } else if (n->n_type == ID_NODE) {
