@@ -86,8 +86,8 @@ void generate(Node** ast, int size, char* code) {
             strncat(code, "%", 1);
             strcat(code, v->name);
             strncat(code, " = ", 3);
-            strncat(code, " ", 1);
             strcat(code, types(v->type));
+            strncat(code, " ", 1);
             generate_expression_asm(v->value, code);
             strncat(code, "\n", 1);
         }
