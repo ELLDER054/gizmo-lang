@@ -4,7 +4,7 @@
 #include "codegen.h"
 #include "../front-end/ast.h"
 
-#define MAX_BUF_LEN
+#define MAX_BUF_LEN 1024
 
 void generate_expression_asm(Node* n, char* code);
 
