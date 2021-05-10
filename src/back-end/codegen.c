@@ -4,15 +4,20 @@
 #include "codegen.h"
 #include "../front-end/ast.h"
 
+#define MAX_BUF_LEN
+
 void generate_expression_asm(Node* n, char* code);
 
-char* freeing[1024];
-int j;
+char* freeing[MAX_BUF_LEN];
+int j = 0;
 
 void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
-    char* ret = malloc(1024);
-    char* l = malloc(1024);
-    char* r = malloc(1024);
+    char* ret = malloc(MAX_BUF_LEN);
+    memset(ret, 0, MAX_BUF_LEN);
+    char* l = malloc(MAX_BUF_LEN);
+    memset(l, 0, MAX_BUF_LEN);
+    char* r = malloc(MAX_BUF_LEN);
+    memset(r, 0, MAX_BUF_LEN);
     freeing[j++] = l;
     freeing[j++] = r;
     freeing[j++] = ret;
