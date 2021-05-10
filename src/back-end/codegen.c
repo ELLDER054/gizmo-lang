@@ -56,8 +56,8 @@ void generate_expression_asm(Node* n, char* c) {
         strncat(c, integer, 100);
         return;
     } else if (n->n_type == ID_NODE) {
-        strncat(c, "%", 1);
-        /*strcat(c, ((Identifier_node*) n)->name);*/
+        /*strncat(c, "%", 1);
+        strcat(c, ((Identifier_node*) n)->name);*/
         return;
     }
     
