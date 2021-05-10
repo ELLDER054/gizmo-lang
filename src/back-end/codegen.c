@@ -57,7 +57,7 @@ void generate_expression_asm(Node* n, char* c) {
         strcat(c, integer);
         return;
     } else if (n->n_type == ID_NODE) {
-        strcat(c, "%%");
+        strcat(c, "%");
         strcat(c, ((Identifier_node*) n)->name);
         return;
     }
@@ -74,7 +74,7 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char code[2056];
-            strcpy(code, "%%");
+            strcpy(code, "%");
             strcat(code, v->name);
             strcat(code, " = ");
             generate_expression_asm(v->value, code);
