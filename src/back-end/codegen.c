@@ -22,16 +22,16 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
     generate_expression_asm(right, r);
     switch (*oper) {
         case '+':
-            str_append_c += snprintf(c + str_append_c, 100, "add %s, %s", l, r);
+            str_append_c += sprintf(c + str_append_c, "add %s, %s", l, r);
             break;
         case '-':
-            str_append_c += snprintf(c + str_append_c, 100, "sub %s, %s", l, r);
+            str_append_c += sprintf(c + str_append_c, "sub %s, %s", l, r);
             break;
         case '*':
-            str_append_c += snprintf(c + str_append_c, 100, "mul %s, %s", l, r);
+            str_append_c += sprintf(c + str_append_c, "mul %s, %s", l, r);
             break;
         case '/':
-            str_append_c += snprintf(c + str_append_c, 100, "div %s, %s", l, r);
+            str_append_c += sprintf(c + str_append_c, "div %s, %s", l, r);
             break;
         default:
             break;
@@ -41,10 +41,10 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
 void generate_expression_asm(Node* n, char* c) {
     int expr_append_c = 0;
     if (n->n_type == INTEGER_NODE) {
-        str_append_c += snprintf(c + str_append_c, 100, "%d", ((Integer_node*) n)->value);
+        str_append_c += sprintf(c + str_append_c, "%d", ((Integer_node*) n)->value);
         return;
     } else if (n->n_type == ID_NODE) {
-        str_append_c += snprintf(c + str_append_c, 100, "%%%s", ((Identifier_node*) n)->name);
+        str_append_c += sprintf(c + str_append_c, "%%%s", ((Identifier_node*) n)->name);
         return;
     }
     
@@ -60,7 +60,7 @@ void generate(Node** ast, int size, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char code[2056];
-            str_append_c += snprintf(code + str_append_c, 100, "%%%s = %s\n", v->name, code);
+            str_append_c += sprintf(code + str_append_c, "%%%s = %s\n", v->name, code);
             generate_expression_asm(v->value, code);
             printf("%s\n", code);
         }
