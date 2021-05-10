@@ -77,12 +77,11 @@ void generate(Node** ast, int size, char* code) {
         }
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
-            char code[2056];
             strncpy(code, "%", 1);
             strcat(code, v->name);
             strncat(code, " = ", 3);
             generate_expression_asm(v->value, code);
-            printf("%s\n", code);
+            strncat(code, "\n", 1);
         }
     }
     for (int i = 0; i < j; i++) {
