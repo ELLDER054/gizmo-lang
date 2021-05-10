@@ -52,6 +52,8 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
 void generate_expression_asm(Node* n, char* c) {
     int expr_append_c = 0;
     if (n->n_type == INTEGER_NODE) {
+        char integer[100];
+        snprintf(integer, 100, "%d", ((Integer_node*) n)->value);
         strcat(c, ((Integer_node*) n)->value);
         return;
     } else if (n->n_type == ID_NODE) {
