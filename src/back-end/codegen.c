@@ -53,11 +53,11 @@ void generate_expression_asm(Node* n, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char integer[100];
         snprintf(integer, 100, "%d", ((Integer_node*) n)->value);
-        strncat(c, integer, 100);
+        strcat(c, integer);
         return;
     } else if (n->n_type == ID_NODE) {
-        /*strncat(c, "%", 1);
-        strcat(c, ((Identifier_node*) n)->name);*/
+        strncat(c, "%", 1);
+        strcat(c, ((Identifier_node*) n)->name);
         return;
     }
     
