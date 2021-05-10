@@ -11,9 +11,9 @@ int j;
 
 void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
     int oper_append_c = 0;
-    char* ret = malloc(sizeof(char*));
-    char* l = malloc(sizeof(char*));
-    char* r = malloc(sizeof(char*));
+    char* ret = malloc(1024);
+    char* l = malloc(1024);
+    char* r = malloc(1024);
     freeing[j++] = l;
     freeing[j++] = r;
     freeing[j++] = ret;
