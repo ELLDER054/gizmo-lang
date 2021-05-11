@@ -25,27 +25,27 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
     generate_expression_asm(right, r);
     switch (*oper) {
         case '+':
-            strncat(c, "add ", 4);
+            strcat(c, "add ");
             strcat(c, l);
-            strncat(c, ", ", 2);
+            strcat(c, ", ");
             strcat(c, r);
             break;
         case '-':
-            strncat(c, "sub ", 4);
+            strcat(c, "sub ");
             strcat(c, l);
-            strncat(c, ", ", 2);
+            strcat(c, ", ");
             strcat(c, r);
             break;
         case '*':
-            strncat(c, "mul ", 4);
+            strcat(c, "mul ");
             strcat(c, l);
-            strncat(c, ", ", 2);
+            strcat(c, ", ");
             strcat(c, r);
             break;
         case '/':
-            strncat(c, "div ", 4);
+            strcat(c, "div ");
             strcat(c, l);
-            strncat(c, ", ", 2);
+            strcat(c, ", ");
             strcat(c, r);
             break;
         default:
@@ -61,7 +61,7 @@ void generate_expression_asm(Node* n, char* c) {
         strcat(c, integer);
         return;
     } else if (n->n_type == ID_NODE) {
-        strncat(c, "%", 1);
+        strcat(c, "%");
         strcat(c, ((Identifier_node*) n)->name);
         return;
     }
@@ -83,11 +83,11 @@ void generate(Node** ast, int size, char* code) {
         }
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
-            strncat(code, "%", 1);
+            strcat(code, "%");
             strcat(code, v->name);
-            strncat(code, " = ", 3);
+            strcat(code, " = ");
             generate_expression_asm(v->value, code);
-            strncat(code, "\n", 1);
+            strcat(code, "\n");
         }
     }
     for (int i = 0; i < j; i++) {
