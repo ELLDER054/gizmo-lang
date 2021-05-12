@@ -78,6 +78,7 @@ char* types(char* t) {
     if (!strcmp(t, "int")) {
         return "i32";
     }
+    return "";
 }
 
 void generate(Node** ast, int size, char* code) {
