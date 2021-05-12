@@ -10,6 +10,7 @@ Contributors are always welcome! Some ways to help are:
 3. Get support for gizmo on your favorite IDE if it isn't already supported.  
 4. Report any bugs that you might find.  
 5. Play around with Gizmo and spread the word.
+6. Sponsor me on github
 
 ## Hacking, Changing or Using Gizmo Locally
 Warning: If you clone Gizmo now, there is a chance that Gizmo will be updated and you will not have the most recent version.  
