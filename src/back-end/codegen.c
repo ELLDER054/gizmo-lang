@@ -62,7 +62,7 @@ void generate_expression_asm(Node* n, char* c) {
         return;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
-        snprintf(str, 100, "\"\"", ((String_node*) n)->value);
+        snprintf(str, 100, "\"%s\"", ((String_node*) n)->value);
         strcat(c, str);
         return;
     } else if (n->n_type == ID_NODE) {
