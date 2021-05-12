@@ -60,6 +60,11 @@ void generate_expression_asm(Node* n, char* c) {
         snprintf(integer, 100, "add i32 %d, 0", ((Integer_node*) n)->value);
         strcat(c, integer);
         return;
+    } else if (n->n_type == STRING_NODE) {
+        char str[100];
+        snprintf(str, 100, "\"\"", ((String_node*) n)->value);
+        strcat(c, str);
+        return;
     } else if (n->n_type == ID_NODE) {
         strcat(c, "%");
         strcat(c, ((Identifier_node*) n)->name);
