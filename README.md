@@ -18,7 +18,7 @@ Warning: If you build Gizmo now, there is a chance that Gizmo will be updated an
 2. Make sure cmake is installed in your terminal.
 3. Run this code in your terminal to build Gizmo.
 ```shell
-git clone https://github.com/ellder054/gizmo-lang
+git clone https://github.com/ellder054/gizmo-lang.git
 mkdir gizmo-build
 cd gizmo-build
 cmake ../gizmo-lang
