@@ -304,7 +304,7 @@ void scan(char* code, Token* tokens) {
         } else {
             char specifier[1024] = {'\0'};
             repeat_c(' ', col, specifier);
-            strncat(specifier, "^", 1);
+            strcat(specifier, "^");
             printf("On line %d:\nUnexpected character `%c`\n%s\n%s\n", lineno, ch, lines[lineno - 1], specifier);
             exit(0);
         }
