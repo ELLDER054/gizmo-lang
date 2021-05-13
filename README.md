@@ -25,10 +25,15 @@ cmake --build .
 ```
 
 ### Compiling a file
-Make sure you have built Gizmo and go to the "gizmo-build" directory.
-Example files can be found in the `examples` folder.
+Make sure you have built Gizmo and go to the "gizmo-build" directory.  
+Example files can be found in the `examples` folder.  
 You can now tell Gizmo to compile a Gizmo file with the following.
 ```shell
 ./gizmo filename.gizmo output
 ```
 Replace `filename.gizmo` with whatever file you are trying to compile and replace `output` with your output file.  
+Once you have compiled, you should be able to run this code to execute:
+```shell
+./output
+```
+Again, replace `output` with your output file.
