@@ -18,13 +18,14 @@ Warning: If you build Gizmo now, there is a chance that Gizmo will be updated an
 2. Run this code in your terminal to build Gizmo.
 ```shell
 git clone https://github.com/ellder054/gizmo-lang
-mkdir build
-cd build
+mkdir gizmo-build
+cd gizmo-build
 cmake ../gizmo-lang
 cmake --build .
 ```
 
 ### Compiling a file
+Make sure you have built Gizmo and go to the "gizmo-build" directory.
 Example files can be found in the `examples` folder.
 You can now tell Gizmo to compile a Gizmo file with the following.
 ```shell
