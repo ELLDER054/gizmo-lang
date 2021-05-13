@@ -115,7 +115,7 @@ Symbol* sym_find(char* name) {
     } else {
         char specifier[MAX_LINE_LEN] = "";
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nUndefined name `%s`\n%s\n%s\n", tokens[ind - 1].lineno, name, tokens[ind - 1].line, specifier);
         exit(0);
     }
@@ -160,7 +160,7 @@ void check_type(int start, Node* left, Node* right, char* oper) {
             if (strcmp(type(right), "int")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 1);
+                strncat(specifier, "^", 2);
                 printf("On line %d:\nExpected Integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
@@ -169,7 +169,7 @@ void check_type(int start, Node* left, Node* right, char* oper) {
             if (strcmp(type(right), "string")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 1);
+                strncat(specifier, "^", 2);
                 printf("On line %d:\nExpected string on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
@@ -178,14 +178,14 @@ void check_type(int start, Node* left, Node* right, char* oper) {
             if (strcmp(type(right), "real")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 1);
+                strncat(specifier, "^", 2);
                 printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
         } else {
             char specifier[MAX_LINE_LEN] = "";
             repeat_char(' ', tokens[start].col, specifier);
-            strncat(specifier, "^", 1);
+            strncat(specifier, "^", 2);
             printf("On line %d:\nInvalid type `%s` on left side of expression\n%s\n%s\n", tokens[start].lineno, type(left), tokens[start].line, specifier);
             exit(0);
         }
@@ -194,7 +194,7 @@ void check_type(int start, Node* left, Node* right, char* oper) {
             if (strcmp(type(right), "int")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 1);
+                strncat(specifier, "^", 2);
                 printf("On line %d:\nExpected integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
@@ -203,14 +203,14 @@ void check_type(int start, Node* left, Node* right, char* oper) {
             if (strcmp(type(right), "real")) {
                 char specifier[MAX_LINE_LEN] = "";
                 repeat_char(' ', tokens[ind - 1].col, specifier);
-                strncat(specifier, "^", 1);
+                strncat(specifier, "^", 2);
                 printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
                 exit(0);
             }
         } else {
             char specifier[MAX_LINE_LEN] = "";
             repeat_char(' ', tokens[start].col, specifier);
-            strncat(specifier, "^", 1);
+            strncat(specifier, "^", 2);
             printf("On line %d:\nInvalid type `%s` on left side of expression\n%s\n%s\n", tokens[start].lineno, type(left), tokens[start].line, specifier);
             exit(0);
         }
@@ -237,7 +237,7 @@ Node* expression2(int start) {
     if (expr == NULL) {
         char specifier[100] = "";
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
@@ -301,7 +301,7 @@ Node* term2(int start) {
     if (t == NULL) {
         char specifier[100] = "";
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
@@ -337,7 +337,7 @@ Node* incomplete_var_declaration(int start) {
     if (id == NULL) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
@@ -356,7 +356,7 @@ Node* incomplete_var_declaration(int start) {
     if (contains_symbol(s)) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
@@ -376,7 +376,7 @@ Node* var_declaration(int start) {
     if (id == NULL) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
@@ -386,7 +386,7 @@ Node* var_declaration(int start) {
     if (expr == NULL) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nExpected expression after assignment operator\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
@@ -396,14 +396,14 @@ Node* var_declaration(int start) {
     if (contains_symbol(s)) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
     if (strcmp(type(expr), var_type)) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\nFor variable `%s`\nAssignment to type %s from different type %s\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, var_type, type(expr), tokens[start + 1].line, specifier);
         exit(0);
     }
