@@ -29,24 +29,28 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
             strcat(c, l);
             strcat(c, ", ");
             strcat(c, r);
+            strcat(c, "\n");
             break;
         case '-':
             strcat(c, "sub ");
             strcat(c, l);
             strcat(c, ", ");
             strcat(c, r);
+            strcat(c, "\n");
             break;
         case '*':
             strcat(c, "mul ");
             strcat(c, l);
             strcat(c, ", ");
             strcat(c, r);
+            strcat(c, "\n");
             break;
         case '/':
             strcat(c, "div ");
             strcat(c, l);
             strcat(c, ", ");
             strcat(c, r);
+            strcat(c, "\n");
             break;
         default:
             break;
@@ -62,7 +66,7 @@ void generate_expression_asm(Node* n, char* c) {
         return;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
-        snprintf(str, 100, "\"%s\"", ((String_node*) n)->value);
+        snprintf(str, 100, "\"%s\"", ((String_node*) n)->value); /* strings are not generated correctly */
         strcat(c, str);
         return;
     } else if (n->n_type == ID_NODE) {
