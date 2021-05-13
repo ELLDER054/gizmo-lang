@@ -20,8 +20,8 @@ Warning: If you build Gizmo now, there is a chance that Gizmo will be updated an
 ```shell
 git clone https://github.com/ellder054/gizmo-lang
 mkdir gizmo-build
-cmake ../gizmo-lang
 cd gizmo-build
+cmake ../gizmo-lang
 make
 ```
 
