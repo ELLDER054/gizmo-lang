@@ -169,7 +169,7 @@ void scan(char* code, Token* tokens) {
             }
             if (ch == '.' && isDigit(next(code, pos))) {
                 ch = code[++pos];
-                strncat(num, ".", 1);
+                strcat(num, ".");
                 while (isDigit(ch)) {
                     strncat(num, &ch, 1);
                     ch = code[++pos];
@@ -178,7 +178,7 @@ void scan(char* code, Token* tokens) {
                 if (ch == '.') {
                     char specifier[1024] = {'\0'};
                     repeat_c(' ', col, specifier);
-                    strncat(specifier, "^", 1);
+                    strcat(specifier, "^");
                     printf("On line %d:\nToo many dots in floating point number\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
                     exit(0);
                 } else {
@@ -210,7 +210,7 @@ void scan(char* code, Token* tokens) {
                 if (ch == '\0') {
                     char specifier[1024] = {'\0'};
                     repeat_c(' ', col, specifier);
-                    strncat(specifier, "^", 1);
+                    strcat(specifier, "^");
                     printf("On line %d:\nExpected closing comment\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
                     exit(0);
                 }
@@ -272,7 +272,7 @@ void scan(char* code, Token* tokens) {
                 if (ch == '\n' || ch == '\0') {
                     char specifier[1024] = {'\0'};
                     repeat_c(' ', col, specifier);
-                    strncat(specifier, "^", 1);
+                    strcat(specifier, "^");
                     printf("On line %d:\nUnterminated string literal\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
                     exit(0);
                 }
