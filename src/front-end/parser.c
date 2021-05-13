@@ -30,7 +30,7 @@ void consume(TokenType type, char* err, char* buffer) {
     if (ind >= tokslen(tokens)) {
         char specifier[MAX_LINE_LEN] = "";
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 1);
+        strncat(specifier, "^", 2);
         printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
         exit(0);
     }
@@ -40,7 +40,7 @@ void consume(TokenType type, char* err, char* buffer) {
     }
     char specifier[100] = "";
     repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-    strncat(specifier, "^", 1);
+    strncat(specifier, "^", 2);
     printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
     exit(0);
 }
