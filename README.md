@@ -15,13 +15,14 @@ Contributors are always welcome! Some ways to help are:
 ## Hacking, Changing or Using Gizmo Locally
 Warning: If you build Gizmo now, there is a chance that Gizmo will be updated and you will not have the most recent version.  
 1. Make sure git is installed in your terminal.  
-2. Run this code in your terminal to build Gizmo.
+2. Make sure cmake is installed in your terminal.
+3. Run this code in your terminal to build Gizmo.
 ```shell
 git clone https://github.com/ellder054/gizmo-lang
 mkdir gizmo-build
-cd gizmo-build
 cmake ../gizmo-lang
-cmake --build .
+cd gizmo-build
+make
 ```
 
 ### Compiling a file
