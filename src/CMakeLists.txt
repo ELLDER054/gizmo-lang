@@ -1,9 +1,0 @@
-add_library(gizmosrc compiler.c)
-
-SET(FRONT_END front-end/)
-SET(BACK_END back-end/)
-
-AUX_SOURCE_DIRECTORY(${FRONT_END} FRONT_END)
-AUX_SOURCE_DIRECTORY(${BACK_END} BACK_END)
-
-SET(SRC_FILES ${FRONT_END} ${BACK_END} compiler.c)
