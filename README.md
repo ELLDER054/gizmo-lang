@@ -6,7 +6,7 @@ See the main website [here](https://ellder054.github.io/gizmolang/) to learn mor
 ### How Can I Help?
 Contributors are always welcome! Some ways to help are:  
 1. Fix issues and help design our website.  
-2. Create helpful packages and modules for others to use.  
+2. Create helpful packages and modules for others to use. See [package design](https://ellder054.github.io/gizmolang/packages.html).  
 3. Get support for gizmo on your favorite IDE if it isn't already supported.  
 4. Report any bugs that you might find.  
 5. Play around with Gizmo and spread the word.
