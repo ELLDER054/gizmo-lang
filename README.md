@@ -32,7 +32,7 @@ You can now tell Gizmo to compile a Gizmo file with the following.
 ./gizmo filename.gizmo output
 ```
 Replace `filename.gizmo` with whatever file you are trying to compile and replace `output` with your output file.  
-Once you have compiled, you should be able to run this code to execute:
+Once you have compiled, you should be able to run this code to execute your file:
 ```shell
 ./output
 ```
