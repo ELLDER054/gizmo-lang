@@ -114,7 +114,6 @@ void generate(Node** ast, int size, char* code) {
         }
     }
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...");
-");
     for (int i = 0; i < j; i++) {
         free(freeing[i]);
     }
