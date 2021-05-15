@@ -14,6 +14,7 @@ call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
 */
 
 char* freeing[MAX_BUF_LEN];
+memset(freeing, 0, MAX_BUF_LEN);
 int j = 0;
 int var_c = 0;
 
@@ -41,14 +42,17 @@ char* find_operation_asm(char* oper) {
 char* generate_expression_asm(Node* n, char* type, char* c);
 
 char* generate_operation_asm(Operator_node* n, char* type, char* c) {
-    char fake_buffer[1024];
+    char fake_buffer[MAX_BUF_LEN];
     char* l = generate_expression_asm(n->left, type, fake_buffer);
     char* r = generate_expression_asm(n->right, type, fake_buffer);
+    memset(l, 0, MAX_BUF_LEN);
+    memset(r, 0, MAX_BUF_LEN);
     freeing[j++] = l;
     freeing[j++] = r;
-    char* name = malloc(MAX_BUF_LEN);
+    char* name = malloc(100);
     freeing[j++] = name;
-    snprintf(name, MAX_BUF_LEN, "%%%d", var_c++);
+    memset(name, 0, 100);
+    snprintf(name, 100, "%%%d", var_c++);
     strcat(c, name);
     strcat(c, " = ");
     strcat(c, find_operation_asm(n->oper));
@@ -67,6 +71,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
         char* name = malloc(100);
+        memset(name, 0, 100);
         freeing[j++] = name;
         snprintf(name, 100, "%%%d", var_c++);
         strcat(c, name);
@@ -78,8 +83,10 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         return ((Identifier_node*) n)->name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
+        memset(str, 0, 100);
         snprintf(str, 100, "`%s`", ((String_node*) n)->value);
         char* name = malloc(100);
+        memset(name, 0, 100);
         freeing[j++] = name;
         snprintf(name, 100, "%%%d", var_c++);
         strcat(c, name);
