@@ -330,7 +330,7 @@ Node* term(int start) {
 
 void func_expr_args(int start, Node** args, int len) {
     ind = start;
-    int args_c = 0;
+    int arg_c = 0;
     while (1) {
         Node* expr = expression(ind);
         if (expr == NULL) {
@@ -339,7 +339,7 @@ void func_expr_args(int start, Node** args, int len) {
         char* comma = expect_type(T_COMMA);
         args[arg_c++] = expr;
     }
-    len = args_c;
+    len = arg_c;
 }
 
 Node* incomplete_var_declaration(int start) {
