@@ -17,6 +17,7 @@ typedef enum {
     REAL_NODE,
     ID_NODE,
     NODE_NODE,
+    FUNC_CALL_NODE,
 } NodeType;
 
 typedef enum {
