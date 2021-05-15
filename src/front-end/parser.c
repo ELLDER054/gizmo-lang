@@ -148,6 +148,8 @@ char* type(Node* n) {
             break;
         case ID_NODE:
             return sym_find(((Identifier_node*) n)->name)->type;
+        case FUNC_CALL_NODE:
+            break;
         case NODE_NODE:
             break;
     }
