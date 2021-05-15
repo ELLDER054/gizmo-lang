@@ -10,6 +10,20 @@ void generate_expression_asm(Node* n, char* code);
 
 char* freeing[MAX_BUF_LEN];
 int j = 0;
+int var_c = 0;
+
+void find_expr(char* t, char o) {
+    switch (o) {
+        case '+':
+            strcat(t, "add");
+        case '-':
+            strcat(t, "sub");
+        case '*':
+            strcat(t, "mul");
+        case '/':
+            strcat(t, "sub");
+    }
+}
 
 void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
     char* ret = malloc(MAX_BUF_LEN);
@@ -23,38 +37,15 @@ void generate_oper_asm(char* oper, Node* left, Node* right, char* c) {
     freeing[j++] = ret;
     generate_expression_asm(left, l);
     generate_expression_asm(right, r);
-    switch (*oper) {
-        case '+':
-            strcat(c, "add ");
-            strcat(c, l);
-            strcat(c, ", ");
-            strcat(c, r);
-            strcat(c, "\n");
-            break;
-        case '-':
-            strcat(c, "sub ");
-            strcat(c, l);
-            strcat(c, ", ");
-            strcat(c, r);
-            strcat(c, "\n");
-            break;
-        case '*':
-            strcat(c, "mul ");
-            strcat(c, l);
-            strcat(c, ", ");
-            strcat(c, r);
-            strcat(c, "\n");
-            break;
-        case '/':
-            strcat(c, "div ");
-            strcat(c, l);
-            strcat(c, ", ");
-            strcat(c, r);
-            strcat(c, "\n");
-            break;
-        default:
-            break;
-    }
+    strcat(c, "%");
+    strcat(c, var_c);
+    strcat(c, " = ");
+    find_expr(ret, *oper);
+    strcat(c, ret);
+    strcat(c, l);
+    strcat(c, ", ");
+    strcat(c, r);
+    strcat(c, "\n");
 }
 
 void generate_expression_asm(Node* n, char* c) {
