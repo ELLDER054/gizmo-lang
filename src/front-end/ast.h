@@ -42,6 +42,12 @@ typedef struct {
 typedef struct {
     NodeType n_type;
     char name[MAX_NAME_LEN];
+    Node** args;
+} Func_call_node;
+
+typedef struct {
+    NodeType n_type;
+    char name[MAX_NAME_LEN];
 } Identifier_node;
 
 typedef struct {
@@ -73,5 +79,6 @@ Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
 Real_node* new_Real_node(double val);
 Identifier_node* new_Identifier_node(char* name);
+Func_call_node* new_Func_call_node(char* name, Node** args);
 
 #endif
