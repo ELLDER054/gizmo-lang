@@ -53,7 +53,7 @@ void print_node(FILE* f, Node* n) {
             print_real(f, (Real_node*) n);
             break;
         case FUNC_CALL_NODE:
-            print_func(f, (Func_call_node*) n);
+            print_func_call(f, (Func_call_node*) n);
             break;
         case NODE_NODE:
             break;
@@ -70,7 +70,7 @@ void print_var(FILE* f, Var_declaration_node* v) {
     fprintf(f, ")");
 }
 
-void print_var(FILE* f, Func_call_node* func) {
+void print_func_call(FILE* f, Func_call_node* func) {
     fprintf(f, "(FUNC_CALL_NODE, %s, ", func->name);
     fprintf(f, ")");
 }
@@ -109,7 +109,7 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
 
 void free_Func_call_node(Func_call_node *f) {
     if (NULL != f) {
-        for (int i = 0; i < sizeof(f->args) / sizeof(Arg*); i++) {
+        for (int i = 0; i < sizeof(f->args) / sizeof(Node*); i++) {
             free(f->args[i]);
         }
         free(f);
