@@ -30,6 +30,7 @@ void print_str(FILE* f, String_node* s) {
 }
 
 void print_var(FILE* f, Var_declaration_node* v);
+void print_func_call(FILE* f, Func_call_node* func);
 
 void print_node(FILE* f, Node* n) {
     switch (n->n_type) {
@@ -51,6 +52,9 @@ void print_node(FILE* f, Node* n) {
         case REAL_NODE:
             print_real(f, (Real_node*) n);
             break;
+        case FUNC_CALL_NODE:
+            print_func(f, (Func_call_node*) n);
+            break;
         case NODE_NODE:
             break;
     }
@@ -63,6 +67,11 @@ void print_var(FILE* f, Var_declaration_node* v) {
     } else {
         print_node(f, v->value);
     }
+    fprintf(f, ")");
+}
+
+void print_var(FILE* f, Func_call_node* func) {
+    fprintf(f, "(FUNC_CALL_NODE, %s, ", func->name);
     fprintf(f, ")");
 }
 
@@ -84,6 +93,26 @@ void free_Var_declaration_node(Var_declaration_node *n) {
             free_node(n->value);
         }
         free(n);
+    }
+}
+
+Var_declaration_node* new_Func_call_node(char* name, Node** args) {
+
+    Func_call_node* func = malloc(sizeof(Func_call_node));
+    memset(var, 0, sizeof(Func_call_node));
+
+    func->n_type = FUNC_CALL_NODE;
+    strncpy(func->name, name, MAX_NAME_LEN);
+    func->args = args;
+    return func;
+}
+
+void free_Func_call_node(Func_call_node *f) {
+    if (NULL != f) {
+        for (int i = 0; i < sizeof(f->args) / sizeof(Arg*); i++) {
+            free(f->args[i]);
+        }
+        free(f);
     }
 }
 
