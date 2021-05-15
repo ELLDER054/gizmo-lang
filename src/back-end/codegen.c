@@ -5,7 +5,12 @@
 #include "../front-end/ast.h"
 
 #define MAX_BUF_LEN 1024
+/*reminder: printf code:
 
+declare i32 @printf(i8* noalias nocapture, ...)
+call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
+
+*/
 void generate_expression_asm(Node* n, char* code);
 
 char* freeing[MAX_BUF_LEN];
