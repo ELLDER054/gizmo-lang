@@ -42,7 +42,8 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     char* r = generate_expression_asm(n->right);
     freeing[j++] = l;
     freeing[j++] = r;
-    char name[MAX_BUF_LEN];
+    char* name = malloc(MAX_BUF_LEN);
+    freeing[j++] = name;
     snprintf(name, MAX_BUF_LEN, "%%%d", var_c++);
     strcat(c, name);
     strcat(c, " = ");
@@ -61,7 +62,8 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
-        char name[MAX_BUF_LEN];
+        char* name = malloc(MAX_BUF_LEN);
+        freeing[j++] = name;
         snprintf(name, MAX_BUF_LEN, "%%%d", var_c++);
         strcat(c, name);
         strcat(c, " = ");
@@ -73,7 +75,8 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "`%s`", ((String_node*) n)->value);
-        char name[MAX_BUF_LEN];
+        char* name = malloc(MAX_BUF_LEN);
+        freeing[j++] = name;
         snprintf(name, MAX_BUF_LEN, "%%%d", var_c++);
         strcat(c, name);
         strcat(c, " = ");
