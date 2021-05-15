@@ -365,6 +365,46 @@ Node* incomplete_var_declaration(int start) {
     return (Node*) new_Var_declaration_node(type, id, (Node*) new_Identifier_node("none"));
 }
 
+Node* function_call(int start) {
+    ind = start;
+    char* id = expect_type(T_ID);
+    if (id == NULL) {
+        ind = start;
+        return NULL;
+    }
+    char b[MAX_NAME_LEN];
+    consume(T_OPEN_PAREN, "Expected opening parenthesis after identifier\n", b);
+    int args_len;
+    Node* args[1024];
+    func_expr_args(ind, args, args_len);
+    if (args == NULL) {
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+        strncat(specifier, "^", 2);
+        printf("On line %d:\nExpected arguments after opening parenthesis\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+        exit(0);
+    }
+    consume(T_CLOSE_PAREN, "Expected closing parenthesis after arguments\n", b);
+    char b2[MAX_NAME_LEN];
+    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
+    Symbol* s = new_symbol("func", id, NULL, args_len);
+    if (!contains_symbol(s)) {
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[start + 1].col, specifier);
+        strncat(specifier, "^", 2);
+        printf("On line %d:\nUndefined function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
+        exit(0);
+    }
+    if (args_len != find_symbol(id).args_len) {
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[start + 1].col, specifier);
+        strncat(specifier, "^", 2);
+        printf("On line %d:\nWrong amount of arguments for function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
+        exit(0);
+    }
+    return (Node*) new_Function_call_node(id, args);
+}
+
 Node* var_declaration(int start) {
     ind = start;
     char* var_type = expect_type(T_TYPE);
@@ -431,6 +471,8 @@ Node* statement(int start) {
 void parse(Token* toks, Node** program) {
     char* none_info[1024] = {"none", "none"};
     push_symbol("built-in", none_info, 0);
+    char* write_info[1024] = {"write", "none"};
+    push_symbol("func", write_info, 1);
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
