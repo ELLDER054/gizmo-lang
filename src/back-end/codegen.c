@@ -92,7 +92,7 @@ void generate(Node** ast, int size, char* code) {
             strcat(code, "\n");
         }
     }
-    strcat(code, "}");
+    strcat(code, "ret i32 0\n}");
     for (int i = 0; i < j; i++) {
         free(freeing[i]);
     }
