@@ -328,6 +328,20 @@ Node* term(int start) {
 // end expressions parsing
 // begin statement parsing
 
+void func_expr_args(int start, Node** args, int len) {
+    ind = start;
+    int args_c = 0;
+    while (1) {
+        Node* expr = expression(ind);
+        if (expr = NULL) {
+            break;
+        }
+        char* comma = expect_type(T_COMMA);
+        args[arg_c++] = expr;
+    }
+    len = args_c;
+}
+
 Node* incomplete_var_declaration(int start) {
     ind = start;
     char* type = expect_type(T_TYPE);
@@ -377,7 +391,7 @@ Node* function_call(int start) {
     char b[MAX_NAME_LEN];
     consume(T_LEFT_PAREN, "Expected opening parenthesis after identifier\n", b);
     int args_len;
-    Node* args[1024];
+    Node** args;
     func_expr_args(ind, args, args_len);
     if (args == NULL) {
         char specifier[1024] = {'\0'};
