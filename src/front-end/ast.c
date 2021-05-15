@@ -208,6 +208,9 @@ void free_node(Node* n) {
         case ID_NODE:
             free_Identifier_node((Identifier_node*) n);
             break;
+        case FUNC_CALL_NODE:
+            free_Func_call_node((Func_call_node*) n);
+            break;
         case NODE_NODE:
             break;
     }
