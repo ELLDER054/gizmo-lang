@@ -57,7 +57,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     return name;
 }
 
-char* generate_expression_asm(Node* n, char* c) {
+char* generate_expression_asm(Node* n, char* type, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
