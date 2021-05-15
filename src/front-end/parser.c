@@ -373,7 +373,7 @@ Node* function_call(int start) {
         return NULL;
     }
     char b[MAX_NAME_LEN];
-    consume(T_OPEN_PAREN, "Expected opening parenthesis after identifier\n", b);
+    consume(T_LEFT_PAREN, "Expected opening parenthesis after identifier\n", b);
     int args_len;
     Node* args[1024];
     func_expr_args(ind, args, args_len);
@@ -384,7 +384,7 @@ Node* function_call(int start) {
         printf("On line %d:\nExpected arguments after opening parenthesis\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
     }
-    consume(T_CLOSE_PAREN, "Expected closing parenthesis after arguments\n", b);
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b);
     char b2[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
     Symbol* s = new_symbol("func", id, NULL, args_len);
