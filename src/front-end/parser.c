@@ -333,7 +333,7 @@ void func_expr_args(int start, Node** args, int len) {
     int args_c = 0;
     while (1) {
         Node* expr = expression(ind);
-        if (expr = NULL) {
+        if (expr == NULL) {
             break;
         }
         char* comma = expect_type(T_COMMA);
