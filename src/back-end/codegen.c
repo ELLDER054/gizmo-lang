@@ -35,6 +35,7 @@ char* find_operation_asm(char* oper) {
         case '/':
             return "div";
     }
+    return "";
 }
 
 char* generate_expression_asm(Node* n, char* type, char* c);
