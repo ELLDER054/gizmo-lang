@@ -41,8 +41,9 @@ char* find_operation_asm(char* oper) {
 char* generate_expression_asm(Node* n, char* type, char* c);
 
 char* generate_operation_asm(Operator_node* n, char* type, char* c) {
-    char* l = generate_expression_asm(n->left, type, "");
-    char* r = generate_expression_asm(n->right, type, "");
+    char fake_buffer[1024];
+    char* l = generate_expression_asm(n->left, type, fake_buffer);
+    char* r = generate_expression_asm(n->right, type, fake_buffer);
     freeing[j++] = l;
     freeing[j++] = r;
     char* name = malloc(MAX_BUF_LEN);
