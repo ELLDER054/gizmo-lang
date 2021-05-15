@@ -65,9 +65,9 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
-        char* name = malloc(MAX_BUF_LEN);
+        char* name = malloc(100);
         freeing[j++] = name;
-        snprintf(name, MAX_BUF_LEN, "%%%d", var_c++);
+        snprintf(name, 100, "%%%d", var_c++);
         strcat(c, name);
         strcat(c, " = ");
         strcat(c, number);
@@ -78,9 +78,9 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "`%s`", ((String_node*) n)->value);
-        char* name = malloc(MAX_BUF_LEN);
+        char* name = malloc(100);
         freeing[j++] = name;
-        snprintf(name, MAX_BUF_LEN, "%%%d", var_c++);
+        snprintf(name, 100, "%%%d", var_c++);
         strcat(c, name);
         strcat(c, " = ");
         strcat(c, str);
