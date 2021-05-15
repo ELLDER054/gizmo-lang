@@ -65,6 +65,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
 char* generate_expression_asm(Node* n, char* type, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
+        memset(number, 0, 100);
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
         char* name = malloc(100);
         memset(name, 0, 100);
