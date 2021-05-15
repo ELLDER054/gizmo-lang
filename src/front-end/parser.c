@@ -402,7 +402,7 @@ Node* function_call(int start) {
         printf("On line %d:\nWrong amount of arguments for function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
         exit(0);
     }
-    return (Node*) new_Function_call_node(id, args);
+    return (Node*) new_Func_call_node(id, args);
 }
 
 Node* var_declaration(int start) {
