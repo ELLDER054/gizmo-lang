@@ -395,7 +395,7 @@ Node* function_call(int start) {
         printf("On line %d:\nUndefined function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
         exit(0);
     }
-    if (args_len != find_symbol(id).args_len) {
+    if (args_len != sym_find(id).args_len) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 2);
