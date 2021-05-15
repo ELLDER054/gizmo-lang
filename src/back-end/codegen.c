@@ -14,7 +14,6 @@ call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
 */
 
 char* freeing[MAX_BUF_LEN];
-memset(freeing, 0, MAX_BUF_LEN);
 int j = 0;
 int var_c = 0;
 
@@ -101,6 +100,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
 
 void generate(Node** ast, int size, char* code) {
     strcat(code, "define i32 @main() {\n");
+    memset(freeing, 0, MAX_BUF_LEN);
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
         if (n == NULL) {
