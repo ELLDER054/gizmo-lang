@@ -77,6 +77,7 @@ char* types(char* t) {
 }
 
 void generate(Node** ast, int size, char* code) {
+    strcat(code, "define i32 @main() {\n");
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
         if (n == NULL) {
@@ -91,6 +92,7 @@ void generate(Node** ast, int size, char* code) {
             strcat(code, "\n");
         }
     }
+    strcat(code, "}");
     for (int i = 0; i < j; i++) {
         free(freeing[i]);
     }
