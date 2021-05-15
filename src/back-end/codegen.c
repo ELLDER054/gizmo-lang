@@ -6,9 +6,8 @@
 
 #define MAX_BUF_LEN 1024
 
-/*reminder: printf code:
+/*reminder: printf call code:
 
-declare i32 @printf(i8* noalias nocapture, ...)
 call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
 
 */
@@ -114,7 +113,8 @@ void generate(Node** ast, int size, char* code) {
             strcat(code, "\n");
         }
     }
-    strcat(code, "ret i32 0\n}");
+    strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...)
+");
     for (int i = 0; i < j; i++) {
         free(freeing[i]);
     }
