@@ -319,6 +319,7 @@ Node* term(int start) {
     }
     Node* f = factor(start);
     if (f != NULL) {
+        free(t2);
         return f;
     }
     ind = start;
