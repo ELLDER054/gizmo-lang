@@ -74,7 +74,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         strcat(c, " = ");
         strcat(c, number);
         strcat(c, "\n");
-        return name;
+        return int_name;
     } else if (n->n_type == ID_NODE) {
         return ((Identifier_node*) n)->name;
     } else if (n->n_type == STRING_NODE) {
