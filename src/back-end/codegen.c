@@ -66,7 +66,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         return ((Identifier_node*) n)->name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
-        snprintf(str, 100, "%s", strlen(((String_node*) n)->value), ((String_node*) n)->value);
+        snprintf(str, 100, "%s", ((String_node*) n)->value);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
