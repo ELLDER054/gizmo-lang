@@ -13,7 +13,6 @@ call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
 
 */
 
-heap_init();
 int var_c = 0;
 
 char* types(char* t) {
@@ -87,6 +86,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
 
 void generate(Node** ast, int size, char* code) {
     strcat(code, "define i32 @main() {\n");
+    heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
         if (n == NULL) {
