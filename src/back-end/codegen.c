@@ -98,7 +98,7 @@ void generate(Node** ast, int size, char* code) {
             char* var_name = generate_expression_asm(v->value, types(v->type), code);
             strcat(code, "%");
             strcat(code, v->name);
-            strcat(code, " = ");
+            strcat(code, " = add i32 0, ");
             strcat(code, var_name);
             strcat(code, "\n");
         }
