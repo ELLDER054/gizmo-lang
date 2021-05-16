@@ -337,7 +337,10 @@ void func_expr_args(int start, Node** args, int len) {
             break;
         }
         char* comma = expect_type(T_COMMA);
-        args[arg_c++] = expr;
+        if (comma == NULL) {
+            args[arg_c++] = expr;
+            break;
+        }
     }
     len = arg_c;
 }
