@@ -18,13 +18,13 @@ char* types(char* t) {
     return "";
 }
 
-void insert(char* buf, int pos, char* str) {
+void insert(char* buf, int pos, int size, char* str) {
     char temp[MAX_BUF_LEN * 2];
     for (int i = 0; i < pos; i++) {
         strncat(temp, &buf[i], 1);
     }
     strcat(temp, str);
-    for (int i = pos; i < strlen(buf); i++) {
+    for (int i = pos; i < size; i++) {
         strncat(temp, &buf[i], 1);
     }
     strcpy(buf, temp);
@@ -85,8 +85,8 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char* string_decl = heap_alloc(100);
         char* len = heap_alloc(100);
         snprintf(len, sizeof(len), "%lu", strlen(str));
-        sprintf(string_decl, "%%%d = private unnamed_addr constant [%s x i8] c\"%s\"\n", var_c++, len, str);
-        insert(c, 0, string_decl);
+        sprintf(string_decl, "@.str.%d = private unnamed_addr constant [%s x i8] c\"%s\"\n", str_c, len, str);
+        insert(c, 0, sizeof(c), string_decl);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
@@ -97,7 +97,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         strcat(c, len);
         strcat(c, " x i8]* @.str.");
         char* s_c = heap_alloc(100);
-        snprintf(s_c, sizeof(s_c), "%d", str_c);
+        snprintf(s_c, sizeof(s_c), "%d", str_c++);
         strcat(c, s_c);
         strcat(c, ", i32 0, i32 0), i8** ");
         strcat(c, str_name);
