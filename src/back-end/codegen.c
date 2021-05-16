@@ -91,6 +91,7 @@ void generate(Node** ast, int size, char* code) {
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
+        printf("%d\n", n->n_type);
         if (n == NULL) {
             break;
         }
