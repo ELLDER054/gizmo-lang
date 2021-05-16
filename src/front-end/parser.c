@@ -478,6 +478,10 @@ Node* statement(int start) {
     if (var != NULL) {
         return var;
     }
+    Node* func = function_call(start);
+    if (func != NULL) {
+        return func;
+    }
     ind = start;
     return NULL;
 }
