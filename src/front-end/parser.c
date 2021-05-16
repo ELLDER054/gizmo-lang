@@ -334,7 +334,6 @@ void func_expr_args(int start, Node** args, int len) {
     while (1) {
         Node* expr = expression(ind);
         if (expr == NULL) {
-            ind = start
             break; /* error */
         }
         char* comma = expect_type(T_COMMA);
