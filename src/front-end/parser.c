@@ -394,7 +394,8 @@ Node* function_call(int start) {
     char b[MAX_NAME_LEN];
     consume(T_LEFT_PAREN, "Expected opening parenthesis after identifier\n", b);
     int args_len;
-    Node** args;
+    Node* args[1024];
+    memset(args, 0, sizeof(args));
     func_expr_args(ind, args, args_len);
     if (args == NULL) {
         char specifier[1024] = {'\0'};
