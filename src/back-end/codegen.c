@@ -86,7 +86,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
 }
 
 void generate(Node** ast, int size, char* code) {
-    strcat(code, "define i32 @main() {\n");
+    strcat(code, "@num1 = private unnamed_addr [len x i8] c\"%d\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -100,6 +100,13 @@ void generate(Node** ast, int size, char* code) {
             strcat(code, v->name);
             strcat(code, " = add i32 0, ");
             strcat(code, var_name);
+            strcat(code, "\n");
+        } else if (n->n_type == WRITE_NODE) {
+            Func_call_node* func = (Func_call_node*) n;
+            char* write_arg = generate_expression_asm(func->args[0], type(func->args[0]), code);
+            strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([len x i8], [len x i8]* @.num1, i32 0, i32 0), ");
+            strcat(code, v->name);
+            strcat(code, ")");
             strcat(code, "\n");
         }
     }
