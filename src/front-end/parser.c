@@ -510,10 +510,5 @@ void parse(Token* toks, Node** program) {
         }
         program[stmt_c++] = stmt;
     }
-    for (int i = 0; i < sizeof(symbol_table) / sizeof(Symbol*); i++) {
-        if (NULL != symbol_table[i]) {
-            free(symbol_table[i]);
-        }
-    }
     return;
 }
