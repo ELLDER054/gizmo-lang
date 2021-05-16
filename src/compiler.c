@@ -26,6 +26,7 @@ int main(int argc, char** argv) {
     memset(tokens, 0, sizeof(tokens));
     Node* program[1024];
     Symbol* symbol_table[1024];
+    memset(symbol_table, 0, sizeof(symbol_table))
     memset(program, 0, sizeof(program));
     scan(code, tokens);
     parse(tokens, program, symbol_table);
