@@ -10,6 +10,7 @@
 int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
+char* itoa(int, char* , int);
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
