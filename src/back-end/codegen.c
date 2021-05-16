@@ -66,7 +66,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         return ((Identifier_node*) n)->name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
-        snprintf(str, 100, "private unnamed_addr constant [%lu x i8] c\"%s\"", strlen(((String_node*) n)->value), ((String_node*) n)->value);
+        snprintf(str, 100, "%s", strlen(((String_node*) n)->value), ((String_node*) n)->value);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
@@ -80,7 +80,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
 }
 
 void generate(Node** ast, int size, char* code) {
-    strcat(code, "@num1 = private unnamed_addr constant [3 x i8] c\"%d\\00\"\n\ndefine i32 @main() {\n");
+    strcat(code, "@str1 = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n@num1 = private unnamed_addr constant [3 x i8] c\"%d\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -104,9 +104,9 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (!strcmp(type(func->args[0]), "string")) {
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* ");
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @str1, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
-                strcat(code, ", i32 0, i32 0)");
+                strcat(code, ")");
             }
             strcat(code, "\n");
         }
