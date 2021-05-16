@@ -24,7 +24,7 @@ void insert(char* buf, int pos, int size, char* str) {
         strncat(temp, &buf[i], 1);
     }
     strcat(temp, str);
-    for (int i = pos; i < size; i++) {
+    for (int i = pos; i < size + strlen(str); i++) {
         strncat(temp, &buf[i], 1);
     }
     strcpy(buf, temp);
