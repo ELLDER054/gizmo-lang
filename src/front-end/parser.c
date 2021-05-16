@@ -398,7 +398,7 @@ Node* function_call(int start) {
     Node* args[1024];
     memset(args, 0, sizeof(args));
     func_expr_args(ind, args, args_len);
-    if (args == NULL) {
+    if (args_len == 0) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
         strncat(specifier, "^", 2);
