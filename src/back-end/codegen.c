@@ -18,6 +18,18 @@ char* types(char* t) {
     return "";
 }
 
+void insert(char* buf, int pos, char* str) {
+    char temp[100];
+    for (int i = 0; i < pos; i++) {
+        strncat(temp, &buf[i], 1);
+    }
+    strcat(temp, str);
+    for (int i = pos; i < strlen(buf); i++) {
+        strncat(temp, &buf[i], 1);
+    }
+    strcpy(buf, temp);
+}
+
 char* find_operation_asm(char* oper) {
     switch (*oper) {
         case '+':
@@ -70,13 +82,16 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "%s", ((String_node*) n)->value);
+        char* string_decl = heap_alloc(100);
+        char* len = heap_alloc(100);
+        snprintf(len, sizeof(len), "%lu", strlen(str));
+        sprintf(string_decl, "%%%d = private unnamed_addr constant [%d x i8] c\"%s\"\n", var_c++, len, str);
+        insert(c, 0, string_decl);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
         strcat(c, " = alloca i8*, align 8\n");
         strcat(c, "store i8* getelementptr inbounds ([");
-        char* len = heap_alloc(100);
-        snprintf(len, sizeof(len), "%lu", strlen(str));
         strcat(c, len);
         strcat(c, " x i8], [");
         strcat(c, len);
