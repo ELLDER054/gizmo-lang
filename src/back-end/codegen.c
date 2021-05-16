@@ -4,7 +4,6 @@
 #include "heap.h"
 #include "codegen.h"
 #include "../front-end/ast.h"
-#include "../front-end/parser.h"
 
 #define MAX_BUF_LEN 1024
 
@@ -16,6 +15,7 @@ call i32 (i8*, ...)* @printf(i8* %msg, i32 %a)
 */
 
 int var_c = 1;
+char* type(Node* n);
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
