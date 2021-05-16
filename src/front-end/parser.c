@@ -493,7 +493,7 @@ Node* statement(int start) {
 
 // end statement parsing
 
-void parse(Token* toks, Node** program) {
+void parse(Token* toks, Node** program, Symbol** sym_t) {
     char* none_info[1024] = {"none", "none"};
     push_symbol("built-in", none_info, 0);
     char* write_info[1024] = {"write", "none"};
@@ -509,6 +509,12 @@ void parse(Token* toks, Node** program) {
             break;
         }
         program[stmt_c++] = stmt;
+    }
+    for (int i = 0; i < 1024; i++) {
+        if (symbol_table[i] == NULL) {
+            break;
+        }
+        sym_t[i] = symbol_table[i];
     }
     return;
 }
