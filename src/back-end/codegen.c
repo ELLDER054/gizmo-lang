@@ -64,7 +64,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     return op_name;
 }
 
-char* generate_expression_asm(Node* n, char* type, char* c) {
+char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
@@ -86,6 +86,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char* len = heap_alloc(100);
         snprintf(len, sizeof(len), "%lu", strlen(str) - 2);
         sprintf(string_decl, "@.str.%d = private unnamed_addr constant [%s x i8] c%s\n", str_c, len, str);
+        strcpy(end_size, len);
         insert(c, 0, strlen(c) - 1, string_decl);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
@@ -127,13 +128,18 @@ void generate(Node** ast, int size, char* code) {
             strcat(code, "\n");
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
-            char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code);
+            char* end_len;
+            char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code, end_len);
             if (!strcmp(type(func->args[0]), "int")) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @num1, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (!strcmp(type(func->args[0]), "string")) {
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* ");
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([");
+                strcat(code, end_len);
+                strcat(code, " x i8], [");
+                strcat(code, end_len);
+                strcat(code, " x i8]* ");
                 strcat(code, write_arg_name);
                 strcat(code, ", i32 0, i32 0), i32)");
             }
