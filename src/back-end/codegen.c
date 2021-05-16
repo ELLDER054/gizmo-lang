@@ -44,7 +44,7 @@ char* find_operation_asm(char* oper) {
     return "";
 }
 
-char* generate_expression_asm(Node* n, char* type, char* c);
+char* generate_expression_asm(Node* n, char* type, char* c, char* end_size);
 
 char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     char* l = generate_expression_asm(n->left, type, c);
