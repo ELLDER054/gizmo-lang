@@ -53,6 +53,7 @@ void print_node(FILE* f, Node* n) {
             print_real(f, (Real_node*) n);
             break;
         case FUNC_CALL_NODE:
+        case WRITE_NODE:
             print_func_call(f, (Func_call_node*) n);
             break;
         case NODE_NODE:
@@ -100,8 +101,12 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
 
     Func_call_node* func = malloc(sizeof(Func_call_node));
     memset(func, 0, sizeof(Func_call_node));
-
-    func->n_type = FUNC_CALL_NODE;
+    
+    if (!strcmp(name, "write")) {
+        func->n_type = WRITE_NODE;
+    } else {
+        func->n_type = FUNC_CALL_NODE;
+    }
     strncpy(func->name, name, MAX_NAME_LEN);
     func->args = args;
     return func;
