@@ -144,7 +144,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, end_len);
                 strcat(code, " x i8]* ");
                 strcat(code, write_arg_name);
-                strcat(code, ", i32 0, i32 0), i32)");
+                strcat(code, ", i32 0, i32 0))");
             }
             strcat(code, "\n");
         }
