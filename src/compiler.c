@@ -1,11 +1,12 @@
 #include <stdio.h>
 #include <string.h>
+#include <stdlib.h>
 #include "front-end/scanner.h"
 #include "front-end/ast.h"
 #include "back-end/codegen.h"
 
 void scan(char* code, Token* buf_toks);
-void parse(Token* tokens, Node** program);
+void parse(Token* tokens, Node** program, Symbol** symbol_table);
 void print_node(FILE* f, Node* n);
 void free_node(Node* n);
 void generate(Node** ast, int length, char* code);
@@ -23,9 +24,10 @@ int main(int argc, char** argv) {
     Token tokens[strlen(code)];
     memset(tokens, 0, sizeof(tokens));
     Node* program[1024];
+    Symbol* symbol_table[1024];
     memset(program, 0, sizeof(program));
     scan(code, tokens);
-    parse(tokens, program);
+    parse(tokens, program, symbol_table);
     FILE* output_f = fopen(argv[2], "w");
     /*for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
