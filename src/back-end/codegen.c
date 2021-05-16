@@ -14,6 +14,7 @@ call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
 */
 
 heap_init();
+int var_c = 0;
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
