@@ -4,6 +4,7 @@
 #include "heap.h"
 #include "codegen.h"
 #include "../front-end/ast.h"
+#include "../front-end/parser.h"
 
 #define MAX_BUF_LEN 1024
 
