@@ -24,7 +24,7 @@ void insert(char* buf, int pos, int size, char* str) {
         strncat(temp, &buf[i], 1);
     }
     strcat(temp, str);
-    for (int i = pos; i < size + strlen(str); i++) {
+    for (int i = pos; i < (size + strlen(str)); i++) {
         strncat(temp, &buf[i], 1);
     }
     strcpy(buf, temp);
@@ -86,7 +86,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char* len = heap_alloc(100);
         snprintf(len, sizeof(len), "%lu", strlen(str) - 2);
         sprintf(string_decl, "@.str.%d = private unnamed_addr constant [%s x i8] c%s\n", str_c, len, str);
-        insert(c, 0, sizeof(c), string_decl);
+        insert(c, 0, strlen(c), string_decl);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
