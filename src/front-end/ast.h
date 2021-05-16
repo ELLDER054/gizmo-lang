@@ -16,6 +16,7 @@ typedef enum {
     STRING_NODE,
     REAL_NODE,
     ID_NODE,
+    WRITE_NODE,
     NODE_NODE,
     FUNC_CALL_NODE,
 } NodeType;
