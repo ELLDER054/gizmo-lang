@@ -19,7 +19,7 @@ char* types(char* t) {
 }
 
 void insert(char* buf, int pos, char* str) {
-    char temp[100];
+    char temp[MAX_BUF_LEN * 2];
     for (int i = 0; i < pos; i++) {
         strncat(temp, &buf[i], 1);
     }
