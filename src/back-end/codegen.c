@@ -9,7 +9,8 @@
 
 /*reminder: printf call code:
 
-call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
+@.msg = private unnamed_addr constant [13 x i8] c"%d\00"
+call i32 (i8*, ...)* @printf(i8* %msg, i32 %a)
 
 */
 
@@ -63,7 +64,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char* int_name = heap_alloc(100);
         snprintf(int_name, 100, "%%%d", var_c++);
         strcat(c, int_name);
-        strcat(c, " = ");
+        strcat(c, " = add i32 0, ");
         strcat(c, number);
         strcat(c, "\n");
         return int_name;
