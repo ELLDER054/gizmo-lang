@@ -84,7 +84,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char* s_c = heap_alloc(100);
         snprintf(s_c, sizeof(s_c), "%d", str_c);
         strcat(c, s_c);
-        strcat(c, ", i32 0, i32 0) i8** ");
+        strcat(c, ", i32 0, i32 0), i8** ");
         strcat(c, str_name);
         strcat(c, ", align 8");
         return str_name;
