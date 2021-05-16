@@ -45,9 +45,10 @@ int main(int argc, char** argv) {
         free_node(program[i]);
     }
     for (int i = 0; i < sizeof(symbol_table) / sizeof(Symbol*); i++) {
-        if (NULL != symbol_table[i]) {
-            free(symbol_table[i]);
+        if (symbol_table[i] == NULL) {
+            break;
         }
+        free(symbol_table[i]);
     }
     return 0;
 }
