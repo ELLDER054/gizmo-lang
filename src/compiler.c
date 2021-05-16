@@ -5,12 +5,12 @@
 #include "front-end/ast.h"
 #include "back-end/codegen.h"
 
+typedef struct Symbol Symbol;
 void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program, Symbol** symbol_table);
 void print_node(FILE* f, Node* n);
 void free_node(Node* n);
 void generate(Node** ast, int length, char* code);
-typedef struct Symbol Symbol;
 
 int main(int argc, char** argv) {
     if (!(argc >= 3)) {
