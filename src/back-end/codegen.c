@@ -87,7 +87,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
 }
 
 void generate(Node** ast, int size, char* code) {
-    strcat(code, "@num1 = private unnamed_addr [len x i8] c\"%d\00\"\n\ndefine i32 @main() {\n");
+    strcat(code, "@num1 = private unnamed_addr [len x i8] c\"%d\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
