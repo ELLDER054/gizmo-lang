@@ -44,11 +44,11 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     char* r = generate_expression_asm(n->right, type, c);
     freeing[j++] = l;
     freeing[j++] = r;
-    char* name = malloc(100);
-    freeing[j++] = name;
-    memset(name, 0, 100);
-    snprintf(name, 100, "%%%d", var_c++);
-    strcat(c, name);
+    char* op_name = malloc(100);
+    freeing[j++] = op_name;
+    memset(op_name, 0, 100);
+    snprintf(op_name, 100, "%%%d", var_c++);
+    strcat(c, op_name);
     strcat(c, " = ");
     strcat(c, find_operation_asm(n->oper));
     strcat(c, " ");
@@ -58,7 +58,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     strcat(c, ", ");
     strcat(c, r);
     strcat(c, "\n");
-    return name;
+    return op_name;
 }
 
 char* generate_expression_asm(Node* n, char* type, char* c) {
@@ -66,11 +66,11 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
-        char* name = malloc(100);
-        memset(name, 0, 100);
-        freeing[j++] = name;
-        snprintf(name, 100, "%%%d", var_c++);
-        strcat(c, name);
+        char* int_name = malloc(100);
+        memset(int_name, 0, 100);
+        freeing[j++] = int_name;
+        snprintf(int_name, 100, "%%%d", var_c++);
+        strcat(c, int_name);
         strcat(c, " = ");
         strcat(c, number);
         strcat(c, "\n");
@@ -80,15 +80,15 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "`%s`", ((String_node*) n)->value);
-        char* name = malloc(100);
-        memset(name, 0, 100);
-        freeing[j++] = name;
-        snprintf(name, 100, "%%%d", var_c++);
-        strcat(c, name);
+        char* str_name = malloc(100);
+        memset(str_name, 0, 100);
+        freeing[j++] = str_name;
+        snprintf(str_name, 100, "%%%d", var_c++);
+        strcat(c, str_name);
         strcat(c, " = ");
         strcat(c, str);
         strcat(c, "\n");
-        return name;
+        return str_name;
     }
     
     return generate_operation_asm((Operator_node*) n, type, c);
