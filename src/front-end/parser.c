@@ -315,11 +315,12 @@ Node* term(int start) {
     ind = start;
     Node* t2 = term2(start);
     if (t2 != NULL) {
+        free(t2);
         return t2;
     }
     Node* f = factor(start);
     if (f != NULL) {
-        free(t2);
+        free(f);
         return f;
     }
     ind = start;
