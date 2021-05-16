@@ -132,7 +132,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @num1, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
-            } else if (!strcmp(type(func->args[0]), "int")) {
+            } else if (!strcmp(type(func->args[0]), "string")) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* ");
                 strcat(code, write_arg_name);
                 strcat(code, ", i32 0, i32 0), i32)");
