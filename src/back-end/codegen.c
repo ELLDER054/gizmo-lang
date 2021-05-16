@@ -10,7 +10,6 @@
 int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
-char* itoa(int, char* , int);
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
@@ -77,13 +76,13 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         strcat(c, " = alloca i8*, align 8\n");
         strcat(c, "store i8* getelementptr inbounds ([");
         char* len = heap_alloc(100);
-        itoa(strlen(str), len, 10);
+        snprintf(len, sizeof(len), "%d", strlen(str));
         strcat(c, len);
         strcat(c, " x i8], [");
         strcat(c, len);
         strcat(c, " x i8]* @.str.");
         char* s_c = heap_alloc(100);
-        itoa(str_c, s_c, 10);
+        snprintf(s_c, sizeof(s_c), "%d", str_c);
         strcat(c, s_c);
         strcat(c, ", i32 0, i32 0) i8** ");
         strcat(c, str_name);
