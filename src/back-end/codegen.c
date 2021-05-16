@@ -1,6 +1,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
+#include "heap.h"
 #include "codegen.h"
 #include "../front-end/ast.h"
 
@@ -12,9 +13,7 @@ call i32 (i8*, ...)* @printf(i8* %msg, i32 12, i8 42)
 
 */
 
-char* freeing[MAX_BUF_LEN];
-int j = 0;
-int var_c = 0;
+heap_init();
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
@@ -44,9 +43,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     char* r = generate_expression_asm(n->right, type, c);
     freeing[j++] = l;
     freeing[j++] = r;
-    char* op_name = malloc(100);
-    freeing[j++] = op_name;
-    memset(op_name, 0, 100);
+    char* op_name = heap_alloc(100);
     snprintf(op_name, 100, "%%%d", var_c++);
     strcat(c, op_name);
     strcat(c, " = ");
@@ -65,9 +62,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
-        char* int_name = malloc(100);
-        memset(int_name, 0, 100);
-        freeing[j++] = int_name;
+        char* int_name = heap_alloc(100);
         snprintf(int_name, 100, "%%%d", var_c++);
         strcat(c, int_name);
         strcat(c, " = ");
@@ -79,9 +74,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "`%s`", ((String_node*) n)->value);
-        char* str_name = malloc(100);
-        memset(str_name, 0, 100);
-        freeing[j++] = str_name;
+        char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
         strcat(c, " = ");
@@ -95,7 +88,6 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
 
 void generate(Node** ast, int size, char* code) {
     strcat(code, "define i32 @main() {\n");
-    memset(freeing, 0, MAX_BUF_LEN);
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
         if (n == NULL) {
@@ -112,7 +104,5 @@ void generate(Node** ast, int size, char* code) {
         }
     }
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
-    for (int i = 0; i < j; i++) {
-        free(freeing[i]);
-    }
+    heap_free_all();
 }
