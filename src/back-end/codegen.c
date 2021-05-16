@@ -86,7 +86,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         strcat(c, s_c);
         strcat(c, ", i32 0, i32 0), i8** ");
         strcat(c, str_name);
-        strcat(c, ", align 8");
+        strcat(c, ", align 8\n");
         return str_name;
     }
     
