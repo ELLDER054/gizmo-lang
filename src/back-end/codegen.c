@@ -14,7 +14,7 @@ call i32 (i8*, ...)* @printf(i8* %msg, i32 %a)
 
 */
 
-int var_c = 0;
+int var_c = 1;
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
