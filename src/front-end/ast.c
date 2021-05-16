@@ -114,7 +114,7 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
 void free_Func_call_node(Func_call_node *f) {
     if (NULL != f) {
         for (int i = 0; i < sizeof(f->args) / sizeof(Node*); i++) {
-            free(f->args[i]);
+            free_node(f->args[i]);
         }
         free(f);
     }
