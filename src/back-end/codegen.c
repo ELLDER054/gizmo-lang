@@ -42,8 +42,6 @@ char* generate_expression_asm(Node* n, char* type, char* c);
 char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     char* l = generate_expression_asm(n->left, type, c);
     char* r = generate_expression_asm(n->right, type, c);
-    freeing[j++] = l;
-    freeing[j++] = r;
     char* op_name = heap_alloc(100);
     snprintf(op_name, 100, "%%%d", var_c++);
     strcat(c, op_name);
