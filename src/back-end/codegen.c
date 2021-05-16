@@ -122,7 +122,8 @@ void generate(Node** ast, int size, char* code) {
         printf("%d\n", n->n_type);
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
-            char* var_name = generate_expression_asm(v->value, types(v->type), code);
+            char* var_buf = heap_alloc(100);
+            char* var_name = generate_expression_asm(v->value, types(v->type), code, var_buf);
             strcat(code, "%");
             strcat(code, v->name);
             strcat(code, " = add i32 0, ");
