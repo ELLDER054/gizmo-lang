@@ -98,7 +98,6 @@ void free_Var_declaration_node(Var_declaration_node *n) {
 }
 
 Func_call_node* new_Func_call_node(char* name, Node** args) {
-
     Func_call_node* func = malloc(sizeof(Func_call_node));
     memset(func, 0, sizeof(Func_call_node));
     
