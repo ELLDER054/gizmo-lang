@@ -72,9 +72,16 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
-        strcat(c, " = ");
-        strcat(c, str);
-        strcat(c, "\n");
+        strcat(c, " = alloca i8*, align 8\n");
+        strcat(c, "store i8* getelementptr inbounds ([");
+        strcat(c, strlen(str));
+        strcat(c, " x i8], [");
+        strcat(c, strlen(str));
+        strcat(c, " x i8]* @.str.");
+        strcat(c, str_c);
+        strcat(c, ", i32 0, i32 0) i8** ");
+        strcat(c, str_name);
+        strcat(c, ", align 8");
         return str_name;
     }
     
