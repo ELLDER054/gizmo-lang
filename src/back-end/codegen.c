@@ -128,7 +128,7 @@ void generate(Node** ast, int size, char* code) {
             strcat(code, "\n");
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
-            char* end_len;
+            char* end_len = heap_alloc(100);
             char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code, end_len);
             if (!strcmp(type(func->args[0]), "int")) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @num1, i32 0, i32 0), i32 ");
