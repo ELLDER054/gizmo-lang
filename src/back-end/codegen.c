@@ -85,7 +85,7 @@ char* generate_expression_asm(Node* n, char* type, char* c) {
         char* string_decl = heap_alloc(100);
         char* len = heap_alloc(100);
         snprintf(len, sizeof(len), "%lu", strlen(str));
-        sprintf(string_decl, "%%%d = private unnamed_addr constant [%d x i8] c\"%s\"\n", var_c++, len, str);
+        sprintf(string_decl, "%%%d = private unnamed_addr constant [%s x i8] c\"%s\"\n", var_c++, len, str);
         insert(c, 0, string_decl);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
