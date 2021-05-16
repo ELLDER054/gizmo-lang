@@ -14,28 +14,13 @@ Contributors are always welcome! Some ways to help are:
 6. Sponsor me on github
 
 ## Hacking, Changing or Using Gizmo Locally
-Warning: If you build Gizmo now, there is a chance that Gizmo will be updated and you will not have the most recent version.  
-1. Make sure git is installed in your terminal.  
-2. Make sure cmake is installed in your terminal.
-3. Run this code in your terminal to build Gizmo.
+See the <a href="https://github.com/ellder054/gizmolang/install">download</a> page to download Gizmo.  
+In your command line, put the .zip file in user/local/bin.  
+To confirm that you have succesfully installed Gizmo, run the following code.
 ```shell
-git clone https://github.com/ellder054/gizmo-lang.git
-mkdir gizmo-build
-cd gizmo-build
-cmake ../gizmo-lang
-make
+gizmo version
 ```
 
-### Compiling a file
-Make sure you have built Gizmo and go to the "gizmo-build" directory.  
-Example files can be found in the `examples` folder.  
-You can now tell Gizmo to compile a Gizmo file with the following.
-```shell
-./gizmo filename.gizmo output
-```
-Replace `filename.gizmo` with whatever file you are trying to compile and replace `output` with your output file.  
-Once you have compiled, you should be able to run this code to execute your file:
-```shell
-./output
-```
-Again, replace `output` with your output file.
+You can now use the `gizmo` command to compile gizmo programs!  
+This is the format of the `gizmo` command.  
+`gizmo <input-file> <output-file>`
