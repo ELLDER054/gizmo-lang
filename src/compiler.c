@@ -5,7 +5,7 @@
 #include "front-end/ast.h"
 #include "back-end/codegen.h"
 
-#define GIZMO_VERSION 0.1.0
+#define GIZMO_VERSION "0.1.0"
 
 typedef struct Symbol Symbol;
 void scan(char* code, Token* buf_toks);
@@ -15,8 +15,8 @@ void free_node(Node* n);
 void generate(Node** ast, int length, char* code);
 
 int main(int argc, char** argv) {
-    if (argc == 2 && !strcmp(arv[1], "version")) {
-        fprintf(stdout, "%d", GIZMO_VERSION);
+    if (argc == 2 && !strcmp(argv[1], "version")) {
+        fprintf(stdout, "%s", GIZMO_VERSION);
         return 0;
     } else if (!(argc == 3)) {
         fprintf(stderr, "gizmo: Expected a file to compile and a file to write output to\ngizmo: Aborting execution\n");
