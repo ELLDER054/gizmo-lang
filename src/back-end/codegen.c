@@ -152,12 +152,10 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, var_name);
                 strcat(code, ", align 8");
             } else if (!strcmp(v->type, "real")) {
-                strcat(code, "store double ");
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, ", double* ");
+                strcat(code, " = double* ");
                 strcat(code, var_name);
-                strcat(code, ", align 8");
             }
             strcat(code, "\n");
         } else if (n->n_type == WRITE_NODE) {
