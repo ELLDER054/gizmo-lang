@@ -15,7 +15,7 @@ Contributors are always welcome! Some ways to help are:
 
 ## Hacking, Changing or Using Gizmo Locally
 See the <a href="https://github.com/ellder054/gizmolang/install">download</a> page to download Gizmo.  
-In your command line, put the .zip file in user/local/bin.  
+In your command line, put the .zip file in usr/local/bin.  
 To confirm that you have succesfully installed Gizmo, run the following code.
 ```shell
 gizmo version
