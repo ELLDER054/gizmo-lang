@@ -14,6 +14,8 @@ char* type(Node* n);
 char* types(char* t) {
     if (!strcmp(t, "int")) {
         return "i32";
+    } else if (!strcmp(t, "real")) {
+        return "double";
     }
     return "";
 }
@@ -81,6 +83,20 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         char* id_name = heap_alloc(100);
         snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
         return id_name;
+    } else if (n->n_type == REAL_NODE) {
+        char number[100];
+        snprintf(number, 100, "%f", ((Real_node*) n)->value);
+        char* real_name = heap_alloc(100);
+        snprintf(real_name, 100, "%%%d", var_c++);
+        strcat(c, real_name);
+        strcat(c, " = alloca double, align 8\nstore double ");
+        strcat(c, number);
+        strcat(c, ", double* ");
+        char* new_real_name = heap_alloc(100);
+        snprintf(new_real_name, 100, "%%%d", var_c - 1);
+        strcat(c, new_real_name);
+        strcat(c, "\n");
+        return real_name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "%s", ((String_node*) n)->value);
@@ -129,11 +145,18 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, v->name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
-            } else if (!strcmp(v->type, "int")) {
+            } else if (!strcmp(v->type, "string")) {
                 strcat(code, "store i8* ");
                 strcat(code, "%");
                 strcat(code, v->name);
                 strcat(code, ", i8* ");
+                strcat(code, var_name);
+                strcat(code, ", align 8");
+            } else if (!strcmp(v->type, "real")) {
+                strcat(code, "store double ");
+                strcat(code, "%");
+                strcat(code, v->name);
+                strcat(code, ", double* ");
                 strcat(code, var_name);
                 strcat(code, ", align 8");
             }
@@ -154,6 +177,10 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, " x i8]* ");
                 strcat(code, write_arg_name);
                 strcat(code, ", i32 0, i32 0))");
+            } else if (!strcmp(v->type, "real")) {
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @real1, i32 0, i32 0), dobule ");
+                strcat(code, write_arg_name);
+                strcat(code, ")");
             }
             strcat(code, "\n");
         }
