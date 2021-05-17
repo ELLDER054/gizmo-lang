@@ -127,7 +127,7 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
 }
 
 void generate(Node** ast, int size, char* code) {
-    strcat(code, "@real1 = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@num1 = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
+    strcat(code, "@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -164,7 +164,7 @@ void generate(Node** ast, int size, char* code) {
             char* end_len = heap_alloc(100);
             char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code, end_len);
             if (!strcmp(type(func->args[0]), "int")) {
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @num1, i32 0, i32 0), i32 ");
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (!strcmp(type(func->args[0]), "string")) {
@@ -176,7 +176,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, write_arg_name);
                 strcat(code, ", i32 0, i32 0))");
             } else if (!strcmp(type(func->args[0]), "real")) {
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @real1, i32 0, i32 0), double ");
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             }
