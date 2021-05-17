@@ -173,7 +173,6 @@ void scan(char* code, Token* tokens) {
                 col++;
             }
             if (ch == '.') {
-                printf("Num: %s\n", num);
                 ch = code[++pos];
                 col++;
                 strcat(num, ".");
