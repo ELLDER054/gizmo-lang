@@ -15,6 +15,7 @@ void free_node(Node* n);
 void generate(Node** ast, int length, char* code);
 
 int main(int argc, char** argv) {
+    fclose("gizmo_llvm_ir.ll");
     if (argc == 3 && !strcmp(argv[1], "version")) {
         fprintf(stdout, "%s\n", GIZMO_VERSION);
         return 0;
