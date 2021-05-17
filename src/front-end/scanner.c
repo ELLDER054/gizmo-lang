@@ -174,6 +174,7 @@ void scan(char* code, Token* tokens) {
             }
             if (ch == '.' && isDigit(next(code, pos))) {
                 ch = code[++pos];
+                col++;
                 strcat(num, ".");
                 while (isDigit(ch)) {
                     strncat(num, &ch, 1);
