@@ -15,9 +15,8 @@ void free_node(Node* n);
 void generate(Node** ast, int length, char* code);
 
 int main(int argc, char** argv) {
-    printf("%d, %s\n", argc, argv[1]);
     if (argc == 3 && !strcmp(argv[1], "version")) {
-        fprintf(stdout, "%s", GIZMO_VERSION);
+        fprintf(stdout, "%s\n", GIZMO_VERSION);
         return 0;
     } else if (!(argc == 3)) {
         fprintf(stderr, "gizmo: Expected a file to compile and a file to write output to\ngizmo: Aborting execution\n");
