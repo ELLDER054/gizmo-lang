@@ -15,9 +15,8 @@ void free_node(Node* n);
 void generate(Node** ast, int length, char* code);
 
 int main(int argc, char** argv) {
-    printf("%s\n", argv[2]);
     printf("%d, %s\n", argc, argv[1]);
-    if (argc == 2 && !strcmp(argv[1], "version")) {
+    if (argc == 3 && !strcmp(argv[1], "version")) {
         fprintf(stdout, "%s", GIZMO_VERSION);
         return 0;
     } else if (!(argc == 3)) {
