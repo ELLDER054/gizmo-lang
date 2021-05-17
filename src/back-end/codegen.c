@@ -124,12 +124,12 @@ void generate(Node** ast, int size, char* code) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char* var_buf = heap_alloc(100);
             char* var_name = generate_expression_asm(v->value, types(v->type), code, var_buf);
-            if (!strcmp(v->type), "int") {
+            if (!strcmp(v->type, "int")) {
                 strcat(code, "%");
                 strcat(code, v->name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
-            } else if (!strcmp(v->type), "int") {
+            } else if (!strcmp(v->type, "int")) {
                 strcat(code, "store i8* ");
                 strcat(code, "%");
                 strcat(code, v->name);
