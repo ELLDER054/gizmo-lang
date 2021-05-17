@@ -15,6 +15,11 @@ int is_one_char_token(char c) {
     return (c == '(') || (c == ')') || (c == '[') || (c == ']') || (c == '{') || (c == '}') || (c == '.') || (c == ',') || (c == ':') || (c == ';');
 }
 
+/*
+TODO:
+Make a new_token() function to initialize a token.
+*/
+
 int one_char_tokens(char c) {
     switch(c) {
         case '(':
@@ -49,8 +54,8 @@ char next(char* code, int pos) {
 }
 
 int operators(char ch, char nch) {
-    // there's probably a better way to do this, but I haven't cared enough to think about it
-    // plus operators
+    /* there's probably a better way to do this, but I haven't cared enough to think about it */
+    /* plus operators */
     if (ch == '+' && nch == '+') {
         return T_PLUS_PLUS;
     } else if (ch == '+' && nch == '=') {
@@ -59,7 +64,7 @@ int operators(char ch, char nch) {
         return T_PLUS;
     }
 
-    // minus operators
+    /* minus operators */
     if (ch == '-' && nch == '-') {
         return T_MINUS_MINUS;
     } else if (ch == '-' && nch == '=') {
@@ -68,7 +73,7 @@ int operators(char ch, char nch) {
         return T_MINUS;
     }
 
-    // times operators
+    /* times operators */
     if (ch == '*' && nch == '*') {
         return T_TIMES_TIMES;
     } else if (ch == '*' && nch == '=') {
@@ -77,7 +82,7 @@ int operators(char ch, char nch) {
         return T_TIMES;
     }
 
-    // plus operators
+    /* plus operators */
     if (ch == '/' && nch == '/') {
         return T_DIVIDE_DIVIDE;
     } else if (ch == '/' && nch == '=') {
@@ -202,11 +207,11 @@ void scan(char* code, Token* tokens) {
             tok.col = col++;
             pos++;
             tokens[token_count++] = tok;
-        } else if (ch == '\\' && next(code, pos) == '(') {
+        } else if (ch == '\\' && next(code, pos) == '*') {
             pos += 2;
             col += 2;
             ch = code[pos];
-            while (ch != '\0' && (ch != '\\' && next(code, pos) != ')')) {
+            while (ch != '\0' && (ch != '*' && next(code, pos) != '\\')) {
                 if (ch == '\0') {
                     char specifier[1024] = {'\0'};
                     repeat_c(' ', col, specifier);
