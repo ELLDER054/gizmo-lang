@@ -194,6 +194,7 @@ void scan(char* code, Token* tokens) {
 
             Token tok;
             tok.type = tok_type;
+            printf("Num: %s\n", num);
             strcpy(tok.value, num);
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
