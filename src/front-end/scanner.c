@@ -268,7 +268,7 @@ void scan(char* code, Token* tokens) {
             tok.lineno = lineno;
             tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
-            char string[1024] = {ch, '\0'};
+            char string[1024] = {'\0'};
             char delim = ch;
             TokenType tok_type = T_STR;
 
@@ -294,7 +294,7 @@ void scan(char* code, Token* tokens) {
                 tok_type = T_CHAR;
             }
             tok.type = tok_type;
-            strncat(string, &delim, 1);
+            strcat(string, "\\00");
             strcpy(tok.value, string);
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
