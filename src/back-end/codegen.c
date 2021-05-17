@@ -89,7 +89,7 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         snprintf(len, sizeof(len), "%lu", strlen(str) - 2);
         sprintf(string_decl, "@.str.%d = private unnamed_addr constant [%s x i8] c%s\n", str_c, len, str);
         strcpy(end_size, len);
-        insert(c, 0, strlen(c) - 1, string_decl);
+        insert(c, 0, strlen(c), string_decl);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         strcat(c, str_name);
