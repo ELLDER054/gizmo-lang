@@ -108,7 +108,11 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         strcat(c, real_name);
         var_c++;
         strcat(c, "\n");
-        strcat(real_name, "*");
+        char* new_real_name = heap_alloc(100);
+        strcpy(new_real_name, real_name);
+        strcpy(real_name, "");
+        strcpy(real_name, "*");
+        strcpy(real_name, new_real_name);
         return real_name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
