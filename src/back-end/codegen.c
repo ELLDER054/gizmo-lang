@@ -100,7 +100,7 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         char number[100];
         snprintf(number, 100, "%f", ((Real_node*) n)->value);
         char* real_name = heap_alloc(100);
-        snprintf(real_name, 100, "%%%d", var_c);
+        snprintf(real_name, 100, "%%%d*", var_c);
         strcat(c, real_name);
         strcat(c, " = alloca double, align 8\nstore double ");
         strcat(c, number);
