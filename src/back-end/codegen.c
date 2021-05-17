@@ -154,7 +154,7 @@ void generate(Node** ast, int size, char* code) {
             } else if (!strcmp(v->type, "real")) {
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, " = double* ");
+                strcat(code, " = load double* ");
                 strcat(code, var_name);
             }
             strcat(code, "\n");
