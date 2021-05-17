@@ -172,7 +172,7 @@ void scan(char* code, Token* tokens) {
                 ch = code[++pos];
                 col++;
             }
-            printf("%c\n", ch);
+            printf("%d, %d\n", pos, strlen(code));
             if (ch == '.' && isDigit(next(code, pos))) {
                 printf("Num: %s\n", num);
                 ch = code[++pos];
