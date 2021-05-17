@@ -126,7 +126,7 @@ void generate(Node** ast, int size, char* code) {
             char* var_name = generate_expression_asm(v->value, types(v->type), code, var_buf);
             strcat(code, "%");
             strcat(code, v->name);
-            strcat(code, " = add i32 0, ");
+            strcat(code, " = load ");
             strcat(code, var_name);
             strcat(code, "\n");
         } else if (n->n_type == WRITE_NODE) {
