@@ -173,6 +173,7 @@ void scan(char* code, Token* tokens) {
                 col++;
             }
             if (ch == '.' && isDigit(next(code, pos))) {
+                printf("Num: %s\n", num);
                 ch = code[++pos];
                 col++;
                 strcat(num, ".");
@@ -194,7 +195,6 @@ void scan(char* code, Token* tokens) {
 
             Token tok;
             tok.type = tok_type;
-            printf("Num: %s\n", num);
             strcpy(tok.value, num);
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
