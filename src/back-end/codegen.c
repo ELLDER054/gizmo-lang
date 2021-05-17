@@ -44,7 +44,7 @@ char* find_operation_asm(char* oper, char* t) {
             case '/':
                 return "div";
         }
-    } else if (!strcmp(t, "real")) {
+    } else if (!strcmp(t, "double")) {
         switch (*oper) {
             case '+':
                 return "fadd";
