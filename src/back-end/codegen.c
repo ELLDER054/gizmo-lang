@@ -102,16 +102,10 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         char* real_name = heap_alloc(100);
         snprintf(real_name, 100, "%%%d", var_c);
         strcat(c, real_name);
-        strcat(c, " = alloca double, align 8\nstore double ");
+        strcat(c, " = fadd double 0, ");
         strcat(c, number);
-        strcat(c, ", double* ");
-        strcat(c, real_name);
         var_c++;
         strcat(c, "\n");
-        char* new_real_name = heap_alloc(100);
-        strcpy(new_real_name, real_name);
-        strcpy(real_name, "*");
-        strcat(real_name, new_real_name);
         return real_name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
