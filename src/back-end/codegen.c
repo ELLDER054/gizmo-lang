@@ -156,7 +156,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, v->name);
                 strcat(code, " = load double, double* ");
                 strcat(code, var_name);
-                strcat(c, ", align 8");
+                strcat(code, ", align 8");
             }
             strcat(code, "\n");
         } else if (n->n_type == WRITE_NODE) {
