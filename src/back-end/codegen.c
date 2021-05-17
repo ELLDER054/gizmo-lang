@@ -32,16 +32,29 @@ void insert(char* buf, int pos, int size, char* str) {
     strcpy(buf, temp);
 }
 
-char* find_operation_asm(char* oper) {
-    switch (*oper) {
-        case '+':
-            return "add";
-        case '-':
-            return "sub";
-        case '*':
-            return "mul";
-        case '/':
-            return "div";
+char* find_operation_asm(char* oper, char* t) {
+    if (!strcmp(t, "int")) {
+        switch (*oper) {
+            case '+':
+                return "add";
+            case '-':
+                return "sub";
+            case '*':
+                return "mul";
+            case '/':
+                return "div";
+        }
+    } else if (!strcmp(t, "real")) {
+        switch (*oper) {
+            case '+':
+                return "fadd";
+            case '-':
+                return "fsub";
+            case '*':
+                return "fmul";
+            case '/':
+                return "fdiv";
+        }
     }
     return "";
 }
@@ -57,7 +70,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     snprintf(op_name, 100, "%%%d", var_c++);
     strcat(c, op_name);
     strcat(c, " = ");
-    strcat(c, find_operation_asm(n->oper));
+    strcat(c, find_operation_asm(n->oper, type));
     strcat(c, " ");
     strcat(c, type);
     strcat(c, " ");
