@@ -178,7 +178,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, write_arg_name);
                 strcat(code, ", i32 0, i32 0))");
             } else if (!strcmp(type(func->args[0]), "real")) {
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @real1, i32 0, i32 0), dobule ");
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @real1, i32 0, i32 0), double ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             }
