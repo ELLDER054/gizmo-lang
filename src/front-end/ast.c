@@ -63,8 +63,8 @@ void print_node(FILE* f, Node* n) {
 
 void print_var(FILE* f, Var_declaration_node* v) {
     fprintf(f, "(VAR_NODE, %s, %s, ", v->type, v->name);
-    if (NULL == v->value) {
-        fprintf(f, "NULL");
+    if (v->value == NULL) {
+        fprintf(f, "none");
     } else {
         print_node(f, v->value);
     }
@@ -88,9 +88,9 @@ Var_declaration_node* new_Var_declaration_node(char* type, char* name, Node* val
     return var;
 }
 
-void free_Var_declaration_node(Var_declaration_node *n) {
-    if (NULL != n) {
-        if (NULL != n->value) {
+void free_Var_declaration_node(Var_declaration_node* n) {
+    if (n != NULL) {
+        if (n->value != NULL) {
             free_node(n->value);
         }
         free(n);
@@ -111,8 +111,8 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
     return func;
 }
 
-void free_Func_call_node(Func_call_node *f) {
-    if (NULL != f) {
+void free_Func_call_node(Func_call_node* f) {
+    if (f != NULL) {
         for (int i = 0; i < sizeof(f->args) / sizeof(Node*); i++) {
             free_node(f->args[i]);
         }
@@ -159,7 +159,7 @@ Integer_node* new_Integer_node(int val) {
     return integer;
 }
 
-void free_Integer_node(Integer_node *n) {
+void free_Integer_node(Integer_node* n) {
     free(n);
 }
 
@@ -172,7 +172,7 @@ Real_node* new_Real_node(double val) {
     return real;
 }
 
-void free_Real_node(Real_node *n) {
+void free_Real_node(Real_node* n) {
     free(n);
 }
 
@@ -185,12 +185,12 @@ String_node* new_String_node(char* val) {
     return str;
 }
 
-void free_String_node(String_node *n) {
+void free_String_node(String_node* n) {
     free(n);
 }
 
 void free_node(Node* n) {
-    if (NULL == n) {
+    if (n == NULL) {
         return;
     }
     switch (n->n_type) {
