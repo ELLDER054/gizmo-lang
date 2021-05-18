@@ -11,7 +11,7 @@
 int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
-ht* str_tracker = ht_create();
+ht* str_tracker;
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
@@ -149,6 +149,7 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
 }
 
 void generate(Node** ast, int size, char* code) {
+    str_tracker = ht_create();
     strcat(code, "@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
