@@ -11,6 +11,7 @@
 int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
+ht* str_tracker = ht_create();
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
@@ -94,9 +95,15 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         strcat(c, "\n");
         return int_name;
     } else if (n->n_type == ID_NODE) {
-        char* id_name = heap_alloc(100);
-        snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
-        return id_name;
+        if () {
+            char* id_name = heap_alloc(100);
+            snprintf(id_name, 100, "%s", ht_get(str_tracker, (Identifier_node*) n)->name);
+            return id_name;
+        } else {
+            char* id_name = heap_alloc(100);
+            snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+            return id_name;
+        }
     } else if (n->n_type == REAL_NODE) {
         char number[100];
         snprintf(number, 100, "%f", ((Real_node*) n)->value);
@@ -123,6 +130,9 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         strcat(c, " = alloca i8*, align 8\n");
         strcat(c, "store i8* getelementptr inbounds ([");
         strcat(c, len);
+        char* str_name_llvm_form = heap_alloc(100);
+        snprintf(str_name_llvm_form, 100, "@.str.%d", str_c);
+        ht_set(str_tracker, str_name, str_name_llvm_form);
         strcat(c, " x i8], [");
         strcat(c, len);
         strcat(c, " x i8]* @.str.");
