@@ -1,6 +1,6 @@
 // Simple hash table implemented in C.
 
-#include "mydict.h"
+#include "str_tracker.h"
 
 #include <assert.h>
 #include <stdint.h>
