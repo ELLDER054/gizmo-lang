@@ -74,6 +74,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     strcat(c, " = ");
     strcat(c, find_operation_asm(n->oper, type));
     strcat(c, " ");
+    printf("%s\n", type);
     strcat(c, type);
     strcat(c, " ");
     strcat(c, l);
