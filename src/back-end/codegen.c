@@ -35,8 +35,7 @@ void insert(char* buf, int pos, int size, char* str) {
 }
 
 char* find_operation_asm(char* oper, char* t) {
-    printf("type: %s\n", t);
-    if (!strcmp(t, "int")) {
+    if (!strcmp(t, "i32")) {
         switch (*oper) {
             case '+':
                 return "add";
