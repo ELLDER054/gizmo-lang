@@ -95,7 +95,7 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         strcat(c, "\n");
         return int_name;
     } else if (n->n_type == ID_NODE) {
-        if (!strcmp(type((Identifier_node*) n), "string")) {
+        if (!strcmp(type(n), "string")) {
             char* id_name = heap_alloc(100);
             snprintf(id_name, 100, "%s", ht_get(str_tracker, ((Identifier_node*) n)->name));
             return id_name;
