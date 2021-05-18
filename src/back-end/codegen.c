@@ -35,6 +35,7 @@ void insert(char* buf, int pos, int size, char* str) {
 }
 
 char* find_operation_asm(char* oper, char* t) {
+    printf("type: %s\n", t);
     if (!strcmp(t, "int")) {
         switch (*oper) {
             case '+':
@@ -74,7 +75,6 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     strcat(c, " = ");
     strcat(c, find_operation_asm(n->oper, type));
     strcat(c, " ");
-    printf("%s\n", type);
     strcat(c, type);
     strcat(c, " ");
     strcat(c, l);
