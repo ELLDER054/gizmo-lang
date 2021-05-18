@@ -61,7 +61,7 @@ char* find_operation_asm(char* oper, char* t) {
     return "";
 }
 
-char* generate_expression_asm(Node* n, char* type, char* c, char* end_size);
+char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size);
 
 char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     char* l_buf = heap_alloc(100);
@@ -83,7 +83,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     return op_name;
 }
 
-char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
+char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size) {
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
@@ -145,7 +145,7 @@ char* generate_expression_asm(Node* n, char* type, char* c, char* end_size) {
         return str_name;
     }
     
-    return generate_operation_asm((Operator_node*) n, type, c);
+    return generate_operation_asm((Operator_node*) n, expr_type, c);
 }
 
 void generate(Node** ast, int size, char* code) {
