@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "heap.h"
 #include "codegen.h"
+#include "str_tracker.h"
 #include "../front-end/ast.h"
 
 #define MAX_BUF_LEN 1024
