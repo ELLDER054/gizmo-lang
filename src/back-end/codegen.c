@@ -115,6 +115,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(len, sizeof(len), "%lu", strlen(str) - 2);
         sprintf(string_decl, "@.str.%d = private unnamed_addr constant [%s x i8] c\"%s\"\n", str_c, len, str);
         strcpy(end_size, len);
+        printf("%s\n", end_size);
         insert(c, 0, strlen(c) + 1, string_decl);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
@@ -160,7 +161,7 @@ void generate(Node** ast, int size, char* code) {
             } else if (!strcmp(v->type, "string")) {
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, " = getelementptr [14 x i8]* ");
+                strcat(code, " = getelementptr [14 x i8], [14 x i8]* "); /* replace 14 with sizeof @.str.digit version of var_name */
                 strcat(code, var_name); /* instead of using var_name, we need to get the @.str.digit version of var_name via a dict lookup */
                 strcat(code, ", i32 0, i64 0");
             } else if (!strcmp(v->type, "real")) {
