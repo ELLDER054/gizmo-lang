@@ -1,26 +1,27 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include <string.h>
-#include "linked-l.h"
 
 #define MAX_ALLOCATIONS   1024
 
-static char** allocations;
+static void* allocations[MAX_ALLOCATIONS];
 static int num_allocations;
 
 void heap_init(void) {
     num_allocations = 0;
-    allocations = list_new();
+    memset(allocations, 0, sizeof(allocations));
 }
 
 void* heap_alloc(size_t size) {
     void *m = malloc(size);
     memset(m, 0, size);
-    list_add(allocations, m);
+    allocations[num_allocations++] = m;
     return m;
 }
 
 void heap_free_all(void) {
-    list_end_use(allocations);
+    for (int i = 0; i < num_allocations; i++) {
+        free(allocations[i]);
+    }
     num_allocations = 0;
 }
