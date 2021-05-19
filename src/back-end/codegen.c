@@ -172,9 +172,8 @@ void generate(Node** ast, int size, char* code) {
             } else if (strcmp(v->type, "string") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, " = getelementptr [14 x i8], [14 x i8]* "); /* replace 14 with sizeof @.str.digit version of var_name */
-                strcat(code, dict_find(str_tracker, var_name)); /* instead of using var_name, we need to get the @.str.digit version of var_name via a dict lookup */
-                strcat(code, ", i32 0, i64 0");
+                strcat(code, " = ");
+                strcat(code, var_name); /* instead of using var_name, we need to get the @.str.digit version of var_name via a dict lookup */
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
