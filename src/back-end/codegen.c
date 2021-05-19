@@ -173,7 +173,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, "%");
                 strcat(code, v->name);
                 strcat(code, " = getelementptr [14 x i8], [14 x i8]* "); /* replace 14 with sizeof @.str.digit version of var_name */
-                strcat(code, var_name); /* instead of using var_name, we need to get the @.str.digit version of var_name via a dict lookup */
+                strcat(code, dict_find(str_tracker, var_name)); /* instead of using var_name, we need to get the @.str.digit version of var_name via a dict lookup */
                 strcat(code, ", i32 0, i64 0");
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
@@ -198,7 +198,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, end_len);
                 printf("second endsize: %s\n", end_len);
                 strcat(code, " x i8]* ");
-                strcat(code, write_arg_name); /* instead of using write_arg_name, we need to get the @.str.digit version of write_arg_name via a dict lookup */
+                strcat(code, dict_find(str_tracker, write_arg_name)); /* instead of using write_arg_name, we need to get the @.str.digit version of write_arg_name via a dict lookup */
                 strcat(code, ", i32 0, i32 0))");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
