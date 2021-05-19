@@ -127,8 +127,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         printf("endsize: %s\n", end_size);
         insert(c, 0, strlen(c) + 1, string_decl);
         char* str_name = heap_alloc(100);
+        strcat(c, "store i8* ");
         snprintf(str_name, 100, "%%%d", var_c++);
-        strcat(c, str_name);
         strcat(c, " = i8* getelementptr inbounds ([");
         strcat(c, len);
         char* str_name_llvm_form = heap_alloc(100);
