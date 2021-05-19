@@ -28,4 +28,3 @@ This is the format of the `gizmo` command.
 ## Credits
 Gizmo's source contains some code from other people.
 1. llvm
-2. Ben Hoyt's hash table implementation ([here](https://benhoyt.com/writings/hash-table-in-c/))
