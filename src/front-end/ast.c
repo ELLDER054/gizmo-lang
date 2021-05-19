@@ -101,7 +101,7 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
     Func_call_node* func = malloc(sizeof(Func_call_node));
     memset(func, 0, sizeof(Func_call_node));
     
-    if (!strcmp(name, "write")) {
+    if (strcmp(name, "write") == 0) {
         func->n_type = WRITE_NODE;
     } else {
         func->n_type = FUNC_CALL_NODE;
