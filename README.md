@@ -24,7 +24,3 @@ gizmo version
 You can now use the `gizmo` command to compile gizmo programs!  
 This is the format of the `gizmo` command.  
 `gizmo <input-file> <output-file>`
-
-## Credits
-Gizmo's source contains some code from other people.
-1. llvm
