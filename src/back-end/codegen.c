@@ -12,6 +12,7 @@
 int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
+Dict* str_tracker;
 
 char* types(char* t) {
     if (strcmp(t, "int") == 0) {
@@ -95,9 +96,15 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "\n");
         return int_name;
     } else if (n->n_type == ID_NODE) {
-        char* id_name = heap_alloc(100);
-        snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
-        return id_name;
+        if (strcmp(expr_type, "string") == 0) {
+            char* id_name = heap_alloc(100);
+            snprintf(id_name, 100, "%s", dict_find(str_tracker, ((Identifier_node*) n)->name));
+            return id_name;
+        } else {
+            char* id_name = heap_alloc(100);
+            snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+            return id_name;
+        }
     } else if (n->n_type == REAL_NODE) {
         char number[100];
         snprintf(number, 100, "%f", ((Real_node*) n)->value);
@@ -127,6 +134,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, len);
         char* str_name_llvm_form = heap_alloc(100);
         snprintf(str_name_llvm_form, 100, "@.str.%d", str_c);
+        dict_add(str_tracker, str_name, str_name_llvm_form);
         strcat(c, " x i8], [");
         strcat(c, len);
         strcat(c, " x i8]* @.str.");
@@ -143,6 +151,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
 }
 
 void generate(Node** ast, int size, char* code) {
+    str_tracker = dict_new();
     strcat(code, "@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
@@ -201,4 +210,5 @@ void generate(Node** ast, int size, char* code) {
     }
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
+    dict_end_use(str_tracker);
 }
