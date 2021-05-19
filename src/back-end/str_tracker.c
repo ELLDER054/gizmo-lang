@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "linlis.h"
+#include "linked-l.h"
 #include "mydict.h"
 
 Dict* dict_new() {
