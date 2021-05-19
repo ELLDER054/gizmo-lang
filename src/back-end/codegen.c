@@ -145,7 +145,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, ", i32 0, i32 0), i8** ");
         strcat(c, str_name);
         strcat(c, ", align 8\n");
-        return str_name;
+        return str_name_llvm_form;
     }
     
     return generate_operation_asm((Operator_node*) n, expr_type, c);
