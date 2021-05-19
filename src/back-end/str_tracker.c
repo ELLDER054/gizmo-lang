@@ -2,7 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "linked-l.h"
-#include "mydict.h"
+#include "str_tracker.h"
 
 Dict* dict_new() {
     Dict* d = malloc(sizeof(Dict));
