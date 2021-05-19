@@ -2,6 +2,35 @@
 #include <stdlib.h>
 #include <string.h>
 #include "../front-end/ast.h"
+#include "../back-end/heap.h"
+
+char* generate_operation(Operator_node* value) {
+    char* left_expr = generate_expression(value->left);
+    char* right_expr = generate_expression(value->right);
+    add_to_code();
+}
+
+char* generate_expression(Node* value) {
+    if (value->n_type == INTEGER_NODE) {
+        char* name = heap_alloc(1024);
+        sprintf(name, "%%%d", var_c++);
+        add_to_code("%%%s = %d", name, ((Integer_node*) value)->value);
+        return name;
+    } else if (value->n_type == STRING_NODE) {
+        char* name = heap_alloc(1024);
+        insert_before_code("@.str.%d = private unnamed_addr constant [%d x i8] c%s", str_c++, strlen(((String_node*) value)->value), ((String_node*) value)->value);
+        sprintf(name, "%%%d", var_c++);
+        add_to_code("%%%s = %d", name, ((Integer_node*) value)->value);
+        return name;
+    } else if (value->n_type == REAL_NODE) {
+        char* name = heap_alloc(1024);
+        sprintf(name, "%%%d", var_c++);
+        add_to_code("%%%s = alloca double, align 8\nstore double %d, %%%s", name, ((Real_node*) value)->value, name);
+        return name;
+    }
+    
+    return generate_operation((Operator_node*) value);
+}
 
 void generate_variable(Var_declaration_node* var) {
     char* name = generate_expression((Node*) var->value);
