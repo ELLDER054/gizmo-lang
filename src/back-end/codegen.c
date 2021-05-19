@@ -127,10 +127,10 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         printf("endsize: %s\n", end_size);
         insert(c, 0, strlen(c) + 1, string_decl);
         char* str_name = heap_alloc(100);
-        strcat(c, str_name);
-        strcat(c, " = alloca i8*, align 8\nstore i8* ");
         snprintf(str_name, 100, "%%%d", var_c++);
-        strcat(c, " = i8* getelementptr inbounds ([");
+        strcat(c, str_name);
+        strcat(c, " = alloca i8*, align 8\nstore ");
+        strcat(c, "i8* getelementptr inbounds ([");
         strcat(c, len);
         char* str_name_llvm_form = heap_alloc(100);
         snprintf(str_name_llvm_form, 100, "@.str.%d", str_c);
@@ -145,7 +145,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, ", i32 0, i32 0), i8** ");
         strcat(c, str_name);
         strcat(c, ", align 8\n");
-        return str_name_llvm_form;
+        return str_name;
     }
     
     return generate_operation_asm((Operator_node*) n, expr_type, c);
@@ -187,7 +187,17 @@ void generate(Node** ast, int size, char* code) {
             Func_call_node* func = (Func_call_node*) n;
             char* end_len = heap_alloc(100);
             char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code, end_len);
-            if (strcmp(type(func->args[0]), "int") == 0) {
+            if (func->args[0]->n_type == ID_NODE) {
+                if (strcmp(type(func->args[0]), "string") == 0) {
+                    char* id_name = heap_alloc(100);
+                    snprintf(id_name, 100, "%s", dict_find(str_tracker, ((Identifier_node*) n)->name));
+                    return id_name;
+                } else {
+                    char* id_name = heap_alloc(100);
+                    snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+                    return id_name;
+                }
+            } else if (strcmp(type(func->args[0]), "int") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
