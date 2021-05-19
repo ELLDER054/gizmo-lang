@@ -152,7 +152,7 @@ void scan(char* code, Token* tokens) {
             }
 
             Token tok;
-            if (!strcmp(name, "int") || !strcmp(name, "string") || !strcmp(name, "real")) {
+            if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "real") == 0) {
                 tok.type = T_TYPE;
             } else {
                 tok.type = T_ID;
