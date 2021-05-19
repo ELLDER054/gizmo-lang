@@ -4,6 +4,7 @@
 
 char** list_new() {
     char** list = malloc(sizeof(char**));
+    memset(list, 0, sizeof(char**));
     return list;
 }
 
