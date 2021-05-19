@@ -209,6 +209,7 @@ void generate(Node** ast, int size, char* code) {
                         strcat(code, end_len);
                         printf("second endsize: %s\n", end_len);
                         strcat(code, " x i8]* ");
+                        printf("TANG: %s\n", write_arg_name);
                         strcat(code, dict_find(str_tracker, write_arg_name)); /* instead of using write_arg_name, we need to get the @.str.digit version of write_arg_name via a dict lookup */
                         strcat(code, ", i32 0, i32 0))");
                     } else if (strcmp(type(func->args[0]), "real") == 0) {
