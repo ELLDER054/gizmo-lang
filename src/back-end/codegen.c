@@ -12,9 +12,9 @@ int str_c = 1;
 char* type(Node* n);
 
 char* types(char* t) {
-    if (!strcmp(t, "int")) {
+    if (strcmp(t, "int") == 0) {
         return "i32";
-    } else if (!strcmp(t, "real")) {
+    } else if (strcmp(t, "real") == 0) {
         return "double";
     }
     return "";
@@ -33,7 +33,7 @@ void insert(char* buf, int pos, int size, char* str) {
 }
 
 char* find_operation_asm(char* oper, char* t) {
-    if (!strcmp(t, "i32")) {
+    if (strcmp(t, "i32") == 0) {
         switch (*oper) {
             case '+':
                 return "add";
@@ -44,7 +44,7 @@ char* find_operation_asm(char* oper, char* t) {
             case '/':
                 return "div";
         }
-    } else if (!strcmp(t, "double")) {
+    } else if (strcmp(t, "double") == 0) {
         switch (*oper) {
             case '+':
                 return "fadd";
@@ -153,18 +153,18 @@ void generate(Node** ast, int size, char* code) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char* var_buf = heap_alloc(100);
             char* var_name = generate_expression_asm(v->value, types(v->type), code, var_buf);
-            if (!strcmp(v->type, "int")) {
+            if (strcmp(v->type, "int") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
-            } else if (!strcmp(v->type, "string")) {
+            } else if (strcmp(v->type, "string") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
                 strcat(code, " = getelementptr [14 x i8], [14 x i8]* "); /* replace 14 with sizeof @.str.digit version of var_name */
                 strcat(code, var_name); /* instead of using var_name, we need to get the @.str.digit version of var_name via a dict lookup */
                 strcat(code, ", i32 0, i64 0");
-            } else if (!strcmp(v->type, "real")) {
+            } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
                 strcat(code, " = load double, double* ");
@@ -176,11 +176,11 @@ void generate(Node** ast, int size, char* code) {
             Func_call_node* func = (Func_call_node*) n;
             char* end_len = heap_alloc(100);
             char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code, end_len);
-            if (!strcmp(type(func->args[0]), "int")) {
+            if (strcmp(type(func->args[0]), "int") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
-            } else if (!strcmp(type(func->args[0]), "string")) {
+            } else if (strcmp(type(func->args[0]), "string") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([");
                 strcat(code, end_len);
                 strcat(code, " x i8], [");
@@ -189,7 +189,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, " x i8]* ");
                 strcat(code, write_arg_name); /* instead of using write_arg_name, we need to get the @.str.digit version of write_arg_name via a dict lookup */
                 strcat(code, ", i32 0, i32 0))");
-            } else if (!strcmp(type(func->args[0]), "real")) {
+            } else if (strcmp(type(func->args[0]), "real") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
