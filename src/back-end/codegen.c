@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include "heap.h"
 #include "codegen.h"
-#include "str_tracker.h"
 #include "../front-end/ast.h"
 
 #define MAX_BUF_LEN 1024
@@ -11,7 +10,6 @@
 int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
-ht* str_tracker;
 
 char* types(char* t) {
     if (!strcmp(t, "int")) {
@@ -95,15 +93,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "\n");
         return int_name;
     } else if (n->n_type == ID_NODE) {
-        if (!strcmp(type(n), "string")) {
-            char* id_name = heap_alloc(100);
-            snprintf(id_name, 100, "%s", ht_get(str_tracker, ((Identifier_node*) n)->name));
-            return id_name;
-        } else {
-            char* id_name = heap_alloc(100);
-            snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
-            return id_name;
-        }
+        char* id_name = heap_alloc(100);
+        snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+        return id_name;
     } else if (n->n_type == REAL_NODE) {
         char number[100];
         snprintf(number, 100, "%f", ((Real_node*) n)->value);
@@ -132,7 +124,6 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, len);
         char* str_name_llvm_form = heap_alloc(100);
         snprintf(str_name_llvm_form, 100, "@.str.%d", str_c);
-        ht_set(str_tracker, str_name, str_name_llvm_form);
         strcat(c, " x i8], [");
         strcat(c, len);
         strcat(c, " x i8]* @.str.");
@@ -196,7 +187,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, " x i8], [");
                 strcat(code, end_len);
                 strcat(code, " x i8]* ");
-                strcat(code, ht_get(str_tracker, write_arg_name));
+                strcat(code, write_arg_name);
                 strcat(code, ", i32 0, i32 0))");
             } else if (!strcmp(type(func->args[0]), "real")) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
