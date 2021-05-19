@@ -158,10 +158,9 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
             } else if (!strcmp(v->type, "string")) {
-                strcat(code, "store i8* ");
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, ", i8* ");
+                strcat(code, " = load i8*, i8** ");
                 strcat(code, var_name);
                 strcat(code, ", align 8");
             } else if (!strcmp(v->type, "real")) {
