@@ -135,6 +135,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* str_name_llvm_form = heap_alloc(100);
         snprintf(str_name_llvm_form, 100, "@.str.%d", str_c);
         dict_add(str_tracker, str_name, str_name_llvm_form);
+        printf("DEBUG: %s\n", dict_find(str_tracker, str_name));
         strcat(c, " x i8], [");
         strcat(c, len);
         strcat(c, " x i8]* @.str.");
