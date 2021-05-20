@@ -96,15 +96,22 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "\n");
         return int_name;
     } else if (n->n_type == ID_NODE) {
-        if (strcmp(expr_type, "string") == 0) {
-            char* id_name = heap_alloc(100);
-            snprintf(id_name, 100, "%s", dict_find(str_tracker, ((Identifier_node*) n)->name));
-            return id_name;
-        } else {
-            char* id_name = heap_alloc(100);
-            snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
-            return id_name;
-        }
+        char* id_name = heap_alloc(100);
+        snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+        return id_name;
+    } else if (n->n_type == STRING_NODE) {
+        char str[100];
+        snprintf(str, 100, "%s", ((String_node*) n)->value);
+        char* str_name = heap_alloc(100);
+        snprintf(str_name, 100, "%%%d", var_c);
+        strcat(c, str_name);
+        strcat(c, " = alloca i8*, align 8\nstore i8* getlementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i64 0, i64 0), i8** ");
+        strcat(code, str_name);
+        strcat(code, ", align 8\n");
+        strcat(c, str);
+        var_c++;
+        strcat(c, "\n");
+        return str_name;
     } else if (n->n_type == REAL_NODE) {
         char number[100];
         snprintf(number, 100, "%f", ((Real_node*) n)->value);
@@ -123,7 +130,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
 
 void generate(Node** ast, int size, char* code) {
     str_tracker = dict_new();
-    strcat(code, "@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
+    strcat(code, "@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -140,6 +147,12 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, v->name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
+            } else if (strcmp(v->type, "string") == 0) {
+                strcat(code, "%");
+                strcat(code, v->name);
+                strcat(code, " = ");
+                strcat(code, var_name);
+                strcat(code, ", align 8\n");
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
@@ -152,8 +165,13 @@ void generate(Node** ast, int size, char* code) {
             Func_call_node* func = (Func_call_node*) n;
             char* end_len = heap_alloc(100);
             char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code, end_len);
+            printf("%s\n", type(func->args[0]));
             if (strcmp(type(func->args[0]), "int") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
+                strcat(code, write_arg_name);
+                strcat(code, ")");
+            } else if (strcmp(type(func->args[0]), "string") == 0) {
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
