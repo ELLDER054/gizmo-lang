@@ -109,8 +109,14 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* str_assignment = heap_alloc(100);
         snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c\"%s\"\n", str_llvm_name, strlen(str) - 2, str);
         insert(c, 0, strlen(c), str_assignment);
+        char* len = heap_alloc(100);
+        snprintf(len, 100, "%d", strlen(str) - 2);
         strcat(c, str_name);
-        strcat(c, " = alloca i8*, align 8\nstore i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i64 0, i64 0), i8** ");
+        strcat(c, " = alloca i8*, align 8\nstore i8* getelementptr inbounds ([");
+        strcat(c, len);
+        strcat(c, " x i8], [");
+        strcat(c, len);
+        strcat(c, " x i8]* @.str.1, i64 0, i64 0), i8** ");
         strcat(c, str_name);
         strcat(c, ", align 8\n");
         var_c++;
