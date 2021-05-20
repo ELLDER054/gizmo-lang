@@ -175,8 +175,13 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "string") == 0) {
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 ");
+                strcat(code, "%");
+                strcat(code, var_c);
+                strcat(code, " = load i8*, i8** ");
                 strcat(code, write_arg_name);
+                strcat(code, ", align 8\n");
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 ");
+                strcat(code, var_c++);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
