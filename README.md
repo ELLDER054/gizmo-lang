@@ -14,13 +14,11 @@ Contributors are always welcome! Some ways to help are:
 6. Sponsor me on github
 
 ## Hacking, Changing or Using Gizmo Locally
-See the <a href="https://github.com/ellder054/gizmolang/install">download</a> page to download Gizmo.  
-In your command line, put the .zip file in usr/local/bin.  
-To confirm that you have succesfully installed Gizmo, run the following code.
+Copy the following commands to build Gizmo.
 ```shell
-gizmo version
+git clone https://github.com/ellder054/gizmo-lang.git
+mkdir gimzo-build
+cd gizmo-build
+cmake ../gizmo-lang
+make
 ```
-
-You can now use the `gizmo` command to compile gizmo programs!  
-This is the format of the `gizmo` command.  
-`gizmo <input-file> <output-file>`
