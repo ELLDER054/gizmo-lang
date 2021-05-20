@@ -107,10 +107,10 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c);
         char* str_assignment = heap_alloc(100);
-        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c%s\n", str_llvm_name, strlen(str) + 2, str);
+        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c%s\n", str_llvm_name, strlen(str) - 2, str);
         insert(c, 0, strlen(str_assignment) * 2, str_assignment);
         strcat(c, str_name);
-        strcat(c, " = alloca i8*, align 8\nstore i8* getlementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i64 0, i64 0), i8** ");
+        strcat(c, " = alloca i8*, align 8\nstore i8* getelementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i64 0, i64 0), i8** ");
         strcat(c, str_name);
         strcat(c, ", align 8\n");
         var_c++;
@@ -181,7 +181,7 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, " = load i8*, i8** ");
                 strcat(code, write_arg_name);
                 strcat(code, ", align 8\n");
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i32 ");
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
                 strcat(code, name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
