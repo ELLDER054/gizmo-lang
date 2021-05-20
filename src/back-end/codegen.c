@@ -106,8 +106,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(str_name, 100, "%%%d", var_c);
         strcat(c, str_name);
         strcat(c, " = alloca i8*, align 8\nstore i8* getlementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i64 0, i64 0), i8** ");
-        strcat(code, str_name);
-        strcat(code, ", align 8\n");
+        strcat(c, str_name);
+        strcat(c, ", align 8\n");
         strcat(c, str);
         var_c++;
         strcat(c, "\n");
