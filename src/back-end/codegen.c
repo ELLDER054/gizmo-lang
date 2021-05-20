@@ -102,13 +102,17 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "%s", ((String_node*) n)->value);
+        char str_llvm_name[106];
+        snprintf(str_llvm_name, 100, "@.str.%d", str_c++);
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c);
+        char* str_assignment = heap_alloc(100);
+        snprintf(str_assignment, 100, "%s = private unnamed_addr constant [%d x i8] c%s\n", str_llvm_name, strlen(str) + 2, str);
+        insert(c, 0, 100, str_llvm_name);
         strcat(c, str_name);
         strcat(c, " = alloca i8*, align 8\nstore i8* getlementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i64 0, i64 0), i8** ");
         strcat(c, str_name);
         strcat(c, ", align 8\n");
-        strcat(c, str);
         var_c++;
         strcat(c, "\n");
         return str_name;
