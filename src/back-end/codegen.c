@@ -116,36 +116,6 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         var_c++;
         strcat(c, "\n");
         return real_name;
-    } else if (n->n_type == STRING_NODE) {
-        char str[100];
-        snprintf(str, 100, "%s", ((String_node*) n)->value);
-        char* string_decl = heap_alloc(100);
-        char* len = heap_alloc(100);
-        snprintf(len, sizeof(len), "%lu", strlen(str) - 2);
-        sprintf(string_decl, "@.str.%d = private unnamed_addr constant [%s x i8] c\"%s\"\n", str_c, len, str);
-        strcpy(end_size, len);
-        printf("endsize: %s\n", end_size);
-        insert(c, 0, strlen(c) + 1, string_decl);
-        char* str_name = heap_alloc(100);
-        snprintf(str_name, 100, "%%%d", var_c++);
-        strcat(c, str_name);
-        strcat(c, " = alloca i8*, align 8\nstore ");
-        strcat(c, "i8* getelementptr inbounds ([");
-        strcat(c, len);
-        char* str_name_llvm_form = heap_alloc(100);
-        snprintf(str_name_llvm_form, 100, "@.str.%d", str_c);
-        dict_add(str_tracker, str_name, str_name_llvm_form);
-        printf("DEBUG: %s\n", dict_find(str_tracker, str_name));
-        strcat(c, " x i8], [");
-        strcat(c, len);
-        strcat(c, " x i8]* @.str.");
-        char* s_c = heap_alloc(100);
-        snprintf(s_c, sizeof(s_c), "%d", str_c++);
-        strcat(c, s_c);
-        strcat(c, ", i32 0, i32 0), i8** ");
-        strcat(c, str_name);
-        strcat(c, ", align 8\n");
-        return str_name;
     }
     
     return generate_operation_asm((Operator_node*) n, expr_type, c);
@@ -170,11 +140,6 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, v->name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
-            } else if (strcmp(v->type, "string") == 0) {
-                strcat(code, "%");
-                strcat(code, v->name);
-                strcat(code, " = ");
-                strcat(code, dict_find(str_tracker, var_name)); /* instead of using var_name, we need to get the @.str.digit version of var_name via a dict lookup */
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
@@ -203,16 +168,6 @@ void generate(Node** ast, int size, char* code) {
                         strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
                         strcat(code, write_arg_name);
                         strcat(code, ")");
-                    } else if (strcmp(type(func->args[0]), "string") == 0) {
-                        strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([");
-                        strcat(code, end_len);
-                        strcat(code, " x i8], [");
-                        strcat(code, end_len);
-                        printf("second endsize: %s\n", end_len);
-                        strcat(code, " x i8]* ");
-                        printf("TANG: %s\n", write_arg_name);
-                        strcat(code, write_arg_name); /* instead of using write_arg_name, we need to get the @.str.digit version of write_arg_name via a dict lookup */
-                        strcat(code, ", i32 0, i32 0))");
                     } else if (strcmp(type(func->args[0]), "real") == 0) {
                         strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
                         strcat(code, write_arg_name);
