@@ -152,28 +152,14 @@ void generate(Node** ast, int size, char* code) {
             Func_call_node* func = (Func_call_node*) n;
             char* end_len = heap_alloc(100);
             char* write_arg_name = generate_expression_asm(func->args[0], types(type(func->args[0])), code, end_len);
-            if (func->args[0]->n_type == ID_NODE) {
-                if (strcmp(type(func->args[0]), "string") == 0) {
-                    strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([");
-                        strcat(code, end_len);
-                        strcat(code, " x i8], [");
-                        strcat(code, end_len);
-                        printf("second endsize: %s\n", end_len);
-                        printf("TANG: %s\n", write_arg_name);
-                        strcat(code, " x i8]* ");
-                        strcat(code, dict_find(str_tracker, write_arg_name)); /* instead of using write_arg_name, we need to get the @.str.digit version of write_arg_name via a dict lookup */
-                        strcat(code, ", i32 0, i32 0))");
-                } else {
-                    if (strcmp(type(func->args[0]), "int") == 0) {
-                        strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
-                        strcat(code, write_arg_name);
-                        strcat(code, ")");
-                    } else if (strcmp(type(func->args[0]), "real") == 0) {
-                        strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
-                        strcat(code, write_arg_name);
-                        strcat(code, ")");
-                    }
-                }
+            if (strcmp(type(func->args[0]), "int") == 0) {
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
+                strcat(code, write_arg_name);
+                strcat(code, ")");
+            } else if (strcmp(type(func->args[0]), "real") == 0) {
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
+                strcat(code, write_arg_name);
+                strcat(code, ")");
             }
             strcat(code, "\n");
         }
