@@ -108,7 +108,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(str_name, 100, "%%%d", var_c);
         char* str_assignment = heap_alloc(100);
         snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c%s\n", str_llvm_name, strlen(str) + 2, str);
-        insert(c, 0, 100, str_assignment);
+        insert(c, 0, strlen(str_assignment), str_assignment);
         strcat(c, str_name);
         strcat(c, " = alloca i8*, align 8\nstore i8* getlementptr inbounds ([14 x i8], [14 x i8]* @.str.1, i64 0, i64 0), i8** ");
         strcat(c, str_name);
