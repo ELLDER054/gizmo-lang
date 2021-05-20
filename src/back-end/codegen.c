@@ -160,7 +160,7 @@ void generate(Node** ast, int size, char* code) {
             } else if (strcmp(v->type, "string") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, " = load i8*, i8** ");
+                strcat(code, " = load i8*, i8* ");
                 strcat(code, var_name);
                 strcat(code, ", align 8\n");
             } else if (strcmp(v->type, "real") == 0) {
