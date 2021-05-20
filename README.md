@@ -17,7 +17,7 @@ Contributors are always welcome! Some ways to help are:
 Copy the following commands to build Gizmo.
 ```shell
 git clone https://github.com/ellder054/gizmo-lang.git
-mkdir gimzo-build
+mkdir gizmo-build
 cd gizmo-build
 cmake ../gizmo-lang
 make
