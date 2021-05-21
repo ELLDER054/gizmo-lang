@@ -135,9 +135,11 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* real_name = heap_alloc(100);
         snprintf(real_name, 100, "%%%d", var_c);
         strcat(c, real_name);
-        strcat(c, " = fadd double 0.0, ");
+        strcat(c, " = alloca double, align 8\nstore double ");
         strcat(c, number);
         var_c++;
+        strcat(c, ", double* ");
+        strcat(c, real_name);
         strcat(c, "\n");
         return real_name;
     }
