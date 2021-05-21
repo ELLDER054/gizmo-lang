@@ -96,6 +96,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
     } else if (n->n_type == ID_NODE) {
         char* id_name = heap_alloc(100);
         snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+        previous_is_ptr = 1;
         return id_name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
