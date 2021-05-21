@@ -11,7 +11,6 @@ int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
 int previous_str_is_ptr = 0;
-int previous_real_is_ptr = 0;
 
 char* types(char* t) {
     if (strcmp(t, "int") == 0) {
@@ -136,12 +135,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* real_name = heap_alloc(100);
         snprintf(real_name, 100, "%%%d", var_c);
         strcat(c, real_name);
-        strcat(c, " = alloca double, align 8\nstore double ");
+        strcat(c, " = fadd double 0.0, ");
         strcat(c, number);
-        previous_real_is_ptr = 1;
         var_c++;
-        strcat(c, ", double* ");
-        strcat(c, real_name);
         strcat(c, "\n");
         return real_name;
     }
@@ -181,15 +177,8 @@ void generate(Node** ast, int size, char* code, char* file_name) {
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, " = load double, double");
-                if (previous_real_is_ptr) {
-                    strcat(code, "* ");
-                    previous_real_is_ptr = 0;
-                } else {
-                    strcat(code, " ");
-                }
+                strcat(code, " = fadd double 0.0, ");
                 strcat(code, var_name);
-                strcat(code, ", align 8");
             }
             strcat(code, "\n");
         } else if (n->n_type == WRITE_NODE) {
