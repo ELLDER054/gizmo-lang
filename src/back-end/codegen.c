@@ -149,7 +149,6 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         if (n == NULL) {
             break;
         }
-        printf("%d\n", n->n_type);
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char* var_buf = heap_alloc(100);
