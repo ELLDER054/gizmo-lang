@@ -179,7 +179,13 @@ void generate(Node** ast, int size, char* code, char* file_name) {
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, " = load double, double* ");
+                strcat(code, " = load double, double*");
+                if (previous_is_ptr) {
+                    strcat(code, "* ");
+                    previous_is_ptr = 0;
+                } else {
+                    strcat(code, " ");
+                }
                 strcat(code, var_name);
                 strcat(code, ", align 8");
             }
