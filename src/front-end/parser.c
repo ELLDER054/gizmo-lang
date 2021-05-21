@@ -335,7 +335,11 @@ void func_expr_args(int start, Node** args, int len) {
     while (1) {
         Node* expr = expression(ind);
         if (expr == NULL) {
-            break; /* error */
+            char specifier[1024] = {'\0'};
+            repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+            strncat(specifier, "^", 2);
+            printf("On line %d:\nExpected argument\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+            exit(0);
         }
         char* comma = expect_type(T_COMMA);
         args[arg_c++] = expr;
