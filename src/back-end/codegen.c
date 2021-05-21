@@ -108,7 +108,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c);
         char* str_assignment = heap_alloc(100);
-        snprintf(str_assignment, sizeof(str_assignment), "%s = private unnamed_addr constant [%d x i8] c\"%s\"\n", str_llvm_name, strlen(str) - 2, str);
+        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c\"%s\"\n", str_llvm_name, strlen(str) - 2, str);
         insert(c, 0, strlen(c), str_assignment);
         char* len = heap_alloc(100);
         snprintf(len, 100, "%d", strlen(str) - 2);
@@ -214,7 +214,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     }
     char* module_id = heap_alloc(100);
     snprintf(module_id, sizeof(module_id), ";ModuleID = '%s'", file_name);
-    insert(code, 0, strlen(code), module_id);
+    insert(code, 0, 400, module_id);
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
     dict_end_use(str_tracker);
