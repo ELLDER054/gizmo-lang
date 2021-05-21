@@ -101,7 +101,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             char* id_code = heap_alloc(100);
             snprintf(id_code, 100, "%s = alloca i8*, align 8\nstore i8* %%%s, i8** %s", id_name, ((Identifier_node*) n)->name, id_name);
             strcat(c, id_code);
-            previous_is_ptr = 1;
+            previous_str_is_ptr = 1;
         } else {
             snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
         }
