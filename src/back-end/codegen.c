@@ -94,8 +94,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "\n");
         return int_name;
     } else if (n->n_type == ID_NODE) {
-        char* id_name = heap_alloc(100);
-        snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+        char* id_code = heap_alloc(100);
+        snprintf(id_code, 100, "%%%d = alloca i8*, align 8\nstore i8* %%%s, i8** %%%d", var_c, ((Identifier_node*) n)->name, var_c);
+        strcat(c, id_code);
         previous_is_ptr = 1;
         return id_name;
     } else if (n->n_type == STRING_NODE) {
