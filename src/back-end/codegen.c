@@ -190,14 +190,20 @@ void generate(Node** ast, int size, char* code) {
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "string") == 0) {
                 char* name = heap_alloc(100);
-                snprintf(name, 100, "%%%d", var_c++);
-                strcat(code, name);
-                strcat(code, " = load i8*, i8* ");
-                strcat(code, write_arg_name);
-                strcat(code, ", align 8\n");
-                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
-                strcat(code, name);
-                strcat(code, ")");
+                if (!previous_is_ptr) {
+                    snprintf(name, 100, "%%%d", var_c++);
+                    strcat(code, name);
+                    strcat(code, " = load i8*, i8** ");
+                    strcat(code, write_arg_name);
+                    strcat(code, ", align 8\n");
+                    strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
+                    strcat(code, name);
+                    strcat(code, ")");
+                } else {
+                    strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
+                    strcat(code, write_arg_name);
+                    strcat(code, ")");
+                }
             } else if (strcmp(type(func->args[0]), "real") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
                 strcat(code, write_arg_name);
