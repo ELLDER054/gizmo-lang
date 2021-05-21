@@ -12,6 +12,7 @@
 int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
+int previous_is_ptr = 0;
 Dict* str_tracker;
 
 char* types(char* t) {
@@ -113,6 +114,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(len, 100, "%d", strlen(str) - 2);
         strcat(c, str_name);
         strcat(c, " = alloca i8*, align 8\nstore i8* getelementptr inbounds ([");
+        previous_is_ptr = 1;
         strcat(c, len);
         strcat(c, " x i8], [");
         strcat(c, len);
@@ -160,7 +162,13 @@ void generate(Node** ast, int size, char* code) {
             } else if (strcmp(v->type, "string") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
-                strcat(code, " = load i8*, i8** ");
+                strcat(code, " = load i8*, i8*");
+                if (previous_is_ptr) {
+                    strcat(code, "* ");
+                    previous_is_ptr = 0;
+                } else {
+                    strcat(code, " ");
+                }
                 strcat(code, var_name);
                 strcat(code, ", align 8\n");
             } else if (strcmp(v->type, "real") == 0) {
