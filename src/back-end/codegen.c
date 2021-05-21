@@ -22,7 +22,7 @@ char* types(char* t) {
 }
 
 void insert(char* buf, int pos, int size, char* str) {
-    char temp[MAX_BUF_LEN * 2];
+    char* temp = heap_alloc(MAX_BUF_LEN * 2);
     for (int i = 0; i < pos; i++) {
         char c = buf[i];
         strncat(temp, &c, 1);
