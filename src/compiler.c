@@ -10,7 +10,7 @@ void scan(char* code, Token* buf_toks);
 void parse(Token* tokens, Node** program, Symbol** symbol_table);
 void print_node(FILE* f, Node* n);
 void free_node(Node* n);
-void generate(Node** ast, int length, char* code);
+void generate(Node** ast, int length, char* code, char* file_name);
 
 int main(int argc, char** argv) {
     if (!(argc == 3)) {
