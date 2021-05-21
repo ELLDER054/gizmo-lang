@@ -213,8 +213,9 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         }
     }
     char* module_id = heap_alloc(100);
-    snprintf(module_id, sizeof(module_id), ";Module_ID = '%s'", file_name);
-    insert(code, 0, sizeof(module_id), module_id);
+    snprintf(module_id, sizeof(module_id), ";ModuleID = '%s'", file_name);
+    insert(code, 0, strlen(module_id), module_id);
+    fprintf("yay %s\n", module_id);
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
     dict_end_use(str_tracker);
