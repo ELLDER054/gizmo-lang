@@ -202,7 +202,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "string") == 0) {
                 char* name = heap_alloc(100);
-                if (previous_is_ptr) {
+                if (previous_str_is_ptr) {
                     snprintf(name, 100, "%%%d", var_c++);
                     strcat(code, name);
                     strcat(code, " = load i8*, i8** ");
