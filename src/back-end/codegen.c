@@ -1,10 +1,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
-#include "strs.h"
 #include "heap.h"
 #include "codegen.h"
-#include "str_tracker.h"
 #include "../front-end/ast.h"
 
 #define MAX_BUF_LEN 1024
@@ -13,7 +11,6 @@ int var_c = 1;
 int str_c = 1;
 char* type(Node* n);
 int previous_is_ptr = 0;
-Dict* str_tracker;
 
 char* types(char* t) {
     if (strcmp(t, "int") == 0) {
@@ -217,5 +214,4 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     insert(code, 0, strlen(code), module_id);
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
-    dict_end_use(str_tracker);
 }
