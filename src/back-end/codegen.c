@@ -30,6 +30,7 @@ void insert(char* buf, int pos, int size, char* str) {
     strcat(temp, str);
     for (int i = pos; i < size; i++) {
         char c = buf[i];
+        printf("%c\n", c);
         strncat(temp, &c, 1);
     }
     strcpy(buf, temp);
