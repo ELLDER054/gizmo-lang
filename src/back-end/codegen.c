@@ -105,10 +105,10 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c);
         char* str_assignment = heap_alloc(100);
-        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c\"%s\"\n", str_llvm_name, strlen(str) - 2, str);
+        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%lu x i8] c\"%s\"\n", str_llvm_name, strlen(str) - 2, str);
         insert(c, 0, strlen(c), str_assignment);
         char* len = heap_alloc(100);
-        snprintf(len, 100, "%d", strlen(str) - 2);
+        snprintf(len, 100, "%lu", strlen(str) - 2);
         strcat(c, str_name);
         strcat(c, " = alloca i8*, align 8\nstore i8* getelementptr inbounds ([");
         previous_is_ptr = 1;
