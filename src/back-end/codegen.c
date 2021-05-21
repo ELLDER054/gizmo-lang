@@ -140,7 +140,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
     return generate_operation_asm((Operator_node*) n, expr_type, c);
 }
 
-void generate(Node** ast, int size, char* code) {
+void generate(Node** ast, int size, char* code, char* file_name) {
     str_tracker = dict_new();
     strcat(code, "@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
@@ -212,6 +212,9 @@ void generate(Node** ast, int size, char* code) {
             strcat(code, "\n");
         }
     }
+    char* module_id = heap_alloc(100);
+    snprintf(module_id, sizeof(module_id), ";Module_ID = '%s'", file_name);
+    insert(code, 0, sizeof(module_id), module_id);
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
     dict_end_use(str_tracker);
