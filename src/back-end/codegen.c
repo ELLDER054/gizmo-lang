@@ -65,6 +65,10 @@ char* find_operation_asm(char* oper, char* t) {
 char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size);
 
 char* generate_operation_asm(Operator_node* n, char* type, char* c) {
+    if (strcmp(type, "string") == 0) {
+        //add string concat algorithm
+        return str_op_name
+    }
     char* l_buf = heap_alloc(100);
     char* l = generate_expression_asm(n->left, type, c, l_buf);
     char* r_buf = heap_alloc(100);
