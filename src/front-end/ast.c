@@ -73,6 +73,9 @@ void print_var(FILE* f, Var_declaration_node* v) {
 
 void print_func_call(FILE* f, Func_call_node* func) {
     fprintf(f, "(FUNC_CALL_NODE, %s, ", func->name);
+    for (int i = 0; i < func->args_len; i++) {
+        print_node(f, func->args[i]);
+    }
     fprintf(f, ")");
 }
 
