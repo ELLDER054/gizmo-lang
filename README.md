@@ -14,6 +14,12 @@ Contributors are always welcome! Some ways to help are:
 6. Sponsor me on github
 
 ## Hacking, Changing or Using Gizmo Locally
+Requirements:
+1. clang
+2. llvm
+3. cmake
+4. git
+
 Copy the following commands to build Gizmo.
 ```shell
 git clone https://github.com/ellder054/gizmo-lang.git
