@@ -215,6 +215,8 @@ void generate(Node** ast, int size, char* code, char* file_name) {
                 strcat(code, ")");
             }
             strcat(code, "\n");
+        } else if (n->n_type == READ_NODE) {
+            strcat("\n");
         }
     }
     char* module_id = heap_alloc(100);

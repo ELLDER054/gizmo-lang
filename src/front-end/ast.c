@@ -53,6 +53,7 @@ void print_node(FILE* f, Node* n) {
             print_real(f, (Real_node*) n);
             break;
         case FUNC_CALL_NODE:
+        case READ_NODE:
         case WRITE_NODE:
             print_func_call(f, (Func_call_node*) n);
             break;
@@ -106,6 +107,8 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
     
     if (strcmp(name, "write") == 0) {
         func->n_type = WRITE_NODE;
+    } else if (strcmp(name, "read") == 0) {
+        func->n_type = READ_NODE;
     } else {
         func->n_type = FUNC_CALL_NODE;
     }
