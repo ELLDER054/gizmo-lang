@@ -34,10 +34,9 @@ int main(int argc, char** argv) {
 
     Node* program[1024];
     memset(program, 0, sizeof(program));
-    parse(tokens, program, symbol_table);
-
     Symbol* symbol_table[1024];
     memset(symbol_table, 0, sizeof(symbol_table));
+    parse(tokens, program, symbol_table);
 
     FILE* output_f = fopen(argv[2], "w");
     if (output_f == NULL) {
