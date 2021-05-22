@@ -19,6 +19,7 @@ Requirements:
 2. llvm
 3. cmake
 4. git
+5. gcc
 
 Copy the following commands to build Gizmo.
 ```shell
