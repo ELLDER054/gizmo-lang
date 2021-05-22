@@ -42,12 +42,12 @@ int main(int argc, char** argv) {
     if (output_f == NULL) {
         fprintf(stderr, "failed to open output file");
     }
-    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
+    /*for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
             print_node(stdout, program[i]);
             fprintf(stdout, "\n");
         }
-    }
+    }*/
     char output[1024];
     memset(output, 0, sizeof(output));
     generate(program, sizeof(program) / sizeof(Node*), output, argv[1]);
