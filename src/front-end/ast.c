@@ -226,6 +226,7 @@ void free_node(Node* n) {
             free_Identifier_node((Identifier_node*) n);
             break;
         case FUNC_CALL_NODE:
+        case READ_NODE:
         case WRITE_NODE:
             free_Func_call_node((Func_call_node*) n);
             break;
