@@ -31,12 +31,12 @@ int main(int argc, char** argv) {
     scan(code, tokens);
     parse(tokens, program, symbol_table);
     FILE* output_f = fopen(argv[2], "w");
-    /*for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
+    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (NULL != program[i]) {
             print_node(output_f, program[i]);
-            fprintf(output_f, "\n");
+            fprintf(stdout, "\n");
         }
-    }*/
+    }
     char output[1024];
     memset(output, 0, sizeof(output));
     generate(program, sizeof(program) / sizeof(Node*), output, argv[1]);
