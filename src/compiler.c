@@ -1,4 +1,4 @@
-#include <stdio.h>
+include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "front-end/scanner.h"
@@ -15,12 +15,16 @@ void generate(Node** ast, int length, char* code, char* file_name);
 int main(int argc, char** argv) {
     if (!(argc == 3)) {
         fprintf(stderr, "gizmo: Expected a file to compile and a file to write output to\ngizmo: Aborting execution\n");
-        return 0;
+        return -1;
     }
     char code[1024];
 
     memset(code, 0, sizeof(code));
     FILE* input_f = fopen(argv[1], "r");
+    if (input_f == NULL) {
+        fprintf(stderr, "failed to open input file");
+        return -1;
+    }
     fread(code, 1, sizeof(code), input_f);
     Token tokens[strlen(code)];
     memset(tokens, 0, sizeof(tokens));
