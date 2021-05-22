@@ -125,7 +125,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, len);
         strcat(c, " x i8], [");
         strcat(c, len);
-        strcat(c, " x i8]* @.str.1, i64 0, i64 0), i8** ");
+        strcat(c, " x i8]* ");
+        strcat(c, str_llvm_name);
+        strcat(c, ", i64 0, i64 0), i8** ");
         strcat(c, str_name);
         strcat(c, ", align 8\n");
         var_c++;
