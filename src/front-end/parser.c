@@ -149,6 +149,7 @@ char* type(Node* n) {
         case ID_NODE:
             return sym_find(((Identifier_node*) n)->name)->type;
         case FUNC_CALL_NODE:
+        case READ_NODE:
         case WRITE_NODE:
             break;
         case NODE_NODE:
@@ -498,10 +499,12 @@ Node* statement(int start) {
 // end statement parsing
 
 void parse(Token* toks, Node** program, Symbol** sym_t) {
-    char* none_info[1024] = {"none", "none"};
+    char* none_info[3] = {"none", "none"};
     push_symbol("built-in", none_info, 0);
-    char* write_info[1024] = {"write", "none"};
+    char* write_info[3] = {"write", "none"};
     push_symbol("func", write_info, 1);
+    char* read_info[3] = {"read", "none"};
+    push_symbol("func", read_info, 0);
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
