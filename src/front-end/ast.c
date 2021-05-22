@@ -109,6 +109,13 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
     } else {
         func->n_type = FUNC_CALL_NODE;
     }
+    int len;
+    for (len = 0;; len++) {
+        if (args[len] == NULL) {
+            break;
+        }
+    }
+    func->args_len = len;
     strncpy(func->name, name, MAX_NAME_LEN);
     func->args = args;
     return func;
