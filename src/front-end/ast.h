@@ -45,6 +45,7 @@ typedef struct {
     NodeType n_type;
     char name[MAX_NAME_LEN];
     Node** args;
+    int args_len;
 } Func_call_node;
 
 typedef struct {
