@@ -69,14 +69,6 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
     char* l = generate_expression_asm(n->left, type, c, l_buf);
     char* r_buf = heap_alloc(100);
     char* r = generate_expression_asm(n->right, type, c, r_buf);
-    if (strcmp(type, "string") == 0) {
-        char* str_cat_code = heap_alloc(400);
-        char* str_op_name = heap_alloc(100);
-        snprintf(str_op_name, 100, "%%%d", var_c++);
-        snprintf(str_cat_code, 400, "%d = load i8*, i8** %s, align 8n\n%s = load i8*, i8** %s, align 8", var_c - 1, l, str_op_name, r);
-        strcat(c, str_cat_code);
-        return str_op_name;
-    }
     char* op_name = heap_alloc(100);
     snprintf(op_name, 100, "%%%d", var_c++);
     strcat(c, op_name);
