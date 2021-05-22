@@ -65,6 +65,10 @@ char* find_operation_asm(char* oper, char* t) {
 char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size);
 
 char* generate_operation_asm(Operator_node* n, char* type, char* c) {
+    char* l_buf = heap_alloc(100);
+    char* l = generate_expression_asm(n->left, type, c, l_buf);
+    char* r_buf = heap_alloc(100);
+    char* r = generate_expression_asm(n->right, type, c, r_buf);
     if (strcmp(type, "string") == 0) {
         char* str_cat_code = heap_alloc(400);
         char* str_op_name = heap_alloc(100);
@@ -73,10 +77,6 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
         strcat(c, str_cat_code);
         return str_op_name;
     }
-    char* l_buf = heap_alloc(100);
-    char* l = generate_expression_asm(n->left, type, c, l_buf);
-    char* r_buf = heap_alloc(100);
-    char* r = generate_expression_asm(n->right, type, c, r_buf);
     char* op_name = heap_alloc(100);
     snprintf(op_name, 100, "%%%d", var_c++);
     strcat(c, op_name);
