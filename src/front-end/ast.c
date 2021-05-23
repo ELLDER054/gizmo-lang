@@ -119,16 +119,21 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
         }
     }
     func->args_len = len;
+    func->args = malloc(len * sizeof(Node*));
+    for (int i = 0; i < len; i++) {
+        func->args[i] = args[i];
+    }
     strncpy(func->name, name, MAX_NAME_LEN);
-    func->args = args;
     return func;
 }
 
 void free_Func_call_node(Func_call_node* f) {
     if (f != NULL) {
         for (int i = 0; i < sizeof(f->args) / sizeof(Node*); i++) {
+            print_node(stdout, f->args[i]);
             free_node(f->args[i]);
         }
+        free(f->args);
         free(f);
     }
 }

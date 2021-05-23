@@ -215,6 +215,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
                 strcat(code, ")");
             }
             strcat(code, "\n");
+            var_c++;
         } else if (n->n_type == READ_NODE) {
             strcat(code, "\n");
         }

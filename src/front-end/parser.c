@@ -331,7 +331,7 @@ Node* term(int start) {
 // end expressions parsing
 // begin statement parsing
 
-void func_expr_args(int start, Node** args, int len) {
+void func_expr_args(int start, Node** args, int* len) {
     ind = start;
     int arg_c = 0;
     while (1) {
@@ -349,7 +349,7 @@ void func_expr_args(int start, Node** args, int len) {
             break;
         }
     }
-    len = arg_c;
+    *len = arg_c;
 }
 
 Node* incomplete_var_declaration(int start) {
@@ -403,10 +403,10 @@ Node* function_call(int start) {
     int args_len;
     Node* args[1024];
     memset(args, 0, sizeof(args));
-    func_expr_args(ind, args, args_len);
-    for (int i = 0; i < args_len; i++) {
+    func_expr_args(ind, args, &args_len);
+    /*for (int i = 0; i < args_len; i++) {
         print_node(stdout, args[i]);
-    }
+    }*/
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b);
     char b2[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
