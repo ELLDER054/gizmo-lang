@@ -6,6 +6,7 @@
 
 int ind = 0;
 Token tokens[1024];
+void print_node(FILE* f, Node* n);
 
 // begin helper functions
 
@@ -404,7 +405,7 @@ Node* function_call(int start) {
     memset(args, 0, sizeof(args));
     func_expr_args(ind, args, args_len);
     for (int i = 0; i < args_len; i++) {
-        print_node(args[i]);
+        print_node(stdout, args[i]);
     }
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b);
     char b2[MAX_NAME_LEN];
