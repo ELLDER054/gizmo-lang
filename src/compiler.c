@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
             fprintf(stdout, "\n");
         }
     }*/
-    char output[1024];
+    char output[2048];
     memset(output, 0, sizeof(output));
     generate(program, sizeof(program) / sizeof(Node*), output, argv[1]);
     fprintf(output_f, "%s", output);

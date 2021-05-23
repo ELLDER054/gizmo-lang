@@ -160,7 +160,9 @@ char* type(Node* n) {
 }
 
 void check_type(int start, Node* left, Node* right, char* oper) {
-    if (!strcmp(oper, "+")) {
+    printf("|%c|\n", *oper);
+    printf("|%s|\n", type(left));
+    if (*oper == '+') {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
                 char specifier[MAX_LINE_LEN] = "";
