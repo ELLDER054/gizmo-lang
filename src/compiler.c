@@ -4,6 +4,7 @@
 #include "front-end/scanner.h"
 #include "front-end/ast.h"
 #include "back-end/codegen.h"
+#include "log.h"
 
 typedef struct Symbol Symbol;
 void scan(char* code, Token* buf_toks);
@@ -13,6 +14,8 @@ void free_node(Node* n);
 void generate(Node** ast, int length, char* code, char* file_name);
 
 int main(int argc, char** argv) {
+    log_set_level(LOG_TRACE);
+
     if (!(argc == 3)) {
         fprintf(stderr, "gizmo: Expected a file to compile and a file to write output to\ngizmo: Aborting execution\n");
         return -1;
@@ -26,6 +29,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "failed to open input file");
         return -1;
     }
+    log_trace("Opening source file %s\n", argv[1]);
+
     fread(code, 1, sizeof(code), input_f);
 
     Token tokens[1024];

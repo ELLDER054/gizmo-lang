@@ -10,7 +10,7 @@ if [ "$#" -ne 2 ]; then
 fi
 
 # build the gizmo compiler, gizmoc
-clang -o gizmoc -O1 -g -fsanitize=address -fno-omit-frame-pointer src/*.c src/front-end/*.c src/back-end/*.c
+clang -rdynamic -o gizmoc -O1 -g -fsanitize=address -fno-omit-frame-pointer -Isrc/common/include src/*.c src/front-end/*.c src/back-end/*.c src/common/*.c
 
 # make sure it has exe permissions
 chmod +x gizmoc
