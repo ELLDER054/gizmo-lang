@@ -403,12 +403,8 @@ Node* function_call(int start) {
     Node* args[1024];
     memset(args, 0, sizeof(args));
     func_expr_args(ind, args, args_len);
-    if (args_len == 0) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nExpected arguments after opening parenthesis\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-        exit(0);
+    for (int i = 0; i < args_len; i++) {
+        print_node(args[i]);
     }
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b);
     char b2[MAX_NAME_LEN];
