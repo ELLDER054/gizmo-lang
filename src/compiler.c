@@ -28,7 +28,7 @@ int main(int argc, char** argv) {
     }
     fread(code, 1, sizeof(code), input_f);
 
-    Token tokens[strlen(code)];
+    Token tokens[1024];
     memset(tokens, 0, sizeof(tokens));
     scan(code, tokens);
 
