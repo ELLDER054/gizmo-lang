@@ -540,7 +540,7 @@ void parse(Token* toks, Node** program, Symbol** sym_t) {
     char* write_info[3] = {"write", "none"};
     push_symbol("func", write_info, 1);
     char* read_info[3] = {"read", "string"};
-    push_symbol("func", read_info, 1);
+    push_symbol("func", read_info, 0);
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
