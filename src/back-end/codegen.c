@@ -4,6 +4,7 @@
 #include "heap.h"
 #include "codegen.h"
 #include "../front-end/ast.h"
+#include "../front-end/symbols.h"
 
 #define MAX_BUF_LEN 1024
 
@@ -85,6 +86,7 @@ char* generate_operation_asm(Operator_node* n, char* type, char* c) {
 }
 
 char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size) {
+    printf("type: %d\n", n->n_type);
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
@@ -144,13 +146,53 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         var_c++;
         strcat(c, "\n");
         return real_name;
+    } else if (n->n_type == FUNC_CALL_NODE) {
+        char* func_call_name = heap_alloc(100);
+        snprintf(func_call_name, 100, "%%%d", var_c++);
+        strcat(c, func_call_name);
+        strcat(c, " = call ");
+        strcat(c, types(sym_find(((Func_call_node*) n)->name)->type));
+		strcat(c, " ");
+        strcat(c, ((Func_call_node*) n)->name);
+        strcat(c, "(");
+        for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
+            char* arg_buf = heap_alloc(100);
+            char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), c, arg_buf);
+            strcat(c, arg);
+        }
+        strcat(c, ")\n");
+        return func_call_name;
+    } else if (n->n_type == READ_NODE) {
+        char* func_call_name = heap_alloc(100);
+        snprintf(func_call_name, 100, "%%%d", var_c++);
+        char* temp_var = heap_alloc(100);
+        snprintf(temp_var, 100, "%%%d", var_c++);
+        strcat(c, func_call_name);
+        strcat(c, " = alloca [3 x i8], align 8\n");
+        strcat(c, temp_var);
+        strcat(c, " = getelementptr inbounds [3 x i8], [3 x i8]* ");
+        strcat(c, func_call_name);
+        strcat(c, ", i32 0, i32 0\n");
+        strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strnn, i32 0, i32 0), i8* ");
+        previous_str_is_ptr = 1;
+        strcat(c, temp_var);
+        var_c++;
+        char* temp_var2 = heap_alloc(100);
+        snprintf(temp_var2, 100, "%%%d", var_c++);
+        strcat(c, ")\n");
+        strcat(c, temp_var2);
+        strcat(c, " = alloca i8*\nstore i8*");
+        strcat(c, temp_var);
+        strcat(c, ", i8** ");
+        strcat(c, temp_var2);
+        return temp_var2;
     }
     
     return generate_operation_asm((Operator_node*) n, expr_type, c);
 }
 
 void generate(Node** ast, int size, char* code, char* file_name) {
-    strcpy(code, "@.empstr = private unnamed_addr constant [1 x i8] c \"\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
+    strcpy(code, "@.strnn = private unnamed_addr constant [3 x i8] c \"%s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -167,17 +209,21 @@ void generate(Node** ast, int size, char* code, char* file_name) {
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
             } else if (strcmp(v->type, "string") == 0) {
-                strcat(code, "%");
-                strcat(code, v->name);
-                strcat(code, " = load i8*, i8*");
                 if (previous_str_is_ptr) {
+                    strcat(code, "%");
+                    strcat(code, v->name);
+                    strcat(code, " = load i8*, i8*");
                     strcat(code, "* ");
                     previous_str_is_ptr = 0;
+                    strcat(code, var_name);
+                    strcat(code, ", align 8\n");
                 } else {
-                    strcat(code, " ");
+                    strcat(code, "store i8*");
+                    strcat(code, var_name);
+                    strcat(code, ", i8* %");
+                    strcat(code, v->name);
+                    strcat(code, "\n");
                 }
-                strcat(code, var_name);
-                strcat(code, ", align 8\n");
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
@@ -223,6 +269,6 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     char* module_id = heap_alloc(100);
     snprintf(module_id, 400, "; ModuleID = '%s'\n", file_name);
     insert(code, 0, strlen(code), module_id);
-    strcat(code, "ret i32 0\n}\n\ndeclare i8* @strcat(i8*, i8*)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
+    strcat(code, "ret i32 0\n}\n\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
 }

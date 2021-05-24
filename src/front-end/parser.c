@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "ast.h"
 #include "scanner.h"
+#include "symbols.h"
 
 int ind = 0;
 Token tokens[1024];
@@ -70,13 +71,6 @@ TokenType expect_value(char* val) {
 
 // symbol table
 
-typedef struct {
-    char* name;
-    char* type;
-    char* sym_type;
-    int args_len;
-} Symbol;
-
 int sym_c = 0;
 Symbol* symbol_table[1024];
 
@@ -132,6 +126,8 @@ Node* factor(int start);
 
 // begin expressions parsing
 
+Node* incomplete_function_call(int start);
+
 char* type(Node* n) {
     if (n == NULL) {
         return NULL;
@@ -152,7 +148,7 @@ char* type(Node* n) {
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
-            break;
+           return sym_find(((Func_call_node*) n)->name)->type; 
         case NODE_NODE:
             break;
     }
@@ -280,6 +276,10 @@ Node* factor(int start) {
     if (real != NULL) {
         return (Node*) new_Real_node(strtod(real, NULL));
     }
+    Node* func_call = incomplete_function_call(ind);
+    if (func_call != NULL) {
+        return func_call;
+    }
     char* id = expect_type(T_ID);
     if (id != NULL) {
         return (Node*) new_Identifier_node(id);
@@ -354,6 +354,42 @@ void func_expr_args(int start, Node** args, int* len) {
     *len = arg_c;
 }
 
+Node* incomplete_function_call(int start) {
+    ind = start;
+    char* id = expect_type(T_ID);
+    if (id == NULL) {
+        ind = start;
+        return NULL;
+    }
+    char* left = expect_type(T_LEFT_PAREN);
+    if (left == NULL) {
+        ind = start;
+        return NULL;
+    }
+    Node* args[1024];
+    memset(args, 0, 1024);
+    int args_len;
+    func_expr_args(ind, args, &args_len);
+    char b[MAX_NAME_LEN];
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments", b);
+	Symbol* s = new_symbol("func", id, NULL, args_len);
+    if (!contains_symbol(s)) {
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[start + 1].col, specifier);
+        strncat(specifier, "^", 2);
+        printf("On line %d:\nUndefined function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
+        exit(0);
+    }
+    if (args_len != sym_find(id)->args_len) {
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[start + 1].col, specifier);
+        strncat(specifier, "^", 2);
+        printf("On line %d:\nWrong amount of arguments for function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
+        exit(0);
+    }
+    return (Node*) new_Func_call_node(id, args);
+}
+
 Node* incomplete_var_declaration(int start) {
     ind = start;
     char* type = expect_type(T_TYPE);
@@ -409,9 +445,10 @@ Node* function_call(int start) {
     /*for (int i = 0; i < args_len; i++) {
         print_node(stdout, args[i]);
     }*/
-    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b);
     char b2[MAX_NAME_LEN];
-    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b2);
+    char b3[MAX_NAME_LEN];
+    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b3);
     Symbol* s = new_symbol("func", id, NULL, args_len);
     if (!contains_symbol(s)) {
         char specifier[1024] = {'\0'};
@@ -502,8 +539,8 @@ void parse(Token* toks, Node** program, Symbol** sym_t) {
     push_symbol("built-in", none_info, 0);
     char* write_info[3] = {"write", "none"};
     push_symbol("func", write_info, 1);
-    char* read_info[3] = {"read", "none"};
-    push_symbol("func", read_info, 0);
+    char* read_info[3] = {"read", "string"};
+    push_symbol("func", read_info, 1);
     int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
