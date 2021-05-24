@@ -156,8 +156,6 @@ char* type(Node* n) {
 }
 
 void check_type(int start, Node* left, Node* right, char* oper) {
-    printf("|%c|\n", *oper);
-    printf("|%s|\n", type(left));
     if (*oper == '+') {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
@@ -336,20 +334,26 @@ Node* term(int start) {
 void func_expr_args(int start, Node** args, int* len) {
     ind = start;
     int arg_c = 0;
+    int should_find = 0;
     while (1) {
         Node* expr = expression(ind);
         if (expr == NULL) {
-            char specifier[1024] = {'\0'};
-            repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-            strncat(specifier, "^", 2);
-            printf("On line %d:\nExpected argument\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-            exit(0);
+            if (should_find) {
+                char specifier[1024] = {'\0'};
+                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
+                strncat(specifier, "^", 2);
+                printf("On line %d:\nExpected argument\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
+                exit(0);
+            } else {
+                break;
+            }
         }
         char* comma = expect_type(T_COMMA);
         args[arg_c++] = expr;
         if (comma == NULL) {
             break;
         }
+        should_find = 1;
     }
     *len = arg_c;
 }
@@ -371,7 +375,7 @@ Node* incomplete_function_call(int start) {
     int args_len;
     func_expr_args(ind, args, &args_len);
     char b[MAX_NAME_LEN];
-    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments", b);
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
 	Symbol* s = new_symbol("func", id, NULL, args_len);
     if (!contains_symbol(s)) {
         char specifier[1024] = {'\0'};

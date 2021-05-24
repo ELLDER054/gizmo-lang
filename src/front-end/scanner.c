@@ -212,19 +212,22 @@ void scan(char* code, Token* tokens) {
             pos += 2;
             col += 2;
             ch = code[pos];
-            while (ch != '\0' && (ch != '*' && next(code, pos) != '\\')) {
+            while (1) {
                 if (ch == '\0') {
                     char specifier[1024] = {'\0'};
                     repeat_c(' ', col, specifier);
                     strcat(specifier, "^");
                     printf("On line %d:\nExpected closing comment\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
                     exit(0);
+                } else if (ch == '*' && next(code, pos) == '/') {
+                    break;
                 }
                 ch = code[++pos];
                 col++;
             }
             col += 2;
-            pos += 2;
+            pos++;
+            ch = code[pos++];
         } else if (ch == '\\') {
             pos++;
             col++;
