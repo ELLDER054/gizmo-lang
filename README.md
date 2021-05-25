@@ -20,6 +20,7 @@ Requirements:
 3. cmake
 4. git
 5. gcc
+6. A terminal or shell
 
 Copy the following commands to build Gizmo.
 ```shell
