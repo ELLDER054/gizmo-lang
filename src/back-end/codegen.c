@@ -168,12 +168,12 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* temp_var = heap_alloc(100);
         snprintf(temp_var, 100, "%%%d", var_c++);
         strcat(c, func_call_name);
-        strcat(c, " = alloca [3 x i8], align 8\n");
+        strcat(c, " = alloca [1024 x i8], align 8\n");
         strcat(c, temp_var);
-        strcat(c, " = getelementptr inbounds [3 x i8], [3 x i8]* ");
+        strcat(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* ");
         strcat(c, func_call_name);
         strcat(c, ", i32 0, i32 0\n");
-        strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strnn, i32 0, i32 0), i8* ");
+        strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.strnn, i32 0, i32 0), i8* ");
         previous_str_is_ptr = 1;
         strcat(c, temp_var);
         var_c++;
@@ -192,7 +192,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
 }
 
 void generate(Node** ast, int size, char* code, char* file_name) {
-    strcpy(code, "@.strnn = private unnamed_addr constant [3 x i8] c \"%s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
+    strcpy(code, "@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -267,7 +267,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         }
     }
     char* module_id = heap_alloc(100);
-    snprintf(module_id, 400, "; ModuleID = '%s'\n", file_name);
+    snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\n", file_name, file_name);
     insert(code, 0, strlen(code), module_id);
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();

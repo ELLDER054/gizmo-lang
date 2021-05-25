@@ -13,6 +13,28 @@ void print_node(FILE* f, Node* n);
 void free_node(Node* n);
 void generate(Node** ast, int length, char* code, char* file_name);
 
+void compile(char* code, char* out, char* file_name) {
+    Token tokens[1024];
+    memset(tokens, 0, sizeof(tokens));
+    scan(code, tokens);
+
+    Node* program[1024];
+    memset(program, 0, sizeof(program));
+    Symbol* symbol_table[1024];
+    memset(symbol_table, 0, sizeof(symbol_table));
+    parse(tokens, program, symbol_table);
+    generate(program, sizeof(program) / sizeof(Node*), out, file_name);
+    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
+        free_node(program[i]);
+    }
+    for (int i = 0; i < sizeof(symbol_table) / sizeof(Symbol*); i++) {
+        if (symbol_table[i] == NULL) {
+            break;
+        }
+        free(symbol_table[i]);
+    }
+}
+
 int main(int argc, char** argv) {
     log_set_level(LOG_TRACE);
 
@@ -29,19 +51,8 @@ int main(int argc, char** argv) {
         fprintf(stderr, "failed to open input file");
         return -1;
     }
-    log_trace("Opening source file %s\n", argv[1]);
-
     fread(code, 1, sizeof(code), input_f);
-
-    Token tokens[1024];
-    memset(tokens, 0, sizeof(tokens));
-    scan(code, tokens);
-
-    Node* program[1024];
-    memset(program, 0, sizeof(program));
-    Symbol* symbol_table[1024];
-    memset(symbol_table, 0, sizeof(symbol_table));
-    parse(tokens, program, symbol_table);
+    log_trace("Opening source file %s\n", argv[1]);
 
     FILE* output_f = fopen(argv[2], "w");
     if (output_f == NULL) {
@@ -53,20 +64,11 @@ int main(int argc, char** argv) {
             fprintf(stdout, "\n");
         }
     }*/
-    char output[2048];
+    char output[2047];
     memset(output, 0, sizeof(output));
-    generate(program, sizeof(program) / sizeof(Node*), output, argv[1]);
+    compile(code, output, argv[1]);
     fprintf(output_f, "%s", output);
     fclose(input_f);
     fclose(output_f);
-    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
-        free_node(program[i]);
-    }
-    for (int i = 0; i < sizeof(symbol_table) / sizeof(Symbol*); i++) {
-        if (symbol_table[i] == NULL) {
-            break;
-        }
-        free(symbol_table[i]);
-    }
     return 0;
 }
