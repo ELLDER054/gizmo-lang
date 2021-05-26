@@ -25,8 +25,7 @@ Requirements:
 Copy the following commands to build Gizmo.
 ```shell
 git clone https://github.com/ellder054/gizmo-lang.git
-mkdir gizmo-build
-cd gizmo-build
-cmake ../gizmo-lang
-make
+cd gizmo-lang
+./build.sh filename.gizmo output
 ```
+Replace `filename.gizmo` with your gizmo file and `output` with your output file.
