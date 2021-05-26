@@ -395,6 +395,17 @@ Node* incomplete_function_call(int start) {
     return (Node*) new_Func_call_node(id, args);
 }
 
+Node* incomplete_initializers(char* t) {
+    if (strcmp(t, "int") == 0) {
+        return (Node*) new_Integer_node(0);
+    } else if (strcmp(t, "real") == 0) {
+        return (Node*) new_Real_node(0.0);
+    } else if (strcmp(t, "string") == 0) {
+        return (Node*) new_String_node("\\00");
+    }
+    return (Node*) new_Integer_node(0);
+}
+
 Node* incomplete_var_declaration(int start) {
     ind = start;
     char* type = expect_type(T_TYPE);
@@ -429,9 +440,9 @@ Node* incomplete_var_declaration(int start) {
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
-    char* info[2] = {id, "none"};
+    char* info[2] = {id, type};
     push_symbol("var", info, 0);
-    return (Node*) new_Var_declaration_node(type, id, (Node*) new_Identifier_node("none"));
+    return (Node*) new_Var_declaration_node(type, id, incomplete_initializers(type));
 }
 
 Node* function_call(int start) {
