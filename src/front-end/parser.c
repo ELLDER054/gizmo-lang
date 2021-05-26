@@ -138,6 +138,8 @@ char* type(Node* n) {
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
             return "int";
+        case BLOCK_NODE:
+            break;
         case STRING_NODE:
             return "string";
         case REAL_NODE:
@@ -528,6 +530,40 @@ Node* var_declaration(int start) {
     char* info[2] = {id, var_type};
     push_symbol("var", info, 0);
     return (Node*) new_Var_declaration_node(var_type, id, expr);
+}
+
+void parse(Token* toks, Node** program, Symbol** sym_t);
+
+Node* block_statement(int start) {
+    ind = start;
+    char* begin = expect_type(T_LEFT_BRACKET);
+    if (begin == NULL) {
+        ind = start;
+        return NULL;
+    }
+    int found_end = 0;
+    Node* statements[1024];
+    memset(statements, 0, sizeof(statements));
+    Token block_tokens[1024];
+    memset(block_tokens, 0, sizeof(block_tokens));
+    for (int i = ind; i < tokslen(tokens); i++) {
+        if (tokens[i].type == T_RIGHT_BRACKET) {
+            ind++;
+            found_end = 1;
+            break;
+        }
+        block_tokens[i] = tokens[ind++];
+    }
+    parse(tokens, statements, symbol_table);
+    if (found_end) {
+        return (Node*) new_Block_node(statements);
+    } else { 
+        char specifier[1024] = {'\0'};
+        repeat_char(' ', tokens[start + 1].col, specifier);
+        strncat(specifier, "^", 2);
+        printf("On line %d:\nExpected closing bracket\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].line, specifier);
+        exit(0);
+    }
 }
 
 Node* statement(int start) {

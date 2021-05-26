@@ -13,6 +13,14 @@ void print_oper(FILE* f, Operator_node* n) {
     fprintf(f, ")");
 }
 
+void print_block(FILE* f, Block_node* b) {
+    fprintf(f, "(BLOCK, ");
+    for (int i = 0; i < sizeof(b->statements) / sizeof(Node*); i++) {
+        print_node(f, b->statements[i]);
+    }
+    fprintf(f, ")");
+}
+
 void print_id(FILE* f, Identifier_node* n) {
     fprintf(f, "(ID_NODE, %s)", n->name);
 }
@@ -39,6 +47,9 @@ void print_node(FILE* f, Node* n) {
             break;
         case OPERATOR_NODE:
             print_oper(f, (Operator_node*) n);
+            break;
+        case BLOCK_NODE:
+            print_block(f, (Block_node*) n);
             break;
         case INTEGER_NODE:
             print_int(f, (Integer_node*) n);
@@ -207,6 +218,23 @@ void free_String_node(String_node* n) {
     free(n);
 }
 
+Block_node* new_Block_node(Node** statements) {
+    Block_node* block = malloc(sizeof(Block_node));
+    memset(block, 0, sizeof(Block_node));
+ 
+    for (int i = 0; i < sizeof(statements) / sizeof(Node*); i++) {
+        block->statements[i] = statements[i];
+    }
+    return block;
+}
+
+void free_Block_node(Block_node* b) {
+    for (int i = 0; i < sizeof(b->statements) / sizeof(Node*); i++) {
+        free(b->statements[i]);
+    }
+    free(b);
+}
+
 void free_node(Node* n) {
     if (n == NULL) {
         return;
@@ -218,6 +246,8 @@ void free_node(Node* n) {
         case STRING_NODE:
             free_String_node((String_node*) n);
             break;
+        case BLOCK_NODE:
+            free_Block_node((Block_node*) n);
         case REAL_NODE:
             free_Real_node((Real_node*) n);
             break;
