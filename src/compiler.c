@@ -4,7 +4,7 @@
 #include "front-end/scanner.h"
 #include "front-end/ast.h"
 #include "back-end/codegen.h"
-#include "log.h"
+#include "common/include/log.h"
 
 typedef struct Symbol Symbol;
 void scan(char* code, Token* buf_toks);
