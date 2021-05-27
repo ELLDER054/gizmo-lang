@@ -10,11 +10,9 @@
   <p align="center">
     A fast and user friendly programming language for parsing and manipulating strings.
     <br />
-    <a href="https://github.com/ELLDER054/gizmo-lang"><strong>Explore the docs »</strong></a>
+    <a href="https://gizmolang.org/docs.html"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/ELLDER054/gizmo-lang">View Demo »</a>
-    ·
     <a href="https://github.com/ELLDER054/gizmo-lang/issues">Report Bug »</a>
     ·
     <a href="https://github.com/ELLDER054/gizmo-lang/issues">Request Feature »</a>
