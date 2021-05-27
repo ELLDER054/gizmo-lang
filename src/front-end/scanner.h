@@ -2,7 +2,7 @@
 #define SCANNER_H
 
 #define MAX_LINE_LEN 1024
-#define MAX_NAME_LEN 1024
+#define MAX_NAME_LEN 100
 
 typedef enum {
     T_INT = 200,
