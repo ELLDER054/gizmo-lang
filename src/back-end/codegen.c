@@ -46,7 +46,7 @@ char* find_operation_asm(char* oper, char* t) {
             case '*':
                 return "mul";
             case '/':
-                return "udiv";
+                return "div";
         }
     } else if (strcmp(t, "double") == 0) {
         switch (*oper) {
