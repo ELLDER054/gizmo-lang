@@ -5,10 +5,10 @@
     <img src="https://user-images.githubusercontent.com/76635411/117458638-7f045b80-af18-11eb-8bbe-33fb328ea454.png" alt="Logo" width="80" height="80">
   </a>
 
-  <h3 align="center">project_title</h3>
+  <h3 align="center">Gizmo</h3>
 
   <p align="center">
-    project_description
+    A fast and user friendly programming language for parsing and manipulating strings.
     <br />
     <a href="https://github.com/ELLDER054/gizmo-lang"><strong>Explore the docs »</strong></a>
     <br />
