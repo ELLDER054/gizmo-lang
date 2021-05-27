@@ -42,7 +42,7 @@
 
 <!-- ABOUT THE PROJECT -->
 ## About The Project
-Gizmo is a fast and user friendly programming language for parsing and manipulating strings.
+Gizmo is a fast and user friendly programming language for parsing and manipulating strings.  
 See the [website](https://gizmolang.org) for more info.
 
 
