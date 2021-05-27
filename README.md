@@ -12,27 +12,3 @@ Contributors are always welcome! Some ways to help are:
 4. Report any bugs that you find.  
 5. Play around with Gizmo and spread the word.
 6. Sponsor us on github
-
-## Hacking, Changing or Using Gizmo Locally
-Requirements:
-1. clang
-2. llvm
-3. cmake
-4. git
-5. gcc
-6. A terminal or shell
-
-Copy the following commands to build Gizmo.
-```shell
-git clone https://github.com/ellder054/gizmo-lang.git
-mkdir giz-build
-cd giz-build
-cmake ../gizmo-lang
-cmake .
-make
-```
-This makes an executable file called `gizmo`. You can now run gizmo code by doing the following:
-```
-./gizmo <filename>.gizmo <output>
-./<output>
-```
