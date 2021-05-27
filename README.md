@@ -31,4 +31,8 @@ cmake ../gizmo-lang
 cmake .
 make
 ```
-Replace `filename.gizmo` with your gizmo file and `output` with your output file.
+This makes an executable file called `gizmo`. You can now run gizmo code by doing the following:
+```
+./gizmo <filename>.gizmo <output>
+./<output>
+```
