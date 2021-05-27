@@ -580,6 +580,10 @@ Node* statement(int start) {
     if (func != NULL) {
         return func;
     }
+    Node* block = block_statement(start);
+    if (block != NULL) {
+        return block;
+    }
     ind = start;
     return NULL;
 }

@@ -223,6 +223,9 @@ Block_node* new_Block_node(Node** statements) {
     memset(block, 0, sizeof(Block_node));
  
     for (int i = 0; i < sizeof(statements) / sizeof(Node*); i++) {
+        if (statements[i] == NULL) {
+            break;
+        }
         block->statements[i] = statements[i];
     }
     return block;
