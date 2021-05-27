@@ -6,7 +6,7 @@
 #include "../front-end/ast.h"
 #include "../front-end/symbols.h"
 
-#define MAX_BUF_LEN 1024
+#define MAX_BUF_LEN 2048
 
 int var_c = 1;
 int str_c = 1;
