@@ -10,12 +10,12 @@
   <p align="center">
     A fast and user friendly programming language for parsing and manipulating strings.
     <br />
-    <a href="https://gizmolang.org/docs.html"><strong>Explore the docs »</strong></a>
+    <a href="http://gizmolang.org/docs.html"><strong>Explore the docs »</strong></a>
     <br />
     <br />
-    <a href="https://github.com/ELLDER054/gizmo-lang/issues">Report Bug »</a>
+    <a href="http://github.com/ELLDER054/gizmo-lang/issues">Report Bug »</a>
     ·
-    <a href="https://github.com/ELLDER054/gizmo-lang/issues">Request Feature »</a>
+    <a href="http://github.com/ELLDER054/gizmo-lang/issues">Request Feature »</a>
   </p>
 </p>
 
@@ -43,7 +43,7 @@
 <!-- ABOUT THE PROJECT -->
 ## About The Project
 Gizmo is a fast and user friendly programming language for parsing and manipulating strings.  
-See the [website](https://gizmolang.org) for more info.
+See the [website](http://gizmolang.org) for more info.
 
 
 ### Built With
@@ -65,7 +65,7 @@ To get a local copy up and running you can:
    ```shell
    git clone https://github.com/ELLDER054/gizmo-lang.git
    ```
-2. Try it [online](https://gizmolang.org/editor.html)
+2. Try it [online](http://gizmolang.org/editor.html)
 
 
 
@@ -80,7 +80,7 @@ To compile a Gizmo program, follow the steps below.
 Optional argument `-o <filename>` specifies output file.  
 If output file is not specified, it is automatically set to `giz.out`.
 
-_For more examples, please refer to the [Documentation](https://gizmolang.org)_
+_For more examples, please refer to the [Documentation](http://gizmolang.org)_
 
 ## Contributing
 Contributions are welcome and greatly **Apreciated**. Some ways to help are:
