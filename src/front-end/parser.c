@@ -135,6 +135,16 @@ char* type(Node* n) {
     }
     switch (n->n_type) {
         case OPERATOR_NODE:
+            if (((Operator_node*) n)->left->n_type == INTEGER_NODE && ((Operator_node*) n)->right->n_type == INTEGER_NODE && *((Operator_node*) n)->oper == '/') {
+                if (((Integer_node*)((Operator_node*) n)->right)->value == 0) {
+                    printf("can't divide by zero!\n");
+                    exit(1);
+                }
+                if (((Integer_node*) ((Operator_node*) n)->left)->value % ((Integer_node*) ((Operator_node*) n)->right)->value == 0) {
+                    return "int";
+                }
+                return "real";
+            }
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
             return "int";
@@ -340,6 +350,7 @@ void func_expr_args(int start, Node** args, int* len) {
     int should_find = 0;
     while (1) {
         Node* expr = expression(ind);
+        printf("typeofexpr: |%s|\n", type(expr));
         if (expr == NULL) {
             if (should_find) {
                 char specifier[1024] = {'\0'};

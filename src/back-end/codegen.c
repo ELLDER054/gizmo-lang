@@ -46,7 +46,7 @@ char* find_operation_asm(char* oper, char* t) {
             case '*':
                 return "mul";
             case '/':
-                return "div";
+                return "sdiv";
         }
     } else if (strcmp(t, "double") == 0) {
         switch (*oper) {
@@ -65,22 +65,33 @@ char* find_operation_asm(char* oper, char* t) {
 
 char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size);
 
-char* generate_operation_asm(Operator_node* n, char* type, char* c) {
+char* generate_operation_asm(Operator_node* n, char* expr_type, char* c) {
     char* l_buf = heap_alloc(100);
-    char* l = generate_expression_asm(n->left, type, c, l_buf);
+    char* l = generate_expression_asm(n->left, expr_type, c, l_buf);
     char* r_buf = heap_alloc(100);
-    char* r = generate_expression_asm(n->right, type, c, r_buf);
+    char* r = generate_expression_asm(n->right, expr_type, c, r_buf);
     char* op_name = heap_alloc(100);
     snprintf(op_name, 100, "%%%d", var_c++);
     strcat(c, op_name);
     strcat(c, " = ");
-    strcat(c, find_operation_asm(n->oper, type));
-    strcat(c, " ");
-    strcat(c, type);
-    strcat(c, " ");
-    strcat(c, l);
-    strcat(c, ", ");
-    strcat(c, r);
+    char* oper = ((Operator_node*) n)->oper;
+    if ((strcmp(oper, "/") == 0) && ((Operator_node*) n)->left->n_type == INTEGER_NODE) {
+        strcat(c, "call double @div_int(");
+        strcat(c, expr_type);
+        strcat(c, " ");
+        strcat(c, l);
+        strcat(c, ", i32 ");
+        strcat(c, r);
+        strcat(c, ")");
+    } else {
+        strcat(c, find_operation_asm(oper, expr_type));
+        strcat(c, " ");
+        strcat(c, expr_type);
+        strcat(c, " ");
+        strcat(c, l);
+        strcat(c, ", ");
+        strcat(c, r);
+    }
     strcat(c, "\n");
     return op_name;
 }
@@ -266,8 +277,13 @@ void generate(Node** ast, int size, char* code, char* file_name) {
             strcat(code, "\n");
         }
     }
-    char* module_id = heap_alloc(100);
-    snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\n", file_name, file_name);
+    char* module_id = heap_alloc(400);
+    snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\ndefine double @div_int(i32 %%a, i32 %%b) {\
+    %%1 = sitofp i32 %%a to double\
+    %%2 = sitofp i32 %%b to double\
+    %%3 = fdiv double %%1, %%2\
+    ret double %%3\
+}", file_name, file_name);
     insert(code, 0, strlen(code), module_id);
     strcat(code, "ret i32 0\n}\n\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
