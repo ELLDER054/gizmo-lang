@@ -120,6 +120,16 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
         }
         return id_name;
+    } else if (n->n_type == CHAR_NODE) {
+        char* char_name = heap_alloc(100);
+        snprintf(char_name, 100, "%%%d", var_c++);
+        char* digit_char = heap_alloc(100);
+        snprintf(digit_char, 100, "%d", (int)(((Char_node*) n)->value));
+        strcat(c, char_name);
+        strcat(c, " = add i32 0, ");
+        strcat(c, digit_char);
+        strcat(c, "\n");
+        return char_name;
     } else if (n->n_type == STRING_NODE) {
         char str[100];
         snprintf(str, 100, "%s", ((String_node*) n)->value);
@@ -228,6 +238,11 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, v->name);
                     strcat(code, "\n");
                 }
+            } else if (strcmp(v->type, "char") == 0) {
+                strcat(code, "%");
+                strcat(code, v->name);
+                strcat(code, " = add i32 0, ");
+                strcat(code, var_name);
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "%");
                 strcat(code, v->name);
@@ -259,6 +274,10 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, write_arg_name);
                     strcat(code, ")");
                 }
+            } else if (strcmp(type(func->args[0]), "char") == 0) {
+                strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.chr, i32 0, i32 0), i32 ");
+                strcat(code, write_arg_name);
+                strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
                 strcat(code, "call i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
                 strcat(code, write_arg_name);
@@ -276,7 +295,7 @@ void generate_statement(Node* n, char* code) {
 }
 
 void generate(Node** ast, int size, char* code, char* file_name) {
-    strcpy(code, "@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
+    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];

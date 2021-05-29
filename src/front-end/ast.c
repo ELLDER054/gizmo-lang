@@ -33,6 +33,10 @@ void print_real(FILE* f, Real_node* r) {
     fprintf(f, "(REAL_NODE, %f)", r->value);
 }
 
+void print_char(FILE* f, Char_node* c) {
+    fprintf(f, "(CHAR_NODE, %c)", c->value);
+}
+
 void print_str(FILE* f, String_node* s) {
     fprintf(f, "(STR_NODE, %s)", s->value);
 }
@@ -59,6 +63,9 @@ void print_node(FILE* f, Node* n) {
             break;
         case ID_NODE:
             print_id(f, (Identifier_node*) n);
+            break;
+        case CHAR_NODE:
+            print_char(f, (Char_node*) n);
             break;
         case REAL_NODE:
             print_real(f, (Real_node*) n);
@@ -205,6 +212,19 @@ void free_Real_node(Real_node* n) {
     free(n);
 }
 
+Char_node* new_Char_node(char val) {
+    Char_node* ch = malloc(sizeof(Char_node));
+    memset(ch, 0, sizeof(Char_node));
+
+    ch->n_type = CHAR_NODE;
+    ch->value = val;
+    return ch;
+}
+
+void free_Char_node(Char_node* c) {
+    free(c);
+}
+
 String_node* new_String_node(char* val) {
     String_node* str = malloc(sizeof(String_node));
     memset(str, 0, sizeof(String_node));
@@ -253,6 +273,9 @@ void free_node(Node* n) {
             break;
         case STRING_NODE:
             free_String_node((String_node*) n);
+            break;
+        case CHAR_NODE:
+            free_Char_node((Char_node*) n);
             break;
         case BLOCK_NODE:
             free_Block_node((Block_node*) n);

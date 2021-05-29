@@ -14,6 +14,7 @@ typedef enum {
     OPERATOR_NODE,
     INTEGER_NODE,
     STRING_NODE,
+    CHAR_NODE,
     REAL_NODE,
     ID_NODE,
     BLOCK_NODE,
@@ -22,14 +23,6 @@ typedef enum {
     NODE_NODE,
     FUNC_CALL_NODE,
 } NodeType;
-
-typedef enum {
-    INT_TYPE,
-    STRING_TYPE,
-    CHAR_TYPE,
-    BOOL_TYPE,
-    REAL_TYPE,
-} Type;
 
 typedef struct {
     NodeType n_type;
@@ -67,6 +60,11 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
+    char value;
+} Char_node;
+
+typedef struct {
+    NodeType n_type;
     char* value;
 } String_node;
 
@@ -88,6 +86,7 @@ Var_declaration_node* new_Var_declaration_node(char* name, char* type, Node* val
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
+Char_node* new_Char_node(char val);
 Real_node* new_Real_node(double val);
 Identifier_node* new_Identifier_node(char* name);
 Func_call_node* new_Func_call_node(char* name, Node** args);

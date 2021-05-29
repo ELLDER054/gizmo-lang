@@ -151,6 +151,8 @@ char* type(Node* n) {
             return "int";
         case BLOCK_NODE:
             break;
+        case CHAR_NODE:
+            return "char";
         case STRING_NODE:
             return "string";
         case REAL_NODE:
@@ -283,6 +285,10 @@ Node* factor(int start) {
     char* string = expect_type(T_STR);
     if (string != NULL) {
         return (Node*) new_String_node(string);
+    }
+    char* ch = expect_type(T_CHAR);
+    if (ch != NULL) {
+        return (Node*) new_Char_node(*ch);
     }
     char* real = expect_type(T_REAL);
     if (real != NULL) {
