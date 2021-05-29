@@ -202,14 +202,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
     return generate_operation_asm((Operator_node*) n, expr_type, c);
 }
 
-void generate(Node** ast, int size, char* code, char* file_name) {
-    strcpy(code, "@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
-    heap_init();
-    for (int i = 0; i < size; i++) {
-        Node* n = ast[i];
-        if (n == NULL) {
-            break;
-        }
+void generate_statement(Node* n, char* code) {
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char* var_buf = heap_alloc(100);
@@ -275,7 +268,22 @@ void generate(Node** ast, int size, char* code, char* file_name) {
             var_c++;
         } else if (n->n_type == READ_NODE) {
             strcat(code, "\n");
+        } else if (n->n_type == BLOCK_NODE) {
+            for (int i = 0; i < *((Block_node*) n)->ssize; i++) {
+                generate_statement(((Block_node*) n)->statements[i], code);
+            }
         }
+}
+
+void generate(Node** ast, int size, char* code, char* file_name) {
+    strcpy(code, "@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i32 @main() {\n");
+    heap_init();
+    for (int i = 0; i < size; i++) {
+        Node* n = ast[i];
+        if (n == NULL) {
+            break;
+        }
+        generate_statement(n, code);
     }
     char* module_id = heap_alloc(400);
     snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\ndefine double @div_int(i32 %%a, i32 %%b) {\

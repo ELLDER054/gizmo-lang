@@ -218,21 +218,24 @@ void free_String_node(String_node* n) {
     free(n);
 }
 
-Block_node* new_Block_node(Node** statements) {
+Block_node* new_Block_node(Node** statements, int* ssize) {
     Block_node* block = malloc(sizeof(Block_node));
     memset(block, 0, sizeof(Block_node));
- 
-    for (int i = 0; i < sizeof(statements) / sizeof(Node*); i++) {
+    
+    block->n_type = BLOCK_NODE;
+    int i;
+    for (i = 0; i < ssize; i++) {
         if (statements[i] == NULL) {
             break;
         }
         block->statements[i] = statements[i];
     }
+    block->ssize = ssize;
     return block;
 }
 
 void free_Block_node(Block_node* b) {
-    for (int i = 0; i < sizeof(b->statements) / sizeof(Node*); i++) {
+    for (int i = 0; i < b->ssize; i++) {
         free(b->statements[i]);
     }
     free(b);

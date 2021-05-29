@@ -547,7 +547,7 @@ void parse(Token* toks, Node** program, Symbol** sym_t);
 
 Node* block_statement(int start) {
     ind = start;
-    char* begin = expect_type(T_LEFT_BRACKET);
+    char* begin = expect_type(T_LEFT_BRACE);
     if (begin == NULL) {
         ind = start;
         return NULL;
@@ -558,7 +558,7 @@ Node* block_statement(int start) {
     Token block_tokens[1024];
     memset(block_tokens, 0, sizeof(block_tokens));
     for (int i = ind; i < tokslen(tokens); i++) {
-        if (tokens[i].type == T_RIGHT_BRACKET) {
+        if (tokens[i].type == T_RIGHT_BRACE) {
             ind++;
             found_end = 1;
             break;
@@ -566,8 +566,14 @@ Node* block_statement(int start) {
         block_tokens[i] = tokens[ind++];
     }
     parse(tokens, statements, symbol_table);
+    int size = 0;
+    for (size = 0; size < sizeof(statements) / sizeof(Node*); size++) {
+        if (statements[size] == NULL) {
+            break;
+        }
+    }
     if (found_end) {
-        return (Node*) new_Block_node(statements);
+        return (Node*) new_Block_node(statements, &size);
     } else { 
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
