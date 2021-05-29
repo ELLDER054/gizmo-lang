@@ -23,12 +23,14 @@ void compile(char* code, char* out, char* file_name) {
     Symbol* symbol_table[1024];
     memset(symbol_table, 0, sizeof(symbol_table));
     parse(tokens, program, symbol_table);
+    #if 0
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (program[i] == NULL) {
             break;
         }
         print_node(stdout, program[i]);
     }
+    #endif
     generate(program, sizeof(program) / sizeof(Node*), out, file_name);
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         free_node(program[i]);
