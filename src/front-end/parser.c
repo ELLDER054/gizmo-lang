@@ -277,7 +277,34 @@ Node* expression(int start) {
     return NULL;
 }
 
+Node* factor1(int start) {
+    ind = start;
+    char* left = expect_type(T_LEFT_PAREN);
+    if (left == NULL) {
+        ind = start;
+        return NULL;
+    }
+    Node* expr = expression(ind);
+    if (expr == NULL) {
+        ind = start;
+        /* TODO: Give error */
+        return NULL;
+    }
+    char* right = expect_type(T_RIGHT_PAREN);
+    if (right == NULL) {
+        ind = start;
+        /* TODO: Give error */
+        return NULL;
+    }
+    return expr;
+}
+
 Node* factor(int start) {
+    ind = start;
+    Node* f1 = factor1(start);
+    if (f1 != NULL) {
+        return f1;
+    }
     char* integer = expect_type(T_INT);
     if (integer != NULL) {
         return (Node*) new_Integer_node(atoi(integer));
