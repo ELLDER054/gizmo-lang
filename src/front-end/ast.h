@@ -80,7 +80,7 @@ typedef struct {
 typedef struct {
     NodeType n_type;
     Node** statements;
-    int* ssize;
+    int ssize;
 } Block_node;
 
 void free_node(Node* n);

@@ -15,7 +15,7 @@ void print_oper(FILE* f, Operator_node* n) {
 
 void print_block(FILE* f, Block_node* b) {
     fprintf(f, "(BLOCK, ");
-    for (int i = 0; i < sizeof(b->statements) / sizeof(Node*); i++) {
+    for (int i = 0; i < b->ssize; i++) {
         print_node(f, b->statements[i]);
     }
     fprintf(f, ")");
@@ -218,9 +218,10 @@ void free_String_node(String_node* n) {
     free(n);
 }
 
-Block_node* new_Block_node(Node** statements, int* ssize) {
+Block_node* new_Block_node(Node** statements, int ssize) {
     Block_node* block = malloc(sizeof(Block_node));
     memset(block, 0, sizeof(Block_node));
+    block->statements = malloc(sizeof(Node*) * ssize);
     
     block->n_type = BLOCK_NODE;
     int i;
@@ -236,8 +237,9 @@ Block_node* new_Block_node(Node** statements, int* ssize) {
 
 void free_Block_node(Block_node* b) {
     for (int i = 0; i < b->ssize; i++) {
-        free(b->statements[i]);
+        free_node(b->statements[i]);
     }
+    free(b->statements);
     free(b);
 }
 
@@ -254,6 +256,7 @@ void free_node(Node* n) {
             break;
         case BLOCK_NODE:
             free_Block_node((Block_node*) n);
+            break;
         case REAL_NODE:
             free_Real_node((Real_node*) n);
             break;

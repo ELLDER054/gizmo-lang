@@ -2,6 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "ast.h"
+#include "log.h"
 #include "scanner.h"
 #include "symbols.h"
 
@@ -543,6 +544,7 @@ Node* var_declaration(int start) {
     return (Node*) new_Var_declaration_node(var_type, id, expr);
 }
 
+void program(Node** ast, int max_len);
 void parse(Token* toks, Node** program, Symbol** sym_t);
 
 Node* block_statement(int start) {
@@ -557,23 +559,28 @@ Node* block_statement(int start) {
     memset(statements, 0, sizeof(statements));
     Token block_tokens[1024];
     memset(block_tokens, 0, sizeof(block_tokens));
-    for (int i = ind; i < tokslen(tokens); i++) {
-        if (tokens[i].type == T_RIGHT_BRACE) {
-            ind++;
+    int count = 0;
+    int i = 0;
+    printf("ind %d tokslen %d", ind, tokslen(tokens));
+    for (count = ind; count < tokslen(tokens); count++) {
+        if (tokens[count].type == T_RIGHT_BRACE) {
+            count++;
             found_end = 1;
             break;
         }
-        block_tokens[i] = tokens[ind++];
+        block_tokens[i++] = tokens[count];
     }
-    parse(tokens, statements, symbol_table);
+    printf("ind %d tokslen %d", ind, tokslen(tokens));
+    program(statements, count);
     int size = 0;
     for (size = 0; size < sizeof(statements) / sizeof(Node*); size++) {
         if (statements[size] == NULL) {
             break;
         }
     }
+    log_trace("size is: %d\n", size);
     if (found_end) {
-        return (Node*) new_Block_node(statements, &size);
+        return (Node*) new_Block_node(statements, size);
     } else { 
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
@@ -599,6 +606,7 @@ Node* statement(int start) {
     }
     Node* block = block_statement(start);
     if (block != NULL) {
+        log_trace("found block statement\n");
         return block;
     }
     ind = start;
@@ -607,25 +615,33 @@ Node* statement(int start) {
 
 // end statement parsing
 
-void parse(Token* toks, Node** program, Symbol** sym_t) {
+void program(Node** ast, int max_len) {
+    if (max_len == -1) {
+        max_len = tokslen(tokens);
+    }
+    int stmt_c = 0;
+    while (ind < max_len) {
+        Node* stmt = statement(ind);
+        if (stmt == NULL) {
+            log_trace("stmt is NULL %d\n", stmt->n_type);
+            break;
+        }
+        log_trace("stmt address %p\n", stmt);
+        ast[stmt_c++] = stmt;
+    }
+}
+
+void parse(Token* toks, Node** ast, Symbol** sym_t) {
     char* none_info[3] = {"none", "none"};
     push_symbol("built-in", none_info, 0);
     char* write_info[3] = {"write", "none"};
     push_symbol("func", write_info, 1);
     char* read_info[3] = {"read", "string"};
     push_symbol("func", read_info, 0);
-    int stmt_c = 0;
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }
-    int len = tokslen(tokens);
-    while (ind < len) {
-        Node* stmt = statement(ind);
-        if (stmt == NULL) {
-            break;
-        }
-        program[stmt_c++] = stmt;
-    }
+    program(ast, -1);
     for (int i = 0; i < 1024; i++) {
         if (symbol_table[i] == NULL) {
             break;

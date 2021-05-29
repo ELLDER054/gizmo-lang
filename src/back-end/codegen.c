@@ -269,7 +269,7 @@ void generate_statement(Node* n, char* code) {
         } else if (n->n_type == READ_NODE) {
             strcat(code, "\n");
         } else if (n->n_type == BLOCK_NODE) {
-            for (int i = 0; i < *((Block_node*) n)->ssize; i++) {
+            for (int i = 0; i < ((Block_node*) n)->ssize; i++) {
                 generate_statement(((Block_node*) n)->statements[i], code);
             }
         }
