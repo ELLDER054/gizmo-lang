@@ -46,6 +46,7 @@ typedef struct {
 typedef struct {
     NodeType n_type;
     char name[MAX_NAME_LEN];
+    char type[MAX_TYPE_LEN];
 } Identifier_node;
 
 typedef struct {

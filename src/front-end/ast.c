@@ -173,11 +173,12 @@ void free_Operator_node(Operator_node* n) {
     free(n);
 }
 
-Identifier_node* new_Identifier_node(char* name) {
+Identifier_node* new_Identifier_node(char* name, char* type) {
     Identifier_node* i = malloc(sizeof(Identifier_node));
     memset(i, 0, sizeof(Identifier_node));
     
     i->n_type = ID_NODE;
+    strncpy(i->type, type, MAX_TYPE_LEN);
     strncpy(i->name, name, MAX_NAME_LEN);
     return i;
 }

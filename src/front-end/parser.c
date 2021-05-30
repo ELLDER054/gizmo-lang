@@ -160,7 +160,7 @@ char* type(Node* n) {
         case VAR_DECLARATION_NODE:
             break;
         case ID_NODE:
-            return sym_find(((Identifier_node*) n)->name)->type;
+            return ((Identifier_node*) n)->type;
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
@@ -327,7 +327,7 @@ Node* factor(int start) {
     }
     char* id = expect_type(T_ID);
     if (id != NULL) {
-        return (Node*) new_Identifier_node(id);
+        return (Node*) new_Identifier_node(id, symtab_find(id, "var")->type);
     }
     ind = start;
     return NULL;
