@@ -71,56 +71,6 @@ TokenType expect_value(char* val) {
 
 // end helper functions
 
-// symbol table
-
-int sym_c = 0;
-Symbol* symbol_table[1024];
-
-int contains_symbol(Symbol* s) {
-    for (int i = 0; i < sym_c; i++) {
-        if (!strcmp(symbol_table[i]->name, s->name)) {
-            free(s);
-            return 1;
-        }
-    }
-    free(s);
-    return 0;
-}
-
-Symbol* new_symbol(char* s_type, char* name, char* type, int args_len) {
-    Symbol* s = malloc(sizeof(Symbol));
-    s->name = name;
-    s->type = type;
-    s->sym_type = s_type;
-    s->args_len = args_len;
-    return s;
-}
-
-void push_symbol(char* type, char** info, int args_len) {
-    Symbol* sym = new_symbol(type, info[0], info[1], args_len);
-    symbol_table[sym_c++] = sym;
-}
-
-Symbol* sym_find(char* name) {
-    Symbol* s = new_symbol(NULL, name, NULL, 0);
-    if (contains_symbol(s)) {
-        for (int i = 0; i < sym_c; i++) {
-            if (!strcmp(symbol_table[i]->name, name)) {
-                return symbol_table[i];
-            }
-        }
-    } else {
-        char specifier[MAX_LINE_LEN] = "";
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nUndefined name `%s`\n%s\n%s\n", tokens[ind - 1].lineno, name, tokens[ind - 1].line, specifier);
-        exit(0);
-    }
-    return NULL;
-}
-
-// end symbol table
-
 Node* expression(int start);
 Node* term(int start);
 Node* term2(int start);
@@ -164,7 +114,7 @@ char* type(Node* n) {
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
-           return sym_find(((Func_call_node*) n)->name)->type; 
+           return symtab_find_global(((Func_call_node*) n)->name, "func")->type; 
         case NODE_NODE:
             break;
     }
@@ -327,7 +277,7 @@ Node* factor(int start) {
     }
     char* id = expect_type(T_ID);
     if (id != NULL) {
-        return (Node*) new_Identifier_node(id, symtab_find(id, "var")->type);
+        return (Node*) new_Identifier_node(id, symtab_find_global(id, "var")->type);
     }
     ind = start;
     return NULL;
@@ -356,6 +306,13 @@ Node* term2(int start) {
         strncat(specifier, "^", 2);
         printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
         exit(0);
+    }
+    if (strcmp(oper, "/") == 0 && t->n_type == INTEGER_NODE) {
+        if (((Integer_node*) t)->value == 0) {
+            /* TODO error */
+            printf("can't divide by zero\n");
+            exit(0);
+        }
     }
     check_type(start, f, t, oper);
     return (Node*) new_Operator_node(oper, f, t);
@@ -424,15 +381,14 @@ Node* incomplete_function_call(int start) {
     func_expr_args(ind, args, &args_len);
     char b[MAX_NAME_LEN];
     consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
-	Symbol* s = new_symbol("func", id, NULL, args_len);
-    if (!contains_symbol(s)) {
+    if (!symtab_find_global(id, "func")) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 2);
         printf("On line %d:\nUndefined function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
         exit(0);
     }
-    if (args_len != sym_find(id)->args_len) {
+    if (args_len != symtab_find_global(id, "func")->args_len) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 2);
@@ -479,16 +435,14 @@ Node* incomplete_var_declaration(int start) {
             return NULL;
         }
     }
-    Symbol* s = new_symbol("var", id, type, 0);
-    if (contains_symbol(s)) {
+    if (symtab_find_local(id, "var") != NULL) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 2);
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
-    char* info[2] = {id, type};
-    push_symbol("var", info, 0);
+    symtab_add_symbol(type, "var", id, 0);
     return (Node*) new_Var_declaration_node(type, id, incomplete_initializers(type));
 }
 
@@ -512,15 +466,14 @@ Node* function_call(int start) {
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b2);
     char b3[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b3);
-    Symbol* s = new_symbol("func", id, NULL, args_len);
-    if (!contains_symbol(s)) {
+    if (symtab_find_global(id, "func") == NULL) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 2);
         printf("On line %d:\nUndefined function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
         exit(0);
     }
-    if (args_len != sym_find(id)->args_len) {
+    if (args_len != symtab_find_global(id, "func")->args_len) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 2);
@@ -557,8 +510,7 @@ Node* var_declaration(int start) {
     }
     char b2[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
-    Symbol* s = new_symbol("var", id, var_type, 0);
-    if (contains_symbol(s)) {
+    if (symtab_find_local(id, "var") != NULL) {
         char specifier[1024] = {'\0'};
         repeat_char(' ', tokens[start + 1].col, specifier);
         strncat(specifier, "^", 2);
@@ -572,8 +524,7 @@ Node* var_declaration(int start) {
         printf("On line %d:\nFor variable `%s`\nAssignment to type %s from different type %s\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, var_type, type(expr), tokens[start + 1].line, specifier);
         exit(0);
     }
-    char* info[2] = {id, var_type};
-    push_symbol("var", info, 0);
+    symtab_add_symbol(var_type, "var", id, 0);
     return (Node*) new_Var_declaration_node(var_type, id, expr);
 }
 
@@ -604,7 +555,9 @@ Node* block_statement(int start) {
         block_tokens[i++] = tokens[count];
     }
     printf("ind %d tokslen %d", ind, tokslen(tokens));
+    symtab_push_context();
     program(statements, count);
+    symtab_pop_context();
     int size = 0;
     for (size = 0; size < sizeof(statements) / sizeof(Node*); size++) {
         if (statements[size] == NULL) {
@@ -665,21 +618,14 @@ void program(Node** ast, int max_len) {
 }
 
 void parse(Token* toks, Node** ast, Symbol** sym_t) {
-    char* none_info[3] = {"none", "none"};
-    push_symbol("built-in", none_info, 0);
-    char* write_info[3] = {"write", "none"};
-    push_symbol("func", write_info, 1);
-    char* read_info[3] = {"read", "string"};
-    push_symbol("func", read_info, 0);
+    symtab_init();
+    symtab_add_symbol("none", "var", "none", 0);
+    symtab_add_symbol("none", "func", "write", 1);
+    symtab_add_symbol("string", "func", "read", 1);
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }
     program(ast, -1);
-    for (int i = 0; i < 1024; i++) {
-        if (symbol_table[i] == NULL) {
-            break;
-        }
-        sym_t[i] = symbol_table[i];
-    }
+    symtab_destroy();
     return;
 }

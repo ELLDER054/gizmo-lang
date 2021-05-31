@@ -89,7 +89,7 @@ Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
 Char_node* new_Char_node(char val);
 Real_node* new_Real_node(double val);
-Identifier_node* new_Identifier_node(char* name);
+Identifier_node* new_Identifier_node(char* name, char* type);
 Func_call_node* new_Func_call_node(char* name, Node** args);
 Block_node* new_Block_node(Node** statements, int ssize);
 

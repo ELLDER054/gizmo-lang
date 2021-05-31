@@ -178,7 +178,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "\t");
         strcat(c, func_call_name);
         strcat(c, " = call ");
-        strcat(c, types(sym_find(((Func_call_node*) n)->name)->type));
+        strcat(c, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type));
 		strcat(c, " ");
         strcat(c, ((Func_call_node*) n)->name);
         strcat(c, "(");

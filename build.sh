@@ -1,4 +1,4 @@
-#!/usr/bin/bash -e
+#!/usr/bin/bash
 
 if [ "$#" -ne 2 ]; then
     echo "./build.sh <source.gizmo> <native.elf>"
@@ -20,6 +20,11 @@ chmod +x gizmoc
 
 # compile the gizmo_llvm_ir.ll file to native x86 assembly file native.s
 llc --relocation-model=pic -o native.s gizmo_llvm_ir.ll
+
+if [ $? -ne 0 ]; then
+    echo "Compiler failed to generate llvm ir code"
+    exit -1;
+fi
 
 # assemble and link the native x86 assembly to create a native executable
 gcc -o $2 native.s
