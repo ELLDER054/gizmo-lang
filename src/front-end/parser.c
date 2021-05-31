@@ -343,7 +343,7 @@ void func_expr_args(int start, Node** args, int* len) {
     int should_find = 0;
     while (1) {
         Node* expr = expression(ind);
-        printf("typeofexpr: |%s|\n", type(expr));
+        log_trace("typeofexpr: |%s|\n", type(expr));
         if (expr == NULL) {
             if (should_find) {
                 char specifier[1024] = {'\0'};

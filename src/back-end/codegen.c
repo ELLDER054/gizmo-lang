@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include "heap.h"
 #include "codegen.h"
+#include "log.h"
 #include "../front-end/ast.h"
 #include "../front-end/symbols.h"
 
@@ -98,7 +99,7 @@ char* generate_operation_asm(Operator_node* n, char* expr_type, char* c) {
 }
 
 char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size) {
-    printf("type: %d\n", n->n_type);
+    log_trace("type: %d\n", n->n_type);
     if (n->n_type == INTEGER_NODE) {
         char number[100];
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
