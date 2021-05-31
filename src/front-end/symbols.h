@@ -11,6 +11,7 @@ struct Symbol {
     char* name;
     char* type;
     char* sym_type;
+    char* cgid;
     int args_len;
     Symbol* next;
 };
@@ -18,7 +19,7 @@ struct Symbol {
 
 Symbol* symtab_find_local(char *name, char* sym_type);
 Symbol* symtab_find_global(char *name, char* sym_type);
-int symtab_add_symbol(char* type, char* sym_type, char* name, int args_len);
+int symtab_add_symbol(char* type, char* sym_type, char* name, int args_len, char* cgid);
 void symtab_push_context(void);
 void symtab_pop_context(void);
 void symtab_init(void);

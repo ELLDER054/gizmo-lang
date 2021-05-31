@@ -98,13 +98,14 @@ void print_func_call(FILE* f, Func_call_node* func) {
     fprintf(f, ")");
 }
 
-Var_declaration_node* new_Var_declaration_node(char* type, char* name, Node* value) {
+Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, char* name, Node* value) {
 
     Var_declaration_node* var = malloc(sizeof(Var_declaration_node));
     memset(var, 0, sizeof(Var_declaration_node));
 
     var->n_type = VAR_DECLARATION_NODE;
     strncpy(var->name, name, MAX_NAME_LEN);
+    strncpy(var->codegen_name, codegen_name, MAX_NAME_LEN + 4);
     strncpy(var->type, type, MAX_TYPE_LEN);
     var->value = value;
     return var;
@@ -173,13 +174,14 @@ void free_Operator_node(Operator_node* n) {
     free(n);
 }
 
-Identifier_node* new_Identifier_node(char* name, char* type) {
+Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type) {
     Identifier_node* i = malloc(sizeof(Identifier_node));
     memset(i, 0, sizeof(Identifier_node));
     
     i->n_type = ID_NODE;
     strncpy(i->type, type, MAX_TYPE_LEN);
     strncpy(i->name, name, MAX_NAME_LEN);
+    strncpy(i->codegen_name, codegen_name, MAX_NAME_LEN + 4);
     return i;
 }
 

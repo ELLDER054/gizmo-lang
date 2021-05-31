@@ -115,11 +115,11 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         if (strcmp(expr_type, "string") == 0) {
             snprintf(id_name, 100, "%%%d", var_c++);
             char* id_code = heap_alloc(100);
-            snprintf(id_code, 100, "\t%s = alloca i8*, align 8\n\tstore i8* %%%s, i8** %s", id_name, ((Identifier_node*) n)->name, id_name);
+            snprintf(id_code, 100, "\t%s = alloca i8*, align 8\n\tstore i8* %%%s, i8** %s", id_name, ((Identifier_node*) n)->codegen_name, id_name);
             strcat(c, id_code);
             previous_str_is_ptr = 1;
         } else {
-            snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->name);
+            snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->codegen_name);
         }
         return id_name;
     } else if (n->n_type == CHAR_NODE) {
@@ -226,13 +226,14 @@ void generate_statement(Node* n, char* code) {
             char* var_name = generate_expression_asm(v->value, types(v->type), code, var_buf);
             if (strcmp(v->type, "int") == 0) {
                 strcat(code, "\t%");
-                strcat(code, v->name);
+                printf("CODEGEN_NAME is: %s\n", v->codegen_name);
+                strcat(code, v->codegen_name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
             } else if (strcmp(v->type, "string") == 0) {
                 if (previous_str_is_ptr) {
                     strcat(code, "\t%");
-                    strcat(code, v->name);
+                    strcat(code, v->codegen_name);
                     strcat(code, " = load i8*, i8*");
                     strcat(code, "* ");
                     previous_str_is_ptr = 0;
@@ -242,17 +243,17 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, "\n\tstore i8*");
                     strcat(code, var_name);
                     strcat(code, ", i8* %");
-                    strcat(code, v->name);
+                    strcat(code, v->codegen_name);
                     strcat(code, "\n");
                 }
             } else if (strcmp(v->type, "char") == 0) {
                 strcat(code, "\t%");
-                strcat(code, v->name);
+                strcat(code, v->codegen_name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "\t%");
-                strcat(code, v->name);
+                strcat(code, v->codegen_name);
                 strcat(code, " = fadd double 0.0, ");
                 strcat(code, var_name);
             }

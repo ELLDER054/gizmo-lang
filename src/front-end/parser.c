@@ -6,6 +6,8 @@
 #include "scanner.h"
 #include "symbols.h"
 
+int id_c = 0;
+
 int ind = 0;
 Token tokens[1024];
 void print_node(FILE* f, Node* n);
@@ -277,7 +279,7 @@ Node* factor(int start) {
     }
     char* id = expect_type(T_ID);
     if (id != NULL) {
-        return (Node*) new_Identifier_node(id, symtab_find_global(id, "var")->type);
+        return (Node*) new_Identifier_node(id, symtab_find_global(id, "var")->cgid, symtab_find_global(id, "var")->type);
     }
     ind = start;
     return NULL;
@@ -442,8 +444,10 @@ Node* incomplete_var_declaration(int start) {
         printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
         exit(0);
     }
-    symtab_add_symbol(type, "var", id, 0);
-    return (Node*) new_Var_declaration_node(type, id, incomplete_initializers(type));
+    char cgid[MAX_NAME_LEN + 4] = {0};
+    snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
+    symtab_add_symbol(type, "var", id, 0, cgid);
+    return (Node*) new_Var_declaration_node(type, cgid, id, incomplete_initializers(type));
 }
 
 Node* function_call(int start) {
@@ -524,8 +528,10 @@ Node* var_declaration(int start) {
         printf("On line %d:\nFor variable `%s`\nAssignment to type %s from different type %s\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, var_type, type(expr), tokens[start + 1].line, specifier);
         exit(0);
     }
-    symtab_add_symbol(var_type, "var", id, 0);
-    return (Node*) new_Var_declaration_node(var_type, id, expr);
+    char cgid[MAX_NAME_LEN + 4] = {0};
+    snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
+    symtab_add_symbol(var_type, "var", id, 0, cgid);
+    return (Node*) new_Var_declaration_node(var_type, cgid, id, expr);
 }
 
 void program(Node** ast, int max_len);
@@ -619,9 +625,9 @@ void program(Node** ast, int max_len) {
 
 void parse(Token* toks, Node** ast, Symbol** sym_t) {
     symtab_init();
-    symtab_add_symbol("none", "var", "none", 0);
-    symtab_add_symbol("none", "func", "write", 1);
-    symtab_add_symbol("string", "func", "read", 1);
+    symtab_add_symbol("none", "var", "none", 0, "none");
+    symtab_add_symbol("none", "func", "write", 1, "write");
+    symtab_add_symbol("string", "func", "read", 1, "read");
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }

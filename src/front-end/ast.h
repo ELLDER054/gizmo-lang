@@ -33,6 +33,7 @@ typedef struct {
     NodeType n_type;
     char type[MAX_TYPE_LEN];
     char name[MAX_NAME_LEN];
+    char codegen_name[MAX_NAME_LEN + 4];
     Node* value;
 } Var_declaration_node;
 
@@ -46,6 +47,7 @@ typedef struct {
 typedef struct {
     NodeType n_type;
     char name[MAX_NAME_LEN];
+    char codegen_name[MAX_NAME_LEN + 4];
     char type[MAX_TYPE_LEN];
 } Identifier_node;
 
@@ -83,13 +85,13 @@ typedef struct {
 } Block_node;
 
 void free_node(Node* n);
-Var_declaration_node* new_Var_declaration_node(char* name, char* type, Node* value);
+Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
 Char_node* new_Char_node(char val);
 Real_node* new_Real_node(double val);
-Identifier_node* new_Identifier_node(char* name, char* type);
+Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type);
 Func_call_node* new_Func_call_node(char* name, Node** args);
 Block_node* new_Block_node(Node** statements, int ssize);
 
