@@ -627,7 +627,7 @@ void parse(Token* toks, Node** ast, Symbol** sym_t) {
     symtab_init();
     symtab_add_symbol("none", "var", "none", 0, "none");
     symtab_add_symbol("none", "func", "write", 1, "write");
-    symtab_add_symbol("string", "func", "read", 1, "read");
+    symtab_add_symbol("string", "func", "read", 0, "read");
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }
