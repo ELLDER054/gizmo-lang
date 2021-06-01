@@ -1,6 +1,6 @@
 **Gizmo** is a fast and user friendly programming language for parsing and manipulating strings.  
 Gizmo code looks like this:  
-```
+```cpp
 class Bird() {
   none init() {
     string this.state = "";
@@ -11,7 +11,7 @@ class Bird() {
     write("Flying to " + state);
   }
 }
-Bird bird = Bird();
+Bird bird = init Bird();
 bird.flyTo("Virginia");
 write(bird.state) \ Virginia
 bird.flyTo("Oregon");
