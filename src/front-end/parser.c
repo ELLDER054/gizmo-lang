@@ -15,6 +15,15 @@ void compile(char* code, char* output, char* in, char* out, char* file_name);
 
 // begin helper functions
 
+void Error(int lineno, char* line, int pos, const char* error) {
+	printf("On line %d\n%s\n%s\n", lineno, error, line);
+    for (int i = 0; i < pos; i++) {
+        printf(" ");
+    }
+    printf("^\n");
+    exit(-1);
+}
+
 void repeat_char(char c, int n, char* string) {
     for (int i = 0; i < n; i++) {
         strncat(string, &c, 1);
@@ -34,21 +43,13 @@ int tokslen(Token* tokens) {
 
 void consume(TokenType type, char* err, char* buffer) {
     if (ind >= tokslen(tokens)) {
-        char specifier[MAX_LINE_LEN] = "";
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
-        exit(0);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err);
     }
     if (tokens[ind].type == type) {
         strncpy(buffer, tokens[ind++].value, MAX_NAME_LEN);
         return;
     }
-    char specifier[100] = "";
-    repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-    strncat(specifier, "^", 2);
-    printf("On line %d:\n%s%s\n%s\n", tokens[ind - 1].lineno, err, tokens[ind - 1].line, specifier);
-    exit(0);
+    Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err);
 }
 
 char* expect_type(TokenType type) {
@@ -127,61 +128,39 @@ void check_type(int start, Node* left, Node* right, char* oper) {
     if (*oper == '+') {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
-                char specifier[MAX_LINE_LEN] = "";
-                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 2);
-                printf("On line %d:\nExpected Integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected integer on right side of exression");
             }
         }
         else if (!strcmp(type(left), "string")) {
             if (strcmp(type(right), "string")) {
-                char specifier[MAX_LINE_LEN] = "";
-                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 2);
-                printf("On line %d:\nExpected string on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected string on right side of expression");
             }
         }
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
-                char specifier[MAX_LINE_LEN] = "";
-                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 2);
-                printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected real on right side of expression");
             }
         } else {
-            char specifier[MAX_LINE_LEN] = "";
-            repeat_char(' ', tokens[start].col, specifier);
-            strncat(specifier, "^", 2);
-            printf("On line %d:\nInvalid type `%s` on left side of expression\n%s\n%s\n", tokens[start].lineno, type(left), tokens[start].line, specifier);
-            exit(0);
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Invalid type `%s` on left side of expression", type(left));
+            Error(tokens[start].lineno, tokens[start].line, tokens[start].col, error);
         }
     } else {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
-                char specifier[MAX_LINE_LEN] = "";
-                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 2);
-                printf("On line %d:\nExpected integer on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected integer on right side of expression");
             }
         }
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
-                char specifier[MAX_LINE_LEN] = "";
-                repeat_char(' ', tokens[ind - 1].col, specifier);
-                strncat(specifier, "^", 2);
-                printf("On line %d:\nExpected real on right side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected real on right side of expression");
             }
         } else {
-            char specifier[MAX_LINE_LEN] = "";
-            repeat_char(' ', tokens[start].col, specifier);
-            strncat(specifier, "^", 2);
-            printf("On line %d:\nInvalid type `%s` on left side of expression\n%s\n%s\n", tokens[start].lineno, type(left), tokens[start].line, specifier);
-            exit(0);
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Invalid type `%s` on left side of expression", type(left));
+            Error(tokens[start].lineno, tokens[start].line, tokens[start].col, error);
         }
     }
 }
@@ -204,11 +183,7 @@ Node* expression2(int start) {
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
-        char specifier[100] = "";
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-        exit(0);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected right side of expression");
     }
     check_type(start, t, expr, oper);
     return (Node*) new_Operator_node(oper, t, expr);
@@ -280,8 +255,11 @@ Node* factor(int start) {
     char* id = expect_type(T_ID);
     if (id != NULL) {
         if (symtab_find_global(id, "var") == NULL) {
-            printf("Usage of undefined identifier %s\n", id);
-            exit(0);
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Use of undefined identifier `%s`", id);
+            Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error);
+            free(error);
         }
         return (Node*) new_Identifier_node(id, symtab_find_global(id, "var")->cgid, symtab_find_global(id, "var")->type);
     }
@@ -307,17 +285,11 @@ Node* term2(int start) {
     }
     Node* t = term(ind);
     if (t == NULL) {
-        char specifier[100] = "";
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nExpected right hand side of expression\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-        exit(0);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected right side of expression");
     }
     if (strcmp(oper, "/") == 0 && t->n_type == INTEGER_NODE) {
         if (((Integer_node*) t)->value == 0) {
-            /* TODO error */
-            printf("can't divide by zero\n");
-            exit(0);
+            Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Can't divide by zero");
         }
     }
     check_type(start, f, t, oper);
@@ -332,6 +304,7 @@ Node* term(int start) {
     }
     Node* f = factor(start);
     if (f != NULL) {
+        free_node(t2);
         return f;
     }
     ind = start;
@@ -350,11 +323,7 @@ void func_expr_args(int start, Node** args, int* len) {
         log_trace("typeofexpr: |%s|\n", type(expr));
         if (expr == NULL) {
             if (should_find) {
-                char specifier[1024] = {'\0'};
-                repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-                strncat(specifier, "^", 2);
-                printf("On line %d:\nExpected argument\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-                exit(0);
+                Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected argument");
             } else {
                 break;
             }
@@ -388,18 +357,16 @@ Node* incomplete_function_call(int start) {
     char b[MAX_NAME_LEN];
     consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
     if (!symtab_find_global(id, "func")) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nUndefined function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
-        exit(0);
+        char* error = malloc(100);
+        memset(error, 0, 100);
+        snprintf(error, 100, "Use of undefined function `%s`", id);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error);
     }
     if (args_len != symtab_find_global(id, "func")->args_len) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nWrong amount of arguments for function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
-        exit(0);
+        char* error = malloc(100);
+        memset(error, 0, 100);
+        snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error);
     }
     return (Node*) new_Func_call_node(id, args);
 }
@@ -424,11 +391,7 @@ Node* incomplete_var_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-        exit(0);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected identifier after type");
     }
     char* end = expect_type(T_SEMI_COLON);
     if (end == NULL) {
@@ -442,11 +405,10 @@ Node* incomplete_var_declaration(int start) {
         }
     }
     if (symtab_find_local(id, "var") != NULL) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
-        exit(0);
+        char* error = malloc(100);
+        memset(error, 0, 100);
+        snprintf(error, 100, "Redefinition of variable `%s`", id);
+        Error(tokens[start + 1].lineno, tokens[start + 1].line, tokens[start + 1].col, error);
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
     snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
@@ -475,18 +437,16 @@ Node* function_call(int start) {
     char b3[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b3);
     if (symtab_find_global(id, "func") == NULL) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nUndefined function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
-        exit(0);
+        char* error = malloc(100);
+        memset(error, 0, 100);
+        snprintf(error, 100, "Use of undefined function `%s`", id);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error);
     }
     if (args_len != symtab_find_global(id, "func")->args_len) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nWrong amount of arguments for function `%s`\n%s\n%s\n", tokens[start + 1].lineno, id, tokens[start + 1].line, specifier);
-        exit(0);
+        char* error = malloc(100);
+        memset(error, 0, 100);
+        snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error);
     }
     return (Node*) new_Func_call_node(id, args);
 }
@@ -500,37 +460,29 @@ Node* var_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nExpected identifier after type\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-        exit(0);
+       Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected identifier after type"); 
     }
     char b[MAX_NAME_LEN];
     consume(T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
     Node* expr = expression(ind);
     if (expr == NULL) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[ind - 1].col + strlen(tokens[ind - 1].value), specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nExpected expression after assignment operator\n%s\n%s\n", tokens[ind - 1].lineno, tokens[ind - 1].line, specifier);
-        exit(0);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected expression after assignment operator");
     }
     char b2[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
     if (symtab_find_local(id, "var") != NULL) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nRedeclaration of variable `%s`\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, tokens[start + 1].line, specifier);
-        exit(0);
+        char* error = malloc(100);
+        memset(error, 0, 100);
+        snprintf(error, 100, "Redefinition of variable `%s`", id);
+        free_node(expr);
+        Error(tokens[start + 1].lineno, tokens[start + 1].line, tokens[start + 1].col, error);
     }
     if (strcmp(type(expr), var_type)) {
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nFor variable `%s`\nAssignment to type %s from different type %s\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].value, var_type, type(expr), tokens[start + 1].line, specifier);
-        exit(0);
+        char* error = malloc(100);
+        memset(error, 0, 100);
+        snprintf(error, 100, "For variable `%s`\nAssignment to type %s from %s", id, type(expr), var_type);
+        free_node(expr);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error);
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
     snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
@@ -577,12 +529,9 @@ Node* block_statement(int start) {
     log_trace("size is: %d\n", size);
     if (found_end) {
         return (Node*) new_Block_node(statements, size);
-    } else { 
-        char specifier[1024] = {'\0'};
-        repeat_char(' ', tokens[start + 1].col, specifier);
-        strncat(specifier, "^", 2);
-        printf("On line %d:\nExpected closing bracket\n%s\n%s\n", tokens[start + 1].lineno, tokens[start + 1].line, specifier);
-        exit(0);
+    } else {
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col + 1, "Expected closing brace");
+        return NULL; /* To satisfy Clang */
     }
 }
 
