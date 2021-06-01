@@ -182,11 +182,7 @@ void scan(char* code, Token* tokens) {
                     col++;
                 }
                 if (ch == '.') {
-                    char specifier[1024] = {'\0'};
-                    repeat_c(' ', col, specifier);
-                    strcat(specifier, "^");
-                    printf("On line %d:\nToo many dots in floating point number\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
-                    exit(0);
+                    Error(lineno, lines[lineno - 1], col, "Too many dots in floating point number");
                 } else {
                     tok_type = T_REAL;
                 }
@@ -214,11 +210,7 @@ void scan(char* code, Token* tokens) {
             ch = code[pos];
             while (1) {
                 if (ch == '\0') {
-                    char specifier[1024] = {'\0'};
-                    repeat_c(' ', col, specifier);
-                    strcat(specifier, "^");
-                    printf("On line %d:\nExpected closing comment\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
-                    exit(0);
+                    Error(lineno, lines[lineno - 1], col, "Expected end of comment");
                 } else if (ch == '*' && next(code, pos) == '/') {
                     break;
                 }
@@ -279,11 +271,7 @@ void scan(char* code, Token* tokens) {
             ch = code[++pos];
             while (ch != delim) {
                 if (ch == '\n' || ch == '\0') {
-                    char specifier[1024] = {'\0'};
-                    repeat_c(' ', col, specifier);
-                    strcat(specifier, "^");
-                    printf("On line %d:\nUnterminated string literal\n%s\n%s\n", lineno, lines[lineno - 1], specifier);
-                    exit(0);
+                    Error(lineno, lines[lineno - 1], col, "Expected end of string");
                 }
                 strncat(string, &ch, 1);
                 ch = code[++pos];
@@ -311,11 +299,10 @@ void scan(char* code, Token* tokens) {
             col = 0;
             lineno++;
         } else {
-            char specifier[1024] = {'\0'};
-            repeat_c(' ', col, specifier);
-            strcat(specifier, "^");
-            printf("On line %d:\nUnexpected character `%c`\n%s\n%s\n", lineno, ch, lines[lineno - 1], specifier);
-            exit(0);
+            char* error = malloc(25);
+            memset(error, 0, 25);
+            snprintf(error, 25, "Unexpected character `%c`", ch);
+            Error(lineno, lines[lineno - 1], col, error);
         }
     }
 
