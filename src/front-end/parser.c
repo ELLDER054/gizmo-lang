@@ -16,11 +16,11 @@ void compile(char* code, char* output, char* in, char* out, char* file_name);
 // begin helper functions
 
 void Error(int lineno, char* line, int pos, const char* error) {
-	printf("On line %d\n%s\n%s\n", lineno, error, line);
+	printf("\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", lineno, error, line);
     for (int i = 0; i < pos; i++) {
         printf(" ");
     }
-    printf("^\n");
+    printf("\x1b[32;1m^\x1b[0m\n");
     exit(-1);
 }
 
