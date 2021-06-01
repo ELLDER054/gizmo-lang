@@ -279,6 +279,10 @@ Node* factor(int start) {
     }
     char* id = expect_type(T_ID);
     if (id != NULL) {
+        if (symtab_find_global(id, "var") == NULL) {
+            printf("Usage of undefined identifier %s\n", id);
+            exit(0);
+        }
         return (Node*) new_Identifier_node(id, symtab_find_global(id, "var")->cgid, symtab_find_global(id, "var")->type);
     }
     ind = start;
