@@ -2,6 +2,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include "scanner.h"
+#include "parser.h"
 
 int isAlpha(char c) {
     return (c >= 65 && c <= 90) || c == '_' || (c >= 97 && c <= 122);
