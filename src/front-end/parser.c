@@ -15,12 +15,19 @@ void compile(char* code, char* output, char* in, char* out, char* file_name);
 
 // begin helper functions
 
-void Error(int lineno, char* line, int pos, const char* error) {
+void Error(int lineno, const char* line, int pos, const char* error, const char* value) {
 	printf("\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", lineno, error, line);
     for (int i = 0; i < pos; i++) {
         printf(" ");
     }
-    printf("\x1b[32;1m^\x1b[0m\n");
+    printf("\x1b[32;1m^\x1b[0m");
+    if (strlen(value) > 1) {
+        for (int i = 1; i < strlen(value) - 1; i++) {
+            printf("\x1b[32;1m^\x1b[0m");
+        }
+        printf("\x1b[32;1m^\x1b[0m");
+    }
+    printf("\n");
     exit(-1);
 }
 
@@ -43,13 +50,13 @@ int tokslen(Token* tokens) {
 
 void consume(TokenType type, char* err, char* buffer) {
     if (ind >= tokslen(tokens)) {
-        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err, tokens[ind - 1].value);
     }
     if (tokens[ind].type == type) {
         strncpy(buffer, tokens[ind++].value, MAX_NAME_LEN);
         return;
     }
-    Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err);
+    Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err, tokens[ind - 1].value);
 }
 
 char* expect_type(TokenType type) {
@@ -128,39 +135,39 @@ void check_type(int start, Node* left, Node* right, char* oper) {
     if (*oper == '+') {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
-                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected integer on right side of exression");
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected integer on right side of exression", tokens[start].value);
             }
         }
         else if (!strcmp(type(left), "string")) {
             if (strcmp(type(right), "string")) {
-                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected string on right side of expression");
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected string on right side of expression", tokens[start].value);
             }
         }
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
-                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected real on right side of expression");
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected real on right side of expression", tokens[start].value);
             }
         } else {
             char* error = malloc(100);
             memset(error, 0, 100);
             snprintf(error, 100, "Invalid type `%s` on left side of expression", type(left));
-            Error(tokens[start].lineno, tokens[start].line, tokens[start].col, error);
+            Error(tokens[start].lineno, tokens[start].line, tokens[start].col, error, tokens[start].value);
         }
     } else {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
-                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected integer on right side of expression");
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected integer on right side of expression", tokens[start].value);
             }
         }
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
-                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected real on right side of expression");
+                Error(tokens[start].lineno, tokens[start].line, tokens[start].col, "Expected real on right side of expression", tokens[start].value);
             }
         } else {
             char* error = malloc(100);
             memset(error, 0, 100);
             snprintf(error, 100, "Invalid type `%s` on left side of expression", type(left));
-            Error(tokens[start].lineno, tokens[start].line, tokens[start].col, error);
+            Error(tokens[start].lineno, tokens[start].line, tokens[start].col, error, tokens[start].value);
         }
     }
 }
@@ -183,7 +190,7 @@ Node* expression2(int start) {
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
-        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected right side of expression");
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected right side of expression", tokens[ind - 1].value);
     }
     check_type(start, t, expr, oper);
     return (Node*) new_Operator_node(oper, t, expr);
@@ -258,7 +265,7 @@ Node* factor(int start) {
             char* error = malloc(100);
             memset(error, 0, 100);
             snprintf(error, 100, "Use of undefined identifier `%s`", id);
-            Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error);
+            Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error, tokens[ind - 1].value);
             free(error);
         }
         return (Node*) new_Identifier_node(id, symtab_find_global(id, "var")->cgid, symtab_find_global(id, "var")->type);
@@ -285,11 +292,11 @@ Node* term2(int start) {
     }
     Node* t = term(ind);
     if (t == NULL) {
-        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected right side of expression");
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected right side of expression", tokens[ind - 1].value);
     }
     if (strcmp(oper, "/") == 0 && t->n_type == INTEGER_NODE) {
         if (((Integer_node*) t)->value == 0) {
-            Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Can't divide by zero");
+            Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Can't divide by zero", tokens[ind - 1].value);
         }
     }
     check_type(start, f, t, oper);
@@ -323,7 +330,7 @@ void func_expr_args(int start, Node** args, int* len) {
         log_trace("typeofexpr: |%s|\n", type(expr));
         if (expr == NULL) {
             if (should_find) {
-                Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected argument");
+                Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, "Expected argument", tokens[ind - 1].value);
             } else {
                 break;
             }
@@ -360,13 +367,13 @@ Node* incomplete_function_call(int start) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Use of undefined function `%s`", id);
-        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error, tokens[ind - 1].value);
     }
     if (args_len != symtab_find_global(id, "func")->args_len) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
-        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error);
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, error, tokens[ind - 1].value);
     }
     return (Node*) new_Func_call_node(id, args);
 }
@@ -391,7 +398,7 @@ Node* incomplete_var_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected identifier after type");
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected identifier after type", tokens[ind].value);
     }
     char* end = expect_type(T_SEMI_COLON);
     if (end == NULL) {
@@ -408,7 +415,7 @@ Node* incomplete_var_declaration(int start) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Redefinition of variable `%s`", id);
-        Error(tokens[start + 1].lineno, tokens[start + 1].line, tokens[start + 1].col, error);
+        Error(tokens[start + 1].lineno, tokens[start + 1].line, tokens[start + 1].col, error, tokens[start + 1].value);
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
     snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
@@ -440,13 +447,13 @@ Node* function_call(int start) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Use of undefined function `%s`", id);
-        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error, tokens[ind].value);
     }
     if (args_len != symtab_find_global(id, "func")->args_len) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
-        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error, tokens[ind].value);
     }
     return (Node*) new_Func_call_node(id, args);
 }
@@ -460,13 +467,13 @@ Node* var_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-       Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected identifier after type"); 
+       Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected identifier after type", tokens[ind].value);
     }
     char b[MAX_NAME_LEN];
     consume(T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
     Node* expr = expression(ind);
     if (expr == NULL) {
-        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected expression after assignment operator");
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, "Expected expression after assignment operator", tokens[ind].value);
     }
     char b2[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
@@ -475,14 +482,14 @@ Node* var_declaration(int start) {
         memset(error, 0, 100);
         snprintf(error, 100, "Redefinition of variable `%s`", id);
         free_node(expr);
-        Error(tokens[start + 1].lineno, tokens[start + 1].line, tokens[start + 1].col, error);
+        Error(tokens[start + 1].lineno, tokens[start + 1].line, tokens[start + 1].col, error, tokens[start + 1].value);
     }
     if (strcmp(type(expr), var_type)) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "For variable `%s`\nAssignment to type %s from %s", id, type(expr), var_type);
         free_node(expr);
-        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error);
+        Error(tokens[ind].lineno, tokens[ind].line, tokens[ind].col, error, tokens[ind].value);
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
     snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
@@ -530,7 +537,7 @@ Node* block_statement(int start) {
     if (found_end) {
         return (Node*) new_Block_node(statements, size);
     } else {
-        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col + 1, "Expected closing brace");
+        Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col + 1, "Expected closing brace", tokens[ind - 1].value);
         return NULL; /* To satisfy Clang */
     }
 }
