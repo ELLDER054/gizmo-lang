@@ -16,7 +16,9 @@ clang -rdynamic -o gizmoc -O1 -g -fsanitize=address -fno-omit-frame-pointer -Isr
 chmod +x gizmoc
 
 # run gizmo against the supplied gizmo source file, and generate LLVM IR output file gizmo_llvm_ir.ll
-./gizmoc $1 gizmo_llvm_ir.ll
+if ! ./gizmoc $1 gizmo_llvm_ir.ll; then 
+    exit -1
+fi
 
 # compile the gizmo_llvm_ir.ll file to native x86 assembly file native.s
 llc --relocation-model=pic -o native.s gizmo_llvm_ir.ll
