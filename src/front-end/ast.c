@@ -5,7 +5,7 @@
 
 void print_node(FILE* f, Node* n);
 
-void print_oper(FILE* f, Operator_node* n) {
+void print_oper(FILE* f, Operator_node* n) { /* Prints an operator node */
     fprintf(f, "(OPER_NODE, %s, ", n->oper);
     print_node(f, n->left);
     fprintf(f, ", ");
@@ -13,7 +13,7 @@ void print_oper(FILE* f, Operator_node* n) {
     fprintf(f, ")");
 }
 
-void print_block(FILE* f, Block_node* b) {
+void print_block(FILE* f, Block_node* b) { /* Prints a block node */
     fprintf(f, "(BLOCK, ");
     for (int i = 0; i < b->ssize; i++) {
         print_node(f, b->statements[i]);
@@ -21,30 +21,30 @@ void print_block(FILE* f, Block_node* b) {
     fprintf(f, ")");
 }
 
-void print_id(FILE* f, Identifier_node* n) {
+void print_id(FILE* f, Identifier_node* n) { /* Prints an identifier node */
     fprintf(f, "(ID_NODE, %s)", n->name);
 }
 
-void print_int(FILE* f, Integer_node* i) {
+void print_int(FILE* f, Integer_node* i) { /* Prints an integer node */
     fprintf(f, "(INT_NODE, %d)", i->value);
 }
 
-void print_real(FILE* f, Real_node* r) {
+void print_real(FILE* f, Real_node* r) { /* Prints a real value node */
     fprintf(f, "(REAL_NODE, %f)", r->value);
 }
 
-void print_char(FILE* f, Char_node* c) {
+void print_char(FILE* f, Char_node* c) { /* Prints a character node */
     fprintf(f, "(CHAR_NODE, %c)", c->value);
 }
 
-void print_str(FILE* f, String_node* s) {
+void print_str(FILE* f, String_node* s) { /* Prints a string node */
     fprintf(f, "(STR_NODE, %s)", s->value);
 }
 
 void print_var(FILE* f, Var_declaration_node* v);
 void print_func_call(FILE* f, Func_call_node* func);
 
-void print_node(FILE* f, Node* n) {
+void print_node(FILE* f, Node* n) { /* Prints the given node */
     switch (n->n_type) {
         case VAR_DECLARATION_NODE:
             print_var(f, (Var_declaration_node*) n);
@@ -80,7 +80,7 @@ void print_node(FILE* f, Node* n) {
     }
 }
 
-void print_var(FILE* f, Var_declaration_node* v) {
+void print_var(FILE* f, Var_declaration_node* v) { /* Prints a variable node */
     fprintf(f, "(VAR_NODE, %s, %s, ", v->type, v->name);
     if (v->value == NULL) {
         fprintf(f, "none");
@@ -90,7 +90,7 @@ void print_var(FILE* f, Var_declaration_node* v) {
     fprintf(f, ")");
 }
 
-void print_func_call(FILE* f, Func_call_node* func) {
+void print_func_call(FILE* f, Func_call_node* func) { /* Prints a function call node */
     fprintf(f, "(FUNC_CALL_NODE, %s, ", func->name);
     for (int i = 0; i < func->args_len; i++) {
         print_node(f, func->args[i]);
@@ -98,7 +98,7 @@ void print_func_call(FILE* f, Func_call_node* func) {
     fprintf(f, ")");
 }
 
-Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, char* name, Node* value) {
+Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, char* name, Node* value) { /* Initializes a variable declaration node */
 
     Var_declaration_node* var = malloc(sizeof(Var_declaration_node));
     memset(var, 0, sizeof(Var_declaration_node));
@@ -111,7 +111,7 @@ Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, c
     return var;
 }
 
-void free_Var_declaration_node(Var_declaration_node* n) {
+void free_Var_declaration_node(Var_declaration_node* n) { /* Frees a variable declaration node */
     if (n != NULL) {
         if (n->value != NULL) {
             free_node(n->value);
@@ -120,7 +120,7 @@ void free_Var_declaration_node(Var_declaration_node* n) {
     }
 }
 
-Func_call_node* new_Func_call_node(char* name, Node** args) {
+Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a function call node */
     Func_call_node* func = malloc(sizeof(Func_call_node));
     memset(func, 0, sizeof(Func_call_node));
     
@@ -146,7 +146,7 @@ Func_call_node* new_Func_call_node(char* name, Node** args) {
     return func;
 }
 
-void free_Func_call_node(Func_call_node* f) {
+void free_Func_call_node(Func_call_node* f) { /* Frees a variable declaration node */
     if (f != NULL) {
         for (int i = 0; i < f->args_len; i++) {
             free_node(f->args[i]);
@@ -156,7 +156,7 @@ void free_Func_call_node(Func_call_node* f) {
     }
 }
 
-Operator_node* new_Operator_node(char* oper, Node* left, Node* right) {
+Operator_node* new_Operator_node(char* oper, Node* left, Node* right) { /* Initializes an operator node */
     Operator_node* op = malloc(sizeof(Operator_node));
     memset(op, 0, sizeof(Operator_node));
 
@@ -167,13 +167,13 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right) {
     return op;
 }
 
-void free_Operator_node(Operator_node* n) {
+void free_Operator_node(Operator_node* n) { /* Frees an operator node */
     free_node(n->left);
     free_node(n->right);
     free(n);
 }
 
-Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type) {
+Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type) { /* Initializes an identifier node */
     Identifier_node* i = malloc(sizeof(Identifier_node));
     memset(i, 0, sizeof(Identifier_node));
     
@@ -184,11 +184,11 @@ Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type)
     return i;
 }
 
-void free_Identifier_node(Identifier_node* i) {
+void free_Identifier_node(Identifier_node* i) { /* Frees an identifier node */
     free(i);
 }
 
-Integer_node* new_Integer_node(int val) {
+Integer_node* new_Integer_node(int val) { /* Initializes an integer node */
     Integer_node* integer = malloc(sizeof(Integer_node));
     memset(integer, 0, sizeof(Integer_node));
 
@@ -197,11 +197,11 @@ Integer_node* new_Integer_node(int val) {
     return integer;
 }
 
-void free_Integer_node(Integer_node* n) {
+void free_Integer_node(Integer_node* n) { /* Frees an integer node */
     free(n);
 }
 
-Real_node* new_Real_node(double val) {
+Real_node* new_Real_node(double val) { /* Initializes a real value node */
     Real_node* real = malloc(sizeof(Real_node));
     memset(real, 0, sizeof(Real_node));
 
@@ -210,11 +210,11 @@ Real_node* new_Real_node(double val) {
     return real;
 }
 
-void free_Real_node(Real_node* n) {
+void free_Real_node(Real_node* n) { /* Frees a real value node */
     free(n);
 }
 
-Char_node* new_Char_node(char val) {
+Char_node* new_Char_node(char val) { /* Initializes a character node */
     Char_node* ch = malloc(sizeof(Char_node));
     memset(ch, 0, sizeof(Char_node));
 
@@ -223,11 +223,11 @@ Char_node* new_Char_node(char val) {
     return ch;
 }
 
-void free_Char_node(Char_node* c) {
+void free_Char_node(Char_node* c) { /* Frees a character node */
     free(c);
 }
 
-String_node* new_String_node(char* val) {
+String_node* new_String_node(char* val) { /* Initializes a string node */
     String_node* str = malloc(sizeof(String_node));
     memset(str, 0, sizeof(String_node));
 
@@ -236,11 +236,11 @@ String_node* new_String_node(char* val) {
     return str;
 }
 
-void free_String_node(String_node* n) {
+void free_String_node(String_node* n) { /* Frees a string node */
     free(n);
 }
 
-Block_node* new_Block_node(Node** statements, int ssize) {
+Block_node* new_Block_node(Node** statements, int ssize) { /* Initializes a block node */
     Block_node* block = malloc(sizeof(Block_node));
     memset(block, 0, sizeof(Block_node));
     block->statements = malloc(sizeof(Node*) * ssize);
@@ -257,7 +257,7 @@ Block_node* new_Block_node(Node** statements, int ssize) {
     return block;
 }
 
-void free_Block_node(Block_node* b) {
+void free_Block_node(Block_node* b) { /* Frees a block node */
     for (int i = 0; i < b->ssize; i++) {
         free_node(b->statements[i]);
     }
@@ -265,7 +265,7 @@ void free_Block_node(Block_node* b) {
     free(b);
 }
 
-void free_node(Node* n) {
+void free_node(Node* n) { /* Frees the given node */
     if (n == NULL) {
         return;
     }

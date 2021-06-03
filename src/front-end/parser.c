@@ -15,7 +15,7 @@ void compile(char* code, char* output, char* in, char* out, char* file_name);
 
 // begin helper functions
 
-void Error(int lineno, const char* line, int pos, const char* error, const char* value) {
+void Error(int lineno, const char* line, int pos, const char* error, const char* value) { /* Gives errors */
 	fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", lineno, error, line);
     for (int i = 0; i < pos; i++) {
         fprintf(stderr, " ");
@@ -31,13 +31,7 @@ void Error(int lineno, const char* line, int pos, const char* error, const char*
     exit(-1);
 }
 
-void repeat_char(char c, int n, char* string) {
-    for (int i = 0; i < n; i++) {
-        strncat(string, &c, 1);
-    }
-}
-
-int tokslen(Token* tokens) {
+int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     int len = 0;
     for (int i = 0; i < 1024; i++) {
         if (tokens[i].type < 200 || tokens[i].type > 236) {
@@ -48,7 +42,7 @@ int tokslen(Token* tokens) {
     return len;
 }
 
-void consume(TokenType type, char* err, char* buffer) {
+void consume(TokenType type, char* err, char* buffer) { /* Consumes a token and gives error if not right token */
     if (ind >= tokslen(tokens)) {
         Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err, tokens[ind - 1].value);
     }
@@ -59,7 +53,7 @@ void consume(TokenType type, char* err, char* buffer) {
     Error(tokens[ind - 1].lineno, tokens[ind - 1].line, tokens[ind - 1].col, err, tokens[ind - 1].value);
 }
 
-char* expect_type(TokenType type) {
+char* expect_type(TokenType type) { /* Expects a Token Type and if wrong type, return NULL */
     if (ind >= tokslen(tokens)) {
         return NULL;
     }
@@ -67,16 +61,6 @@ char* expect_type(TokenType type) {
         return tokens[ind++].value;
     }
     return NULL;
-}
-
-TokenType expect_value(char* val) {
-    if (ind >= tokslen(tokens)) {
-        return 0;
-    }
-    if (!strcmp(tokens[ind].value, val)) {
-        return tokens[ind++].type;
-    }
-    return 0;
 }
 
 // end helper functions
@@ -90,7 +74,7 @@ Node* factor(int start);
 
 Node* incomplete_function_call(int start);
 
-char* type(Node* n) {
+char* type(Node* n) { /* Returns the type of the given Node* */
     if (n == NULL) {
         return NULL;
     }
@@ -131,7 +115,7 @@ char* type(Node* n) {
     return NULL;
 }
 
-void check_type(int start, Node* left, Node* right, char* oper) {
+void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if expressions follow the type rules */
     if (*oper == '+') {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
@@ -321,7 +305,7 @@ Node* term(int start) {
 // end expressions parsing
 // begin statement parsing
 
-void func_expr_args(int start, Node** args, int* len) {
+void func_expr_args(int start, Node** args, int* len) { /* Puts caller arguments in the Node** args */
     ind = start;
     int arg_c = 0;
     int should_find = 0;
@@ -345,7 +329,7 @@ void func_expr_args(int start, Node** args, int* len) {
     *len = arg_c;
 }
 
-Node* incomplete_function_call(int start) {
+Node* incomplete_function_call(int start) { /* A function call with no semi-colon */
     ind = start;
     char* id = expect_type(T_ID);
     if (id == NULL) {
@@ -378,18 +362,20 @@ Node* incomplete_function_call(int start) {
     return (Node*) new_Func_call_node(id, args);
 }
 
-Node* incomplete_initializers(char* t) {
+Node* incomplete_initializers(char* t) { /* Returns the most low-level value for each type */
     if (strcmp(t, "int") == 0) {
         return (Node*) new_Integer_node(0);
     } else if (strcmp(t, "real") == 0) {
         return (Node*) new_Real_node(0.0);
+    } else if (strcmp(t, "char") == 0) {
+        return (Node*) new_Char_node(' ');
     } else if (strcmp(t, "string") == 0) {
         return (Node*) new_String_node("\\00");
     }
     return (Node*) new_Integer_node(0);
 }
 
-Node* incomplete_var_declaration(int start) {
+Node* incomplete_var_declaration(int start) { /* A variable declaration with no semi-colon */
     ind = start;
     char* type = expect_type(T_TYPE);
     if (type == NULL) {
@@ -423,7 +409,7 @@ Node* incomplete_var_declaration(int start) {
     return (Node*) new_Var_declaration_node(type, cgid, id, incomplete_initializers(type));
 }
 
-Node* function_call(int start) {
+Node* function_call(int start) { /* A function call with a semi-colon */
     ind = start;
     char* id = expect_type(T_ID);
     if (id == NULL) {
@@ -458,7 +444,7 @@ Node* function_call(int start) {
     return (Node*) new_Func_call_node(id, args);
 }
 
-Node* var_declaration(int start) {
+Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
     ind = start;
     char* var_type = expect_type(T_TYPE);
     if (var_type == NULL) {
@@ -500,7 +486,7 @@ Node* var_declaration(int start) {
 void program(Node** ast, int max_len);
 void parse(Token* toks, Node** program, Symbol** sym_t);
 
-Node* block_statement(int start) {
+Node* block_statement(int start) { /* A statement with multiple statements surrounded by curly braces inside it */
     ind = start;
     char* begin = expect_type(T_LEFT_BRACE);
     if (begin == NULL) {
@@ -542,7 +528,7 @@ Node* block_statement(int start) {
     }
 }
 
-Node* statement(int start) {
+Node* statement(int start) { /* Calls all possible statements */
     ind = start;
     Node* i_var = incomplete_var_declaration(start);
     if (i_var != NULL) {
@@ -567,7 +553,7 @@ Node* statement(int start) {
 
 // end statement parsing
 
-void program(Node** ast, int max_len) {
+void program(Node** ast, int max_len) { /* Continuously calls statement() */
     if (max_len == -1) {
         max_len = tokslen(tokens);
     }
@@ -583,7 +569,7 @@ void program(Node** ast, int max_len) {
     }
 }
 
-void parse(Token* toks, Node** ast, Symbol** sym_t) {
+void parse(Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
     symtab_init();
     symtab_add_symbol("none", "var", "none", 0, "none");
     symtab_add_symbol("none", "func", "write", 1, "write");

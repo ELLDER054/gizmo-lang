@@ -4,15 +4,17 @@
 #include "scanner.h"
 #include "parser.h"
 
-int isAlpha(char c) {
-    return (c >= 65 && c <= 90) || c == '_' || (c >= 97 && c <= 122);
+int isAlpha(char c) { /* Checks if the given character is a valid part of an identifier */
+    return (c >= 'a' && c <= 'z') || c == '_' || (c >= 'A' && c <= 'Z');
 }
 
-int isDigit(char c) {
-    return (c >= 48 && c <= 57);
+/* For both isAlpha() and isDigit(), we can compare variable 'c' to digits due to the fact that chars are digits */
+
+int isDigit(char c) { /* Checks if the given character is a valid digit */
+    return (c >= '0' && c <= '9');
 }
 
-int is_one_char_token(char c) {
+int is_one_char_token(char c) { /* Checks if the given character is a one-char-token */
     return (c == '(') || (c == ')') || (c == '[') || (c == ']') || (c == '{') || (c == '}') || (c == '.') || (c == ',') || (c == ':') || (c == ';');
 }
 
@@ -21,8 +23,8 @@ TODO:
 Make a new_token() function to initialize a token.
 */
 
-int one_char_tokens(char c) {
-    switch(c) {
+int one_char_tokens(char c) { /* Returns tokens based on given character */
+    switch(c) { /* Check if c is any of ()[]{}.,:; */
         case '(':
             return T_LEFT_PAREN;
         case ')':
@@ -47,15 +49,14 @@ int one_char_tokens(char c) {
     return 0;
 }
 
-char next(char* code, int pos) {
+char next(char* code, int pos) { /* Returns next character in code unless the next is past the length of code */
     if (pos + 1 >= sizeof(code)) {
         return ' ';
     }
     return code[pos + 1];
 }
 
-int operators(char ch, char nch) {
-    /* there's probably a better way to do this, but I haven't cared enough to think about it */
+int operators(char ch, char nch) { /* Returns operator token based on the current and next characters */
     /* plus operators */
     if (ch == '+' && nch == '+') {
         return T_PLUS_PLUS;
@@ -95,7 +96,7 @@ int operators(char ch, char nch) {
     }
 }
 
-int in_operators(char c) {
+int in_operators(char c) { /* Checks if variable `c` is an operator */
     return (c == '+') || (c == '-') || (c == '*') || (c == '/');
 }
 
@@ -125,17 +126,12 @@ int split(const char *txt, char delim, char ***tokens) {
     return count;
 }
 
-void repeat_c(char c, int n, char* string) {
-    for (int i = 0; i < n; i++) {
-        strncat(string, &c, 1);
-    }
-}
-
 void scan(char* code, Token* tokens) {
     int lineno = 1;
     char** lines;
-    int count, i;
-    count = split (code, '\n', &lines);
+    int count;
+    int i;
+    count = split(code, '\n', &lines);
     int pos = 0;
     int token_count = 0;
     int col = 0;
@@ -153,9 +149,9 @@ void scan(char* code, Token* tokens) {
             }
 
             Token tok;
-            if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "char") == 0 || strcmp(name, "real") == 0) {
+            if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "char") == 0 || strcmp(name, "real") == 0) { /* Is a type */
                 tok.type = T_TYPE;
-            } else {
+            } else { /* Is an identifier */
                 tok.type = T_ID;
             }
             tok.lineno = lineno;
