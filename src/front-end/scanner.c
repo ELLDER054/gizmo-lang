@@ -18,11 +18,6 @@ int is_one_char_token(char c) { /* Checks if the given character is a one-char-t
     return (c == '(') || (c == ')') || (c == '[') || (c == ']') || (c == '{') || (c == '}') || (c == '.') || (c == ',') || (c == ':') || (c == ';');
 }
 
-/*
-TODO:
-Make a new_token() function to initialize a token.
-*/
-
 int one_char_tokens(char c) { /* Returns tokens based on given character */
     switch(c) { /* Check if c is any of ()[]{}.,:; */
         case '(':
@@ -179,7 +174,13 @@ void scan(char* code, Token* tokens) {
                     col++;
                 }
                 if (ch == '.') {
-                    Error(lineno, lines[lineno - 1], col, "Too many dots in floating point number");
+                    Token fake_tok;
+                    fake_tok.type = T_INT;
+                    strcpy(fake_tok.value, " ");
+                    fake_tok.lineno = lineno;
+                    strcpy(fake_tok.line, lines[lineno - 1]);
+                    fake_tok.col = col;
+                    Error(fake_tok, "Too many dots in floating point number", 0);
                 } else {
                     tok_type = T_REAL;
                 }
@@ -207,7 +208,13 @@ void scan(char* code, Token* tokens) {
             ch = code[pos];
             while (1) {
                 if (ch == '\0') {
-                    Error(lineno, lines[lineno - 1], col, "Expected end of comment");
+                    Token fake_tok;
+                    fake_tok.type = T_INT;
+                    strcpy(fake_tok.value, " ");
+                    fake_tok.lineno = lineno;
+                    strcpy(fake_tok.line, lines[lineno - 1]);
+                    fake_tok.col = col;
+                    Error(fake_tok, "Expected end of comment", 0);
                 } else if (ch == '*' && next(code, pos) == '/') {
                     break;
                 }
@@ -268,7 +275,13 @@ void scan(char* code, Token* tokens) {
             ch = code[++pos];
             while (ch != delim) {
                 if (ch == '\n' || ch == '\0') {
-                    Error(lineno, lines[lineno - 1], col, "Expected end of string");
+                    Token fake_tok;
+                    fake_tok.type = T_INT;
+                    strcpy(fake_tok.value, " ");
+                    fake_tok.lineno = lineno;
+                    strcpy(fake_tok.line, lines[lineno - 1]);
+                    fake_tok.col = col;
+                    Error(fake_tok, "Expected end of string", 0);
                 }
                 strncat(string, &ch, 1);
                 ch = code[++pos];
@@ -296,10 +309,16 @@ void scan(char* code, Token* tokens) {
             col = 0;
             lineno++;
         } else {
-            char* error = malloc(25);
-            memset(error, 0, 25);
-            snprintf(error, 25, "Unexpected character `%c`", ch);
-            Error(lineno, lines[lineno - 1], col, error);
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Unexpected character `%c`", ch);
+            Token fake_tok;
+            fake_tok.type = T_INT;
+            strcpy(fake_tok.value, " ");
+            fake_tok.lineno = lineno;
+            strcpy(fake_tok.line, lines[lineno - 1]);
+            fake_tok.col = col;
+            Error(fake_tok, error, 0);
         }
     }
 

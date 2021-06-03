@@ -1,4 +1,4 @@
-#!/usr/bin/bash
+#!/usr/bin/bash -e
 
 if [ "$#" -ne 2 ]; then
     echo "./build.sh <source.gizmo> <native.elf>"
@@ -16,16 +16,18 @@ clang -rdynamic -o gizmoc -O1 -g -fsanitize=address -fno-omit-frame-pointer -Isr
 chmod +x gizmoc
 
 # run gizmo against the supplied gizmo source file, and generate LLVM IR output file gizmo_llvm_ir.ll
-if ! ./gizmoc $1 gizmo_llvm_ir.ll; then 
-    exit -1
-fi
+./gizmoc $1 gizmo_llvm_ir.ll
+
+#if ! ./gizmoc $1 gizmo_llvm_ir.ll; then 
+#    exit -1
+#fi
 
 # compile the gizmo_llvm_ir.ll file to native x86 assembly file native.s
 llc --relocation-model=pic -o native.s gizmo_llvm_ir.ll
 
 if [ $? -ne 0 ]; then
     echo "Compiler failed to generate llvm ir code"
-    exit -1;
+    exit -1
 fi
 
 # assemble and link the native x86 assembly to create a native executable
