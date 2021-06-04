@@ -39,7 +39,8 @@ Then, go see the [documentation](http//www.gizmolang.org/docs.html) or the [wiki
 Some of the "weird" errors that you might get include:  
 1.
   ```
-  gizmo: This feature (number) is either not yet implemented in the back-end or there is an internal compiler error.
+  gizmo: This feature (number) is either not yet implemented in the back-end
+  or there is an internal compiler error.
   Please report this error, along with the number in the parenthesis, to the developers at gizmo@gizmolang.org
   ```
 2.
