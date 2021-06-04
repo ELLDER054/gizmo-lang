@@ -19,6 +19,8 @@ char* types(char* t) {
         return "i32";
     } else if (strcmp(t, "real") == 0) {
         return "double";
+    } else if (strcmp(t, "none") == 0) {
+        return "void";
     }
     return "";
 }
@@ -301,6 +303,24 @@ void generate_statement(Node* n, char* code) {
             for (int i = 0; i < ((Block_node*) n)->ssize; i++) {
                 generate_statement(((Block_node*) n)->statements[i], code);
             }
+        } else if (n->n_type == FUNC_CALL_NODE) {
+            char* call = malloc(100);
+            memset(call, 0, 100);
+            snprintf(call, 100, "call %s @%s()\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name);
+            strcat(code, call);
+            free(call);
+        } else if (n->n_type == FUNC_DECL_NODE) {
+            char* mini_code = malloc(1024);
+            memset(mini_code, 0, 1024);
+            char* begin = malloc(100);
+            memset(begin, 0, 100);
+            snprintf(begin, 100, "define %s @%s() {\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name);
+            strcat(mini_code, begin);
+            generate_statement(((Func_decl_node*) n)->body, mini_code);
+            strcat(mini_code, "\tret void\n}\n");
+            insert(code, 0, strlen(code), mini_code);
+            free(mini_code);
+            free(begin);
         } else {
             fprintf(stderr, "gizmo: This feature (%d) is either not yet implemented in the back-end or there is an internal compiler error\nPlease report this error, along with the number in the parenthesis, to the developers at gizmo@gizmolang.org\n", n->n_type);
             exit(-1);
@@ -308,7 +328,7 @@ void generate_statement(Node* n, char* code) {
 }
 
 void generate(Node** ast, int size, char* code, char* file_name) {
-    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
+    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine double @div_int(i32 %a, i32 %b) {\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -322,4 +342,5 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     insert(code, 0, strlen(code), module_id);
     strcat(code, "\tret i32 0\n}\n\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
+    symtab_destroy();
 }

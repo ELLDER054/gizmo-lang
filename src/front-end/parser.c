@@ -562,6 +562,7 @@ Node* function_declaration(int start) {
         fprintf(stderr, "Expected body");
         return NULL;
     }
+    symtab_add_symbol(func_type, "func", id, 0, id);
     return (Node*) new_Func_decl_node(id, func_type, NULL, 0, body);
 }
 
@@ -619,6 +620,5 @@ void parse(Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
         tokens[i] = toks[i];
     }
     program(ast, -1);
-    symtab_destroy();
     return;
 }
