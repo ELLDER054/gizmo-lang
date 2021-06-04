@@ -301,6 +301,9 @@ void generate_statement(Node* n, char* code) {
             for (int i = 0; i < ((Block_node*) n)->ssize; i++) {
                 generate_statement(((Block_node*) n)->statements[i], code);
             }
+        } else {
+            fprintf(stderr, "gizmo: This feature is either not yet implemented in the back-end or there is an internal compiler error\n");
+            exit(-1);
         }
 }
 

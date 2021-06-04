@@ -115,7 +115,8 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
-           return symtab_find_global(((Func_call_node*) n)->name, "func")->type; 
+           return symtab_find_global(((Func_call_node*) n)->name, "func")->type;
+        case FUNC_DECL_NODE:
         case NODE_NODE:
             break;
     }
@@ -462,14 +463,17 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     if (id == NULL) {
        Error(tokens[ind], "Expected identifier after type", 0);
     }
-    char b[MAX_NAME_LEN];
-    consume(T_ASSIGN, "Expected assignment operator, opening parenthesis or semi-colon after type and identifier\n", b);
+    char* eq = expect_type(T_ASSIGN);
+    if (eq == NULL) {
+        ind = start;
+        return NULL;
+    }
     Node* expr = expression(ind);
     if (expr == NULL) {
         Error(tokens[ind], "Expected expression after assignment operator", 0);
     }
-    char b2[MAX_NAME_LEN];
-    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b2);
+    char b[MAX_NAME_LEN];
+    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
     if (symtab_find_local(id, "var") != NULL) {
         char* error = malloc(100);
         memset(error, 0, 100);
@@ -535,6 +539,34 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
     }
 }
 
+Node* statement(int start);
+
+Node* function_declaration(int start) {
+    ind = start;
+    char* func_type = expect_type(T_TYPE);
+    if (func_type == NULL) {
+        ind = start;
+        return NULL;
+    }
+    char* id = expect_type(T_ID);
+    if (id == NULL) {
+        ind = start; /* TODO: ERROR */
+        fprintf(stderr, "Expected identifier after type");
+        return NULL;
+    }
+    char b[100];
+    consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id", b);
+    char b2[100];
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments", b2);
+    Node* body = statement(ind);
+    if (body == NULL) {
+        ind = start;
+        fprintf(stderr, "Expected body");
+        return NULL;
+    }
+    return (Node*) new_Func_decl_node(id, func_type, NULL, 0, body);
+}
+
 Node* statement(int start) { /* Calls all possible statements */
     ind = start;
     Node* i_var = incomplete_var_declaration(start);
@@ -553,6 +585,10 @@ Node* statement(int start) { /* Calls all possible statements */
     if (block != NULL) {
         log_trace("found block statement\n");
         return block;
+    }
+    Node* func_decl = function_declaration(start);
+    if (func_decl != NULL) {
+        return func_decl;
     }
     ind = start;
     return NULL;

@@ -5,6 +5,10 @@
 
 void print_node(FILE* f, Node* n);
 
+void print_func_decl(FILE* f, Func_decl_node* func) {
+    fprintf(f, "(FUNC_DECL, %s, %s)", func->name, func->type);
+}
+
 void print_oper(FILE* f, Operator_node* n) { /* Prints an operator node */
     fprintf(f, "(OPER_NODE, %s, ", n->oper);
     print_node(f, n->left);
@@ -75,6 +79,8 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case WRITE_NODE:
             print_func_call(f, (Func_call_node*) n);
             break;
+        case FUNC_DECL_NODE:
+            print_func_decl(f, (Func_decl_node*) n);
         case NODE_NODE:
             break;
     }
@@ -240,6 +246,31 @@ void free_String_node(String_node* n) { /* Frees a string node */
     free(n);
 }
 
+Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args_len, Node* body) {
+    Func_decl_node* func = malloc(sizeof(Func_decl_node));
+    memset(func, 0, sizeof(Func_decl_node));
+
+    func->n_type = FUNC_DECL_NODE;
+    func->body = body;
+    strcpy(func->name, name);
+    strcpy(func->type, type);
+    func->args_len = args_len;
+    func->args = malloc(sizeof(Node) * args_len);
+    for (int i = 0; i < args_len; i++) {
+        func->args[i] = args[i];
+    }
+    return func;
+}
+
+void free_Func_decl_node(Func_decl_node* f) {
+    for (int i = 0; i < f->args_len; i++) {
+        free_node(f->args[i]);
+    }
+    free(f->args);
+    free_node(f->body);
+    free(f);
+}
+
 Block_node* new_Block_node(Node** statements, int ssize) { /* Initializes a block node */
     Block_node* block = malloc(sizeof(Block_node));
     memset(block, 0, sizeof(Block_node));
@@ -298,6 +329,9 @@ void free_node(Node* n) { /* Frees the given node */
         case READ_NODE:
         case WRITE_NODE:
             free_Func_call_node((Func_call_node*) n);
+            break;
+        case FUNC_DECL_NODE:
+            free_Func_decl_node((Func_decl_node*) n);
             break;
         case NODE_NODE:
             break;

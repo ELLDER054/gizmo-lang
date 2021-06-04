@@ -22,6 +22,7 @@ typedef enum {
     READ_NODE,
     NODE_NODE,
     FUNC_CALL_NODE,
+    FUNC_DECL_NODE,
 } NodeType;
 
 typedef struct {
@@ -84,6 +85,15 @@ typedef struct {
     int ssize;
 } Block_node;
 
+typedef struct {
+    NodeType n_type;
+    Node** args;
+    Node* body;
+    int args_len;
+    char type[MAX_TYPE_LEN];
+    char name[MAX_NAME_LEN];
+} Func_decl_node;
+
 void free_node(Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
@@ -93,6 +103,7 @@ Char_node* new_Char_node(char val);
 Real_node* new_Real_node(double val);
 Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type);
 Func_call_node* new_Func_call_node(char* name, Node** args);
+Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args_len, Node* body);
 Block_node* new_Block_node(Node** statements, int ssize);
 
 #endif

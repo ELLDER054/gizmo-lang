@@ -56,7 +56,7 @@ int main(int argc, char** argv) {
 
     FILE* input_f = fopen(argv[1], "r");
     if (input_f == NULL) {
-        fprintf(stderr, "failed to open input file");
+        fprintf(stderr, "gizmo: Failed to open input file\n");
         return -1;
     }
     fread(code, 1, sizeof(code), input_f);
@@ -64,7 +64,7 @@ int main(int argc, char** argv) {
 
     FILE* output_f = fopen(argv[2], "w");
     if (output_f == NULL) {
-        fprintf(stderr, "failed to open output file");
+        fprintf(stderr, "gizmo: Failed to open output file\n");
     }
     char output[2047];
     memset(output, 0, sizeof(output));
