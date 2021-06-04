@@ -7,7 +7,8 @@
 #include "symbols.h"
 
 int id_c = 0;
-
+char* function_type;
+int in_function = 0;
 int ind = 0;
 Token tokens[1024];
 
@@ -115,6 +116,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case WRITE_NODE:
            return symtab_find_global(((Func_call_node*) n)->name, "func")->type;
         case FUNC_DECL_NODE:
+        case RET_NODE:
         case NODE_NODE:
             break;
     }
@@ -518,7 +520,6 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
         }
         block_tokens[i++] = tokens[count];
     }
-    printf("ind %d tokslen %d", ind, tokslen(tokens));
     symtab_push_context();
     program(statements, count);
     symtab_pop_context();
@@ -527,9 +528,12 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
         if (statements[size] == NULL) {
             break;
         }
+        //print_node(stdout, statements[size]);
     }
+    ind++;
     log_trace("size is: %d\n", size);
     if (found_end) {
+        log_trace("ind %d\n", ind);
         return (Node*) new_Block_node(statements, size);
     } else {
         Error(tokens[ind - 1], "Expected closing brace", 1);
@@ -538,6 +542,28 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
 }
 
 Node* statement(int start);
+
+Node* return_statement(int start) {
+    ind = start;
+    char* key = expect_type(T_RETURN);
+    if (key == NULL) {
+        ind = start;
+        return NULL;
+    }
+    Node* expr = expression(ind);
+    if (expr == NULL) {
+        expr = (Node*) new_Identifier_node("none", "none", "none");
+    }
+    if (strcmp(function_type, type(expr)) != 0) {
+        Error(tokens[start + 1], "The return type of function is different from the type given in the return expression", 0);
+    }
+    char b[100];
+    consume(T_SEMI_COLON, "Expected semi-colon to terminate return statement", b);
+    if (!in_function) {
+        Error(tokens[start + 1], "Can't have return statement outside of function", 0);
+    }
+    return (Node*) new_Return_node(expr);
+}
 
 Node* function_declaration(int start) {
     ind = start;
@@ -556,7 +582,10 @@ Node* function_declaration(int start) {
     consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id", b);
     char b2[100];
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments", b2);
+    in_function = 1;
+    strcpy(function_type, func_type);
     Node* body = statement(ind);
+    in_function = 0;
     if (body == NULL) {
         ind = start;
         fprintf(stderr, "Expected body");
@@ -570,14 +599,17 @@ Node* statement(int start) { /* Calls all possible statements */
     ind = start;
     Node* i_var = incomplete_var_declaration(start);
     if (i_var != NULL) {
+        log_trace("found incomplete var decl\n");
         return i_var;
     }
     Node* var = var_declaration(start);
     if (var != NULL) {
+        log_trace("found var decl\n");
         return var;
     }
     Node* func = function_call(start);
     if (func != NULL) {
+        log_trace("found function call\n");
         return func;
     }
     Node* block = block_statement(start);
@@ -588,6 +620,10 @@ Node* statement(int start) { /* Calls all possible statements */
     Node* func_decl = function_declaration(start);
     if (func_decl != NULL) {
         return func_decl;
+    }
+    Node* ret = return_statement(start);
+    if (ret != NULL) {
+        return ret;
     }
     ind = start;
     return NULL;
@@ -613,6 +649,8 @@ void program(Node** ast, int max_len) { /* Continuously calls statement() */
 
 void parse(Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
     symtab_init();
+    function_type = malloc(MAX_TYPE_LEN);
+    memset(function_type, 0, MAX_TYPE_LEN);
     symtab_add_symbol("none", "var", "none", 0, "none");
     symtab_add_symbol("none", "func", "write", 1, "write");
     symtab_add_symbol("string", "func", "read", 0, "read");

@@ -12,6 +12,7 @@ typedef enum {
 
     // Identifiers
     T_ID,
+    T_RETURN,
     T_KEY,
     T_TYPE,
     T_BUILTIN,

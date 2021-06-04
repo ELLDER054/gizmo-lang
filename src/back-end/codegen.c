@@ -9,16 +9,30 @@
 
 #define MAX_BUF_LEN 2048
 
+char* current_function_return_type;
 int var_c = 0;
+int save_var_c = 0;
 int str_c = 1;
 char* type(Node* n);
 int previous_str_is_ptr = 0;
+
+void enter_function() {
+    save_var_c = var_c;
+    var_c = 0;
+}
+
+void leave_function() {
+    var_c = save_var_c;
+    save_var_c = 0;
+}
 
 char* types(char* t) {
     if (strcmp(t, "int") == 0) {
         return "i32";
     } else if (strcmp(t, "real") == 0) {
         return "double";
+    } else if (strcmp(t, "string")) {
+        return "i8*";
     } else if (strcmp(t, "none") == 0) {
         return "void";
     }
@@ -182,7 +196,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, func_call_name);
         strcat(c, " = call ");
         strcat(c, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type));
-		strcat(c, " ");
+		strcat(c, " @");
         strcat(c, ((Func_call_node*) n)->name);
         strcat(c, "(");
         for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
@@ -314,13 +328,28 @@ void generate_statement(Node* n, char* code) {
             memset(mini_code, 0, 1024);
             char* begin = malloc(100);
             memset(begin, 0, 100);
-            snprintf(begin, 100, "define %s @%s() {\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name);
+            log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type));
+            snprintf(begin, 100, "define %s @%s() {\nentry:\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name);
             strcat(mini_code, begin);
+            strcpy(current_function_return_type, ((Func_decl_node*) n)->type);
+            enter_function();
             generate_statement(((Func_decl_node*) n)->body, mini_code);
-            strcat(mini_code, "\tret void\n}\n");
+            leave_function();
+            strcpy(current_function_return_type, "");
+            if (strcmp(types(((Func_decl_node*) n)->type), "void") == 0) {
+                strcat(mini_code, "\tret void\n");
+            }
+            strcat(mini_code, "}\n");
             insert(code, 0, strlen(code), mini_code);
             free(mini_code);
             free(begin);
+        } else if (n->n_type == RET_NODE) {
+            char* end_len = malloc(100);
+            char* ret_name = generate_expression_asm(((Return_node*) n)->expr, types(current_function_return_type), code, end_len);
+            strcat(code, "ret ");
+            strcat(code, types(current_function_return_type));
+            strcat(code, " ");
+            strcat(code, ret_name);
         } else {
             fprintf(stderr, "gizmo: This feature (%d) is either not yet implemented in the back-end or there is an internal compiler error\nPlease report this error, along with the number in the parenthesis, to the developers at gizmo@gizmolang.org\n", n->n_type);
             exit(-1);
@@ -328,7 +357,9 @@ void generate_statement(Node* n, char* code) {
 }
 
 void generate(Node** ast, int size, char* code, char* file_name) {
-    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine double @div_int(i32 %a, i32 %b) {\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\n");
+    current_function_return_type = malloc(100);
+    memset(current_function_return_type, 0, 100);
+    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
