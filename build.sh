@@ -26,7 +26,7 @@ chmod +x gizmoc
 llc --relocation-model=pic -o native.s gizmo_llvm_ir.ll
 
 if [ $? -ne 0 ]; then
-    echo "Compiler failed to generate llvm ir code"
+    echo "gizmo: Compiler failed to generate llvm ir code"
     exit -1
 fi
 
