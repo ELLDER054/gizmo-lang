@@ -95,6 +95,7 @@ typedef struct {
 } Func_decl_node;
 
 void free_node(Node* n);
+void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);

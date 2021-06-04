@@ -10,8 +10,6 @@ int id_c = 0;
 
 int ind = 0;
 Token tokens[1024];
-void print_node(FILE* f, Node* n);
-void compile(char* code, char* output, char* in, char* out, char* file_name);
 
 // begin helper functions
 

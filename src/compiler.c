@@ -2,16 +2,11 @@
 #include <string.h>
 #include <stdlib.h>
 #include "front-end/scanner.h"
+#include "front-end/symbols.h"
+#include "front-end/parser.h"
 #include "front-end/ast.h"
 #include "back-end/codegen.h"
 #include "common/include/log.h"
-
-typedef struct Symbol Symbol;
-void scan(char* code, Token* buf_toks);
-void parse(Token* tokens, Node** program, Symbol** symbol_table);
-void print_node(FILE* f, Node* n);
-void free_node(Node* n);
-void generate(Node** ast, int length, char* code, char* file_name);
 
 void compile(char* code, char* out, char* file_name) {
     Token tokens[1024];

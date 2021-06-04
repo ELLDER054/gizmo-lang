@@ -58,4 +58,6 @@ typedef struct {
     int lineno;
 } Token;
 
+void scan(char* code, Token* tokens);
+
 #endif /* SCANNER_H */
