@@ -14,7 +14,7 @@ Token tokens[1024];
 // begin helper functions
 
 void Error(Token token, const char* error, const int after) { /* Gives errors */
-	fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", token.lineno, error, token.line);
+    fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", token.lineno, error, token.line);
     int col = after ? token.col + 1 : token.col;
     for (int i = 0; i < col; i++) {
         fprintf(stderr, " ");
@@ -27,7 +27,7 @@ void Error(Token token, const char* error, const int after) { /* Gives errors */
         fprintf(stderr, "\x1b[32;1m^\x1b[0m");
     }
     if (strlen(token.value) > 1 && !after) {
-        for (int i = 1; i < strlen(token.value); i++) {
+        for (int i = 1; i < strlen(token.value) - 1; i++) {
             fprintf(stderr, "\x1b[32;1m^\x1b[0m");
         }
         fprintf(stderr, "\x1b[32;1m^\x1b[0m");
