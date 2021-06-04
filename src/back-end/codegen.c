@@ -302,7 +302,7 @@ void generate_statement(Node* n, char* code) {
                 generate_statement(((Block_node*) n)->statements[i], code);
             }
         } else {
-            fprintf(stderr, "gizmo: This feature is either not yet implemented in the back-end or there is an internal compiler error\n");
+            fprintf(stderr, "gizmo: This feature (%d) is either not yet implemented in the back-end or there is an internal compiler error\nPlease report his error, along with the number in the parenthesis, to the devlopers at gizmo@gizmolang.org", n->n_type);
             exit(-1);
         }
 }
