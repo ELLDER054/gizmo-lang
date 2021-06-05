@@ -31,7 +31,9 @@ char* types(char* t) {
         return "i32";
     } else if (strcmp(t, "real") == 0) {
         return "double";
-    } else if (strcmp(t, "string")) {
+    } else if (strcmp(t, "char") == 0) {
+        return "i32";
+    } else if (strcmp(t, "string") == 0) {
         return "i8*";
     } else if (strcmp(t, "none") == 0) {
         return "void";

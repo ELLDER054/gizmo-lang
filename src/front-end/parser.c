@@ -88,7 +88,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case OPERATOR_NODE:
             if (((Operator_node*) n)->left->n_type == INTEGER_NODE && ((Operator_node*) n)->right->n_type == INTEGER_NODE && *((Operator_node*) n)->oper == '/') {
                 if (((Integer_node*)((Operator_node*) n)->right)->value == 0) {
-                    printf("can't divide by zero!\n");
+                    fprintf(stderr, "Can't divide by zero!\n");
                     exit(1);
                 }
                 if (((Integer_node*) ((Operator_node*) n)->left)->value % ((Integer_node*) ((Operator_node*) n)->right)->value == 0) {
@@ -511,7 +511,7 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
     memset(block_tokens, 0, sizeof(block_tokens));
     int count = 0;
     int i = 0;
-    printf("ind %d tokslen %d", ind, tokslen(tokens));
+    log_trace("ind %d tokslen %d\n", ind, tokslen(tokens));
     for (count = ind; count < tokslen(tokens); count++) {
         if (tokens[count].type == T_RIGHT_BRACE) {
             count++;
