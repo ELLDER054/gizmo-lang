@@ -45,7 +45,7 @@ int one_char_tokens(char c) { /* Returns tokens based on given character */
 }
 
 char next(char* code, int pos) { /* Returns next character in code unless the next is past the length of code */
-    if (pos + 1 >= sizeof(code)) {
+    if (pos + 1 >= strlen(code)) {
         return ' ';
     }
     return code[pos + 1];
