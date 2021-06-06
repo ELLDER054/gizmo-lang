@@ -348,10 +348,11 @@ void generate_statement(Node* n, char* code) {
         } else if (n->n_type == RET_NODE) {
             char* end_len = malloc(100);
             char* ret_name = generate_expression_asm(((Return_node*) n)->expr, types(current_function_return_type), code, end_len);
-            strcat(code, "ret ");
+            strcat(code, "\tret ");
             strcat(code, types(current_function_return_type));
             strcat(code, " ");
             strcat(code, ret_name);
+            strcat(code, "\n");
         } else {
             fprintf(stderr, "gizmo: This feature (%d) is either not yet implemented in the back-end or there is an internal compiler error\nPlease report this error, along with the number in the parenthesis, to the developers at gizmo@gizmolang.org\n", n->n_type);
             exit(-1);

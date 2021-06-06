@@ -596,47 +596,34 @@ Node* function_declaration(int start) {
     return (Node*) new_Func_decl_node(id, func_type, NULL, 0, body);
 }
 
-void check_for_unreachable_stmt(int index) {
-    if (has_returned_in_definite_scope) {
-        Error(tokens[index], "This statement is not reachable", 0);
-    }
-}
-
 Node* statement(int start) { /* Calls all possible statements */
     ind = start;
     Node* i_var = incomplete_var_declaration(start);
     if (i_var != NULL) {
-        check_for_unreachable_stmt(start);
         log_trace("found incomplete var decl\n");
         return i_var;
     }
     Node* var = var_declaration(start);
     if (var != NULL) {
-        check_for_unreachable_stmt(start);
         log_trace("found var decl\n");
         return var;
     }
     Node* func = function_call(start);
     if (func != NULL) {
-        check_for_unreachable_stmt(start);
         log_trace("found function call\n");
         return func;
     }
     Node* block = block_statement(start);
     if (block != NULL) {
-        check_for_unreachable_stmt(start);
         log_trace("found block statement\n");
         return block;
     }
     Node* func_decl = function_declaration(start);
     if (func_decl != NULL) {
-        check_for_unreachable_stmt(start);
         return func_decl;
     }
     Node* ret = return_statement(start);
     if (ret != NULL) {
-        check_for_unreachable_stmt(start);
-        has_returned_in_definite_scope = 1;
         return ret;
     }
     ind = start;
