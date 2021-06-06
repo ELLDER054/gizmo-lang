@@ -598,7 +598,7 @@ Node* function_declaration(int start) {
 
 void check_for_unreachable_stmt(int index) {
     if (has_returned_in_definite_scope) {
-        Error(tokens[index], "This statement is not reachable", 0);
+        Error(tokens[index], "This statement is unreachable", 0);
     }
 }
 
