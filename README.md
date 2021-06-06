@@ -1,21 +1,11 @@
 **Gizmo** is a fast and user friendly programming language for parsing and manipulating strings.  
 Gizmo code looks like this:  
 ```cpp
-class Bird() {
-  none init() {
-    string this.state = "";
-  }
-  
-  none flyTo(string state) {
-    this.state = state;
-    write("Flying to " + state);
-  }
+int add(int a, int b) {
+  return a + b;
 }
-Bird bird = init Bird();
-bird.flyTo("Virginia");
-write(bird.state) \ Virginia
-bird.flyTo("Oregon");
-write(bird.state) \ Oregon
+int x = 0;
+write(add(x, 6));
 ```
 
 See the [main website](http://www.gizmolang.org) to learn more!

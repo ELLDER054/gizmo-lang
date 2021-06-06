@@ -596,6 +596,15 @@ Node* function_declaration(int start) {
     return (Node*) new_Func_decl_node(id, func_type, NULL, 0, body);
 }
 
+<<<<<<< HEAD
+=======
+void check_for_unreachable_stmt(int index) {
+    if (has_returned_in_definite_scope) {
+        Error(tokens[index], "This statement is unreachable", 0);
+    }
+}
+
+>>>>>>> 9675c9794e9704d59106118d9f521c1c7f178f57
 Node* statement(int start) { /* Calls all possible statements */
     ind = start;
     Node* i_var = incomplete_var_declaration(start);
