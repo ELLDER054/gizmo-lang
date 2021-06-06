@@ -1,0 +1,11 @@
+int add(int a, int b) {
+  return a + b;
+}
+
+write(add(5, 5) + add(10, 10)); \ 30
+
+string add_str(string a, string b) {
+  return a + b;
+}
+
+write(add_str("Hello, ", "World!")); \ Hello, World!
