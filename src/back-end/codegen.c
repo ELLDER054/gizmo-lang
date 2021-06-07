@@ -120,15 +120,15 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "\n");
         return int_name;
     } else if (n->n_type == ID_NODE) {
-        char* id_name = heap_alloc(100);
+        char* id_name = heap_alloc(105);
         if (strcmp(expr_type, "string") == 0) {
             snprintf(id_name, 100, "%%%d", var_c++);
-            char* id_code = heap_alloc(100);
-            snprintf(id_code, 100, "\t%s = alloca i8*, align 8\n\tstore i8* %%%s, i8** %s", id_name, ((Identifier_node*) n)->codegen_name, id_name);
+            char* id_code = heap_alloc(164);
+            snprintf(id_code, 164, "\t%s = alloca i8*, align 8\n\tstore i8* %%%s, i8** %s", id_name, ((Identifier_node*) n)->codegen_name, id_name);
             strcat(c, id_code);
             previous_str_is_ptr = 1;
         } else {
-            snprintf(id_name, 100, "%%%s", ((Identifier_node*) n)->codegen_name);
+            snprintf(id_name, 105, "%%%s", ((Identifier_node*) n)->codegen_name);
         }
         return id_name;
     } else if (n->n_type == CHAR_NODE) {
@@ -235,7 +235,6 @@ void generate_statement(Node* n, char* code) {
             char* var_name = generate_expression_asm(v->value, types(v->type), code, var_buf);
             if (strcmp(v->type, "int") == 0) {
                 strcat(code, "\t%");
-                printf("CODEGEN_NAME is: %s\n", v->codegen_name);
                 strcat(code, v->codegen_name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
@@ -310,18 +309,18 @@ void generate_statement(Node* n, char* code) {
                 generate_statement(((Block_node*) n)->statements[i], code);
             }
         } else if (n->n_type == FUNC_CALL_NODE) {
-            char* call = malloc(100);
-            memset(call, 0, 100);
-            snprintf(call, 100, "call %s @%s()\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name);
+            char* call = malloc(195);
+            memset(call, 0, 195);
+            snprintf(call, 195, "call %s @%s()\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name);
             strcat(code, call);
             free(call);
         } else if (n->n_type == FUNC_DECL_NODE) {
             char* mini_code = malloc(1024);
             memset(mini_code, 0, 1024);
-            char* begin = malloc(100);
-            memset(begin, 0, 100);
+            char* begin = malloc(195);
+            memset(begin, 0, 195);
             log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type));
-            snprintf(begin, 100, "define %s @%s() {\nentry:\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name);
+            snprintf(begin, 195, "define %s @%s() {\nentry:\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name);
             strcat(mini_code, begin);
             strcpy(current_function_return_type, ((Func_decl_node*) n)->type);
             enter_function();
