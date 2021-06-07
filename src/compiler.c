@@ -40,14 +40,13 @@ void compile(char* code, char* out, char* file_name) {
 }
 
 void parse_command_line_args(int argc, char** argv) {
-    if (argc < 1) {
+    if (argc < 2) {
         fprintf(stderr, "gizmo: Expected at least an input file\n");
         exit(-1);
-    } else {
-        in_file = fopen(argv[1], "r");
     }
+    int has_found_in_file = 0;
 
-    for (int i = 2; i < argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
             out_file = fopen(argv[++i], "w");
             if (out_file == NULL) {
@@ -56,6 +55,9 @@ void parse_command_line_args(int argc, char** argv) {
         } else if (strcmp(argv[i], "-d") == 0) {
             log_set_level(LOG_TRACE);
             log_set_quiet(0);
+        } else if (argv[i][0] != '-' && !has_found_in_file) {
+            in_file = fopen(argv[i], "r");
+            has_found_in_file = 1;
         }
     }
 }
