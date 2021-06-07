@@ -8,6 +8,8 @@
 #include "back-end/codegen.h"
 #include "common/include/log.h"
 
+#define GIZMO_VERSION "0.1.0"
+
 FILE* in_file = NULL;
 FILE* out_file = NULL;
 
@@ -47,17 +49,29 @@ void parse_command_line_args(int argc, char** argv) {
     int has_found_in_file = 0;
 
     for (int i = 1; i < argc; i++) {
-        if (strcmp(argv[i], "-o") == 0 && i + 1 < argc) {
+        if (strcmp(argv[i], "-o") == 0) {
+            if (i + 1 >= argc) {
+                fprintf(stderr, "gizmo: Expected output file after '-o'\n");
+                exit(-1);
+            }
             out_file = fopen(argv[++i], "w");
             if (out_file == NULL) {
                 fprintf(stderr, "gizmo: Could not open output file\n");
+                exit(-1);
             }
         } else if (strcmp(argv[i], "-d") == 0) {
             log_set_level(LOG_TRACE);
             log_set_quiet(0);
         } else if (argv[i][0] != '-' && !has_found_in_file) {
             in_file = fopen(argv[i], "r");
+            if (in_file == NULL) {
+                fprintf(stderr, "gizmo: Could not open input file");
+                exit(-1);
+            }
             has_found_in_file = 1;
+        } else if (strcmp(argv[i], "--version") == 0) {
+            fprintf(stdout, "Gizmo v%s\n", GIZMO_VERSION);
+            exit(0);
         }
     }
 }

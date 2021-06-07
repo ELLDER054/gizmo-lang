@@ -256,6 +256,14 @@ Node* primary(int start) {
         return (Node*) new_Identifier_node(tokens[ind - 1].value, symtab_find_global(tokens[ind - 1].value, "var")->cgid, symtab_find_global(tokens[ind - 1].value, "var")->type);
     }
 
+    if (expect_type(T_REAL) != NULL) {
+        return (Node*) new_Real_node(strtof(tokens[ind - 1].value, NULL));
+    }
+
+    if (expect_type(T_CHAR) != NULL) {
+        return (Node*) new_Char_node(strtof(tokens[ind - 1].value, NULL));
+    }
+
     if (expect_type(T_LEFT_PAREN) != NULL) {
         Node* expr = expression(ind);
 		char b[100];
