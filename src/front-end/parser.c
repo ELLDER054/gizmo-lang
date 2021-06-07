@@ -473,6 +473,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     if (expr == NULL) {
         Error(tokens[ind], "Expected expression after assignment operator", 0);
     }
+    print_node(stdout, expr);
     char b[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
     if (symtab_find_local(id, "var") != NULL) {
@@ -513,11 +514,16 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
     int count = 0;
     int i = 0;
     log_trace("ind %d tokslen %d\n", ind, tokslen(tokens));
+    int nests = 0;
     for (count = ind; count < tokslen(tokens); count++) {
-        if (tokens[count].type == T_RIGHT_BRACE) {
+        if (tokens[count].type == T_RIGHT_BRACE && nests <= 0) {
             count++;
             found_end = 1;
             break;
+        } else if (tokens[count].type == T_LEFT_BRACE) {
+            nests++;
+        } else if (tokens[count].type == T_RIGHT_BRACE) {
+            nests--;
         }
         block_tokens[i++] = tokens[count];
     }

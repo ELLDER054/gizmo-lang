@@ -58,6 +58,7 @@ void parse_command_line_args(int argc, char** argv) {
             }
         } else if (strcmp(argv[i], "-d") == 0) {
             log_set_level(LOG_TRACE);
+            log_set_quiet(0);
         }
     }
 }
