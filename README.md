@@ -1,3 +1,5 @@
+[![GitHub license](https://img.shields.io/github/license/Naereen/StrapDown.js.svg)](https://github.com/ELLDER054/gizmo-lang/blob/master/LICENSE)
+
 **Gizmo** is a fast and user friendly programming language for parsing and manipulating strings.  
 Gizmo code looks like this:  
 ```cpp
