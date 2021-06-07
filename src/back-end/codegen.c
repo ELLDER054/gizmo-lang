@@ -95,23 +95,13 @@ char* generate_operation_asm(Operator_node* n, char* expr_type, char* c) {
     strcat(c, op_name);
     strcat(c, " = ");
     char* oper = ((Operator_node*) n)->oper;
-    if ((strcmp(oper, "/") == 0) && ((Operator_node*) n)->left->n_type == INTEGER_NODE) {
-        strcat(c, "call double @div_int(");
-        strcat(c, expr_type);
-        strcat(c, " ");
-        strcat(c, l);
-        strcat(c, ", i32 ");
-        strcat(c, r);
-        strcat(c, ")");
-    } else {
-        strcat(c, find_operation_asm(oper, expr_type));
-        strcat(c, " ");
-        strcat(c, expr_type);
-        strcat(c, " ");
-        strcat(c, l);
-        strcat(c, ", ");
-        strcat(c, r);
-    }
+    strcat(c, find_operation_asm(oper, expr_type));
+    strcat(c, " ");
+    strcat(c, expr_type);
+    strcat(c, " ");
+    strcat(c, l);
+    strcat(c, ", ");
+    strcat(c, r);
     strcat(c, "\n");
     return op_name;
 }

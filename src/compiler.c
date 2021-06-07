@@ -21,14 +21,12 @@ void compile(char* code, char* out, char* file_name) {
     Symbol* symbol_table[1024];
     memset(symbol_table, 0, sizeof(symbol_table));
     parse(tokens, program, symbol_table);
-    #if 0
-    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
+    /*for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         if (program[i] == NULL) {
             break;
         }
         print_node(stdout, program[i]);
-    }
-    #endif
+    }*/
     generate(program, sizeof(program) / sizeof(Node*), out, file_name);
     for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
         free_node(program[i]);
@@ -42,7 +40,6 @@ void compile(char* code, char* out, char* file_name) {
 }
 
 void parse_command_line_args(int argc, char** argv) {
-    printf("%s\n", argv[1]);
     if (argc < 1) {
         fprintf(stderr, "gizmo: Expected at least an input file\n");
         exit(-1);
@@ -65,7 +62,6 @@ void parse_command_line_args(int argc, char** argv) {
 
 int main(int argc, char** argv) {
     log_set_quiet(1);
-    printf("%s\n", argv[1]);
     parse_command_line_args(argc, argv);
 
     char code[1024];

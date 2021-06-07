@@ -41,7 +41,7 @@ void Error(Token token, const char* error, const int after) { /* Gives errors */
 int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     int len = 0;
     for (int i = 0; i < 1024; i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 236) {
+        if (tokens[i].type < 200 || tokens[i].type > 245) {
             break;
         }
         len++;
@@ -74,8 +74,11 @@ char* expect_type(TokenType type) { /* Expects a Token Type and if wrong type, r
 
 Node* expression(int start);
 Node* term(int start);
-Node* term2(int start);
+Node* equality(int start);
+Node* comparison(int start);
 Node* factor(int start);
+Node* primary(int start);
+Node* unary(int start);
 
 // begin expressions parsing
 
@@ -165,149 +168,101 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
     }
 }
 
-Node* expression2(int start) {
-    ind = start;
-    Node* t = term(start);
-    if (t == NULL) {
-        ind = start;
-        return NULL;
-    }
-    char* oper = expect_type(T_PLUS);
-    if (oper == NULL) {
-        oper = expect_type(T_MINUS);
-        if (oper == NULL) {
-            ind = start;
-            free_node(t);
-            return NULL;
-        }
-    }
-    Node* expr = expression(ind);
-    if (expr == NULL) {
-        Error(tokens[ind - 1], "Expected right side of expression", 0);
-    }
-    check_type(start, t, expr, oper);
-    return (Node*) new_Operator_node(oper, t, expr);
-}
-
 Node* expression(int start) {
-    ind = start;
-    Node* expr2 = expression2(start);
-    if (expr2 != NULL) {
-        return expr2;
-    }
-    Node* t = term(start);
-    if (t != NULL) {
-        free_node(expr2);
-        return t;
-    }
-    ind = start;
-    return NULL;
+    return equality(start);
 }
 
-Node* factor1(int start) {
+Node* equality(int start) {
     ind = start;
-    char* left = expect_type(T_LEFT_PAREN);
-    if (left == NULL) {
-        ind = start;
-        return NULL;
+    Node* expr = comparison(ind);
+
+    while (expect_type(T_NOT_EQUAL) != NULL || expect_type(T_EQUAL_EQUAL) != NULL) {
+        int save = ind - 1;
+        Node* right = comparison(ind);
+        expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
-    Node* expr = expression(ind);
-    if (expr == NULL) {
-        ind = start;
-        /* TODO: Give error */
-        return NULL;
+
+    return expr;
+}
+
+Node* comparison(int start) {
+    ind = start;
+    Node* expr = term(ind);
+
+    while (expect_type(T_GREATER_THAN) != NULL || expect_type(T_LESS_THAN) != NULL || expect_type(T_GREATER_THAN_EQUALS) != NULL || expect_type(T_LESS_THAN_EQUALS) != NULL) {
+        int save = ind - 1;
+        Node* right = term(ind);
+        expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
-    char* right = expect_type(T_RIGHT_PAREN);
-    if (right == NULL) {
-        ind = start;
-        /* TODO: Give error */
-        return NULL;
+
+    return expr;
+}
+
+Node* term(int start) {
+    ind = start;
+    Node* expr = factor(ind);
+
+    while (expect_type(T_PLUS) != NULL || expect_type(T_MINUS) != NULL) {
+        int save = ind - 1;
+        Node* right = factor(ind);
+        expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
+
     return expr;
 }
 
 Node* factor(int start) {
     ind = start;
-    Node* f1 = factor1(start);
-    if (f1 != NULL) {
-        return f1;
+    Node* expr = unary(ind);
+
+    while (expect_type(T_TIMES) != NULL || expect_type(T_DIVIDE) != NULL) {
+        int save = ind - 1;
+        Node* right = unary(ind);
+        expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
-    char* integer = expect_type(T_INT);
-    if (integer != NULL) {
-        return (Node*) new_Integer_node(atoi(integer));
-    }
-    char* string = expect_type(T_STR);
-    if (string != NULL) {
-        return (Node*) new_String_node(string);
-    }
-    char* ch = expect_type(T_CHAR);
-    if (ch != NULL) {
-        return (Node*) new_Char_node(*ch);
-    }
-    char* real = expect_type(T_REAL);
-    if (real != NULL) {
-        return (Node*) new_Real_node(strtod(real, NULL));
-    }
-    Node* func_call = incomplete_function_call(ind);
-    if (func_call != NULL) {
-        return func_call;
-    }
-    char* id = expect_type(T_ID);
-    if (id != NULL) {
-        if (symtab_find_global(id, "var") == NULL) {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Use of undefined identifier `%s`", id);
-            Error(tokens[ind - 1], error, 0);
-            free(error);
-        }
-        return (Node*) new_Identifier_node(id, symtab_find_global(id, "var")->cgid, symtab_find_global(id, "var")->type);
-    }
-    ind = start;
-    return NULL;
+
+    return expr;
 }
 
-Node* term2(int start) {
-    ind = start;
-    Node* f = factor(start);
-    if (f == NULL) {
-        ind = start;
-        return NULL;
+Node* unary(int start) {
+	ind = start;
+
+    if (expect_type(T_NOT) != NULL || expect_type(T_MINUS) != NULL) {
+        Node* right = unary(ind);
+        return right;
     }
-    char* oper = expect_type(T_TIMES);
-    if (oper == NULL) {
-        oper = expect_type(T_DIVIDE);
-        if (oper == NULL) {
-            ind = start;
-            free_node(f);
-            return NULL;
-        }
-    }
-    Node* t = term(ind);
-    if (t == NULL) {
-        Error(tokens[ind - 1], "Expected right side of expression", 0);
-    }
-    if (strcmp(oper, "/") == 0 && t->n_type == INTEGER_NODE) {
-        if (((Integer_node*) t)->value == 0) {
-            Error(tokens[ind - 1], "Can't divide by zero", 0);
-        }
-    }
-    check_type(start, f, t, oper);
-    return (Node*) new_Operator_node(oper, f, t);
+
+    return primary(ind);
 }
 
-Node* term(int start) {
-    ind = start;
-    Node* t2 = term2(start);
-    if (t2 != NULL) {
-        return t2;
+Node* primary(int start) {
+	ind = start;
+	
+	if (expect_type(T_FALSE) != NULL) {
+		return (Node*) new_Integer_node(0);
+	}
+	if (expect_type(T_TRUE) != NULL) {
+		return (Node*) new_Integer_node(1);
+	}
+
+	if (expect_type(T_INT) != NULL) {
+        return (Node*) new_Integer_node(atoi(tokens[ind - 1].value));
     }
-    Node* f = factor(start);
-    if (f != NULL) {
-        free_node(t2);
-        return f;
+
+    if (expect_type(T_ID) != NULL) {
+        if (symtab_find_global(tokens[ind - 1].value, "var") == NULL) {
+            Error(tokens[ind - 1], "Use of undefined variable", 0);
+        }
+        return (Node*) new_Identifier_node(tokens[ind - 1].value, symtab_find_global(tokens[ind - 1].value, "var")->cgid, symtab_find_global(tokens[ind - 1].value, "var")->type);
     }
-    ind = start;
+
+    if (expect_type(T_LEFT_PAREN) != NULL) {
+        Node* expr = expression(ind);
+		char b[100];
+        consume(T_RIGHT_PAREN, "Expect ')' after expression.", b);
+        return expr;
+    }
+    
     return NULL;
 }
 
@@ -473,7 +428,6 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     if (expr == NULL) {
         Error(tokens[ind], "Expected expression after assignment operator", 0);
     }
-    print_node(stdout, expr);
     char b[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
     if (symtab_find_local(id, "var") != NULL) {
@@ -647,6 +601,7 @@ void program(Node** ast, int max_len) { /* Continuously calls statement() */
         Node* stmt = statement(ind);
         if (stmt == NULL) {
             log_trace("stmt is NULL %d\n", stmt->n_type);
+            Error(tokens[ind], "Unexpected token", 0);
             break;
         }
         log_trace("stmt address %p\n", stmt);

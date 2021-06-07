@@ -79,7 +79,7 @@ int operators(char ch, char nch) { /* Returns operator token based on the curren
         return T_TIMES;
     }
 
-    /* plus operators */
+    /* divide operators */
     if (ch == '/' && nch == '/') {
         return T_DIVIDE_DIVIDE;
     } else if (ch == '/' && nch == '=') {
@@ -130,7 +130,7 @@ void scan(char* code, Token* tokens) {
     int pos = 0;
     int token_count = 0;
     int col = 0;
-
+    
     while (pos < strlen(code)) {
         char ch = code[pos];
         if (isAlpha(ch)) {
@@ -325,7 +325,7 @@ void scan(char* code, Token* tokens) {
     }
 
     /*for (int i = 0; i < strlen(code); i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 238) {
+        if (tokens[i].type < 200 || tokens[i].type > 245) {
             break;
         }
         printf("%d", tokens[i].type);
