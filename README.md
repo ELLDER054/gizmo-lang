@@ -13,6 +13,25 @@ write(add(x, 6));
 
 See the [main website](http://www.gizmolang.org) to learn more!
 
+## Building Gizmo
+
+Requirements:
+1. A terminal or shell
+2. A C Compiler (gcc or clang)
+3. make and cmake
+4. llvm
+
+Execute the following commands in your terminal or shell.
+
+```shell
+git clone https://github.com/ELLDER054/gizmo-lang.git
+cd gizmo-lang
+cmake .
+make
+```
+
+You can then put the `gizmo` file into `/usr/local/bin/` to be able to use the `gizmo` command.
+
 ## Contributing
 Contributing is welcome! Some of the best ways to help are:
 
@@ -27,21 +46,3 @@ Contributing is welcome! Some of the best ways to help are:
 That's the enthusiasm we want to hear!  
 First, see the [installation guide](http://www.gizmolang.org/install.html).  
 Then, go see the [documentation](http//www.gizmolang.org/docs.html) or the [wiki](https://github.com/ELLDER054/gizmo-lang/wiki)!
-
-## Getting a Weird Error?
-Some of the "weird" errors that you might get include:  
-1.
-  ```
-gizmo: This feature (number) is either not yet implemented in the back-end
-or there is an internal compiler error.
-Please report this error, along with the number in the parenthesis, to the developers at gizmo@gizmolang.org
-  ```
-2.
-  ```
-gizmo: Compiler failed to generate llvm ir code
-  ```
-
-The first error means that the feature you are trying to use is either only  
-implemented halfway, or one of the developers forgot to add a certain line of code somewhere.  
-  
-The second error means that the code generator failed, and the llvm was generated incorrectly.  
