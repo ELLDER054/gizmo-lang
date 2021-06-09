@@ -182,21 +182,26 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "\n");
         return real_name;
     } else if (n->n_type == FUNC_CALL_NODE) {
-        char* func_call_name = heap_alloc(100);
-        snprintf(func_call_name, 100, "%%%d", var_c++);
-        strcat(c, "\t");
-        strcat(c, func_call_name);
-        strcat(c, " = call ");
-        strcat(c, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type));
-		strcat(c, " @");
-        strcat(c, ((Func_call_node*) n)->name);
-        strcat(c, "(");
+        char* call = malloc(1024);
+        memset(call, 0, 1024);
+        char* arg_code = malloc(100);
+        memset(arg_code, 0, 100);
         for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
             char* arg_buf = heap_alloc(100);
             char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), c, arg_buf);
-            strcat(c, arg);
+            strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
+            strcat(arg_code, " ");
+            strcat(arg_code, arg);
+            if (i + 1 < ((Func_call_node*) n)->args_len) {
+                strcat(arg_code, ", ");
+            }
         }
-        strcat(c, ")\n");
+        char* func_call_name = heap_alloc(100);
+        snprintf(func_call_name, 100, "%%%d", var_c++);
+        snprintf(call, 1024, "\t%s = call %s @%s(%s)\n", func_call_name, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code);
+        strcat(c, call);
+        free(call);
+        free(arg_code);
         return func_call_name;
     } else if (n->n_type == READ_NODE) {
         char* func_call_name = heap_alloc(100);
@@ -311,16 +316,40 @@ void generate_statement(Node* n, char* code) {
         } else if (n->n_type == FUNC_CALL_NODE) {
             char* call = malloc(195);
             memset(call, 0, 195);
-            snprintf(call, 195, "call %s @%s()\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name);
+            char* arg_code = malloc(100);
+            memset(arg_code, 0, 100);
+            for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
+                char* arg_buf = heap_alloc(100);
+                char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), code, arg_buf);
+                strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
+                strcat(arg_code, " ");
+                strcat(arg_code, arg);
+                if (i + 1 < ((Func_call_node*) n)->args_len) {
+                    strcat(arg_code, ", ");
+                }
+            }
+            snprintf(call, 195, "call %s @%s(%s)\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code);
             strcat(code, call);
             free(call);
+            free(arg_code);
         } else if (n->n_type == FUNC_DECL_NODE) {
             char* mini_code = malloc(1024);
             memset(mini_code, 0, 1024);
             char* begin = malloc(195);
             memset(begin, 0, 195);
+            char* arg_code = malloc(100);
+            memset(arg_code, 0, 100);
+            for (int i = 0; i < ((Func_decl_node*) n)->args_len; i++) {
+                Var_declaration_node* arg = (Var_declaration_node*) ((Func_decl_node*) n)->args[i];
+                strcat(arg_code, types(arg->type));
+                strcat(arg_code, " %");
+                strcat(arg_code, arg->codegen_name);
+                if (i + 1 < ((Func_decl_node*) n)->args_len) {
+                    strcat(arg_code, ", ");
+                }
+            }
             log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type));
-            snprintf(begin, 195, "define %s @%s() {\nentry:\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name);
+            snprintf(begin, 195, "define %s @%s(%s) {\nentry:\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name, arg_code);
             strcat(mini_code, begin);
             strcpy(current_function_return_type, ((Func_decl_node*) n)->type);
             enter_function();
@@ -334,6 +363,7 @@ void generate_statement(Node* n, char* code) {
             insert(code, 0, strlen(code), mini_code);
             free(mini_code);
             free(begin);
+            free(arg_code);
         } else if (n->n_type == RET_NODE) {
             char* end_len = malloc(100);
             char* ret_name = generate_expression_asm(((Return_node*) n)->expr, types(current_function_return_type), code, end_len);

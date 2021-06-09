@@ -249,6 +249,11 @@ Node* primary(int start) {
         return (Node*) new_Integer_node(atoi(tokens[ind - 1].value));
     }
 
+    Node* func_call = incomplete_function_call(ind);
+    if (func_call != NULL) {
+        return func_call;
+    }
+
     if (expect_type(T_ID) != NULL) {
         if (symtab_find_global(tokens[ind - 1].value, "var") == NULL) {
             Error(tokens[ind - 1], "Use of undefined variable", 0);
@@ -293,6 +298,35 @@ void func_expr_args(int start, Node** args, int* len) { /* Puts caller arguments
         }
         char* comma = expect_type(T_COMMA);
         args[arg_c++] = expr;
+        if (comma == NULL) {
+            break;
+        }
+        should_find = 1;
+    }
+    *len = arg_c;
+}
+
+void func_decl_args(int start, Node** args, int* len) {
+    ind = start;
+    int arg_c = 0;
+    int should_find = 0;
+    while (1) {
+        char* arg_type = expect_type(T_TYPE);
+        if (arg_type == NULL) {
+            if (should_find) {
+                Error(tokens[ind], "Expected type after comma", 1);
+            } else {
+                break;
+            }
+        }
+        char* arg_id = expect_type(T_ID);
+        if (arg_type == NULL) {
+            Error(tokens[ind], "Expected id after type", 1);
+        }
+        char* comma = expect_type(T_COMMA);
+        char cgid[MAX_NAME_LEN + 4] = {0};
+        snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", arg_id, id_c++);
+        args[arg_c++] = (Node*) new_Var_declaration_node(arg_type, cgid, arg_id, NULL);
         if (comma == NULL) {
             break;
         }
@@ -461,7 +495,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
 void program(Node** ast, int max_len);
 void parse(Token* toks, Node** program, Symbol** sym_t);
 
-Node* block_statement(int start) { /* A statement with multiple statements surrounded by curly braces inside it */
+Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /* A statement with multiple statements surrounded by curly braces inside it */
     ind = start;
     char* begin = expect_type(T_LEFT_BRACE);
     if (begin == NULL) {
@@ -479,7 +513,7 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
     int nests = 0;
     for (count = ind; count < tokslen(tokens); count++) {
         if (tokens[count].type == T_RIGHT_BRACE && nests <= 0) {
-            count++;
+            count--;
             found_end = 1;
             break;
         } else if (tokens[count].type == T_LEFT_BRACE) {
@@ -490,6 +524,15 @@ Node* block_statement(int start) { /* A statement with multiple statements surro
         block_tokens[i++] = tokens[count];
     }
     symtab_push_context();
+    for (int i = 0; i < len_predeclared; i++) {
+        Symbol* symbol = predeclared[i];
+        symtab_add_symbol(symbol->type, symbol->sym_type, symbol->name, symbol->args_len, symbol->cgid);
+        free(predeclared[i]->name);
+        free(predeclared[i]->cgid);
+        free(predeclared[i]->type);
+        free(predeclared[i]->sym_type);
+        free(predeclared[i]);
+    }
     program(statements, count);
     symtab_pop_context();
     int size = 0;
@@ -549,19 +592,35 @@ Node* function_declaration(int start) {
     }
     char b[100];
     consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id", b);
+    Node* args[1024];
+    memset(args, 0, 1024);
+    int args_len = 0;
+    func_decl_args(ind, args, &args_len);
     char b2[100];
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments", b2);
     in_function = 1;
     strcpy(function_type, func_type);
-    Node* body = statement(ind);
+    Symbol* predeclared[1024];
+    memset(predeclared, 0, sizeof(args));
+    for (int i = 0; i < args_len; i++) {
+        Symbol* sym = malloc(sizeof(Symbol));
+        Var_declaration_node* arg = (Var_declaration_node*) args[i];
+        sym->name = strdup(arg->name);
+        sym->type = strdup(arg->type);
+        sym->sym_type = strdup("var");
+        sym->cgid = strdup(arg->codegen_name);
+        sym->args_len = 0;
+        predeclared[i] = sym;
+    }
+    Node* body = block_statement(ind, predeclared, args_len);
     in_function = 0;
     if (body == NULL) {
         ind = start;
         fprintf(stderr, "Expected body");
         return NULL;
     }
-    symtab_add_symbol(func_type, "func", id, 0, id);
-    return (Node*) new_Func_decl_node(id, func_type, NULL, 0, body);
+    symtab_add_symbol(func_type, "func", id, args_len, id);
+    return (Node*) new_Func_decl_node(id, func_type, args, args_len, body);
 }
 
 Node* statement(int start) { /* Calls all possible statements */
@@ -581,7 +640,7 @@ Node* statement(int start) { /* Calls all possible statements */
         log_trace("found function call\n");
         return func;
     }
-    Node* block = block_statement(start);
+    Node* block = block_statement(start, NULL, 0);
     if (block != NULL) {
         log_trace("found block statement\n");
         return block;
