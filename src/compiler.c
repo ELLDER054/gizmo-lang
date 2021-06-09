@@ -84,7 +84,7 @@ int main(int argc, char** argv) {
     memset(code, 0, sizeof(code));
 
     if (in_file == NULL) {
-        fprintf(stderr, "gizmo: Could not open input file\n");
+        fprintf(stderr, "gizmo: Input file not specified\n");
         exit(-1);
     }
 
