@@ -2,7 +2,7 @@
 #include <string.h>
 #include <stdlib.h>
 #include "ast.h"
-#include "log.h"
+#include "../common/include/log.h"
 #include "scanner.h"
 #include "symbols.h"
 
@@ -128,10 +128,10 @@ char* type(Node* n) { /* Returns the type of the given Node* */
 }
 
 void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if expressions follow the type rules */
-    if (*oper == '+') {
+    if (strcmp(oper, "+") == 0) {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
-                Error(tokens[start], "Expected integer on right side of exression", 0);
+                Error(tokens[start], "Expected integer on right side of expression", 0);
             }
         }
         else if (!strcmp(type(left), "string")) {
@@ -146,7 +146,18 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
         } else {
             char* error = malloc(100);
             memset(error, 0, 100);
-            snprintf(error, 100, "Invalid type `%s` on left side of expression", type(left));
+            snprintf(error, 100, "Invalid operand type `%s` for operator `+`", type(left));
+            Error(tokens[start], error, 0);
+        }
+    } else if (strcmp(oper, "%") == 0) {
+        if (strcmp(type(left), "int") == 0) {
+            if (strcmp(type(right), "int")) {
+                Error(tokens[start], "Expected integer on right side of expression", 0);
+            }
+        } else {
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Invalid operand type `%s` for operator `%%`", type(left));
             Error(tokens[start], error, 0);
         }
     } else {
@@ -162,7 +173,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
         } else {
             char* error = malloc(100);
             memset(error, 0, 100);
-            snprintf(error, 100, "Invalid type `%s` on left side of expression", type(left));
+            snprintf(error, 100, "Invalid operand type `%s` for operator `%s`", type(left), oper);
             Error(tokens[start], error, 0);
         }
     }
@@ -176,7 +187,7 @@ Node* equality(int start) {
     ind = start;
     Node* expr = comparison(ind);
 
-    while (expect_type(T_NOT_EQUAL) != NULL || expect_type(T_EQUAL_EQUAL) != NULL) {
+    while (expect_type(T_NOT_EQUALS) != NULL || expect_type(T_EQUALS_EQUALS) != NULL) {
         int save = ind - 1;
         Node* right = comparison(ind);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
@@ -205,6 +216,7 @@ Node* term(int start) {
     while (expect_type(T_PLUS) != NULL || expect_type(T_MINUS) != NULL) {
         int save = ind - 1;
         Node* right = factor(ind);
+        check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
 
@@ -215,9 +227,10 @@ Node* factor(int start) {
     ind = start;
     Node* expr = unary(ind);
 
-    while (expect_type(T_TIMES) != NULL || expect_type(T_DIVIDE) != NULL) {
+    while (expect_type(T_TIMES) != NULL || expect_type(T_DIVIDE) != NULL || expect_type(T_MOD) != NULL) {
         int save = ind - 1;
         Node* right = unary(ind);
+        check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
 

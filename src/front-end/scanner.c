@@ -86,13 +86,31 @@ int operators(char ch, char nch) { /* Returns operator token based on the curren
         return T_DIVIDE_EQUALS;
     } else if (ch == '/') {
         return T_DIVIDE;
+    }
+
+    /* modulo operators */
+    if (ch == '%' && nch == '=') {
+        return T_MOD_EQUALS;
+    } else if (ch == '%') {
+        return T_MOD;
+    }
+
+    /* boolean operators */
+    if (ch == '>' && nch == '=') {
+        return T_GREATER_THAN_EQUALS;
+    } else if (ch == '>') {
+        return T_GREATER_THAN;
+    } else if (ch == '<' && nch == '=') {
+        return T_LESS_THAN_EQUALS;
+    } else if (ch == '<') {
+        return T_LESS_THAN;
     } else {
         return 0;
     }
 }
 
 int in_operators(char c) { /* Checks if variable `c` is an operator */
-    return (c == '+') || (c == '-') || (c == '*') || (c == '/');
+    return (c == '+') || (c == '-') || (c == '*') || (c == '/') || (c == '>') || (c == '<' || (c == '%'));
 }
 
 int split(const char *txt, char delim, char ***tokens) {
@@ -258,7 +276,9 @@ void scan(char* code, Token* tokens) {
             Token tok;
             if (next(code, pos) == '=') {
                 strcpy(tok.value, "==");
-                tok.type = T_EQUALS;
+                tok.type = T_EQUALS_EQUALS;
+                col++;
+                pos++;
             } else {
                 strcpy(tok.value, "=");
                 tok.type = T_ASSIGN;

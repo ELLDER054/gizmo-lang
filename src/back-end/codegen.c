@@ -3,7 +3,7 @@
 #include <stdlib.h>
 #include "heap.h"
 #include "codegen.h"
-#include "log.h"
+#include "../common/include/log.h"
 #include "../front-end/ast.h"
 #include "../front-end/symbols.h"
 
@@ -57,26 +57,38 @@ void insert(char* buf, int pos, int size, char* str) {
 
 char* find_operation_asm(char* oper, char* t) {
     if (strcmp(t, "i32") == 0) {
-        switch (*oper) {
-            case '+':
-                return "add";
-            case '-':
-                return "sub";
-            case '*':
-                return "mul";
-            case '/':
-                return "sdiv";
+        if (strcmp(oper, "+") == 0) {
+            return "add";
+        } else if (strcmp(oper, "-") == 0) {
+            return "sub";
+        } else if (strcmp(oper, "*") == 0) {
+            return "mul";
+        } else if (strcmp(oper, "/") == 0) {
+            return "sdiv";
+        } else if (strcmp(oper, "%") == 0) {
+            return "srem";
+        } else if (strcmp(oper, ">") == 0) {
+            return "icmp sgt";
+        } else if (strcmp(oper, "<") == 0) {
+            return "icmp slt";
+        } else if (strcmp(oper, ">=") == 0) {
+            return "icmp sge";
+        } else if (strcmp(oper, "<=") == 0) {
+            return "icmp sle";
+        } else if (strcmp(oper, "==") == 0) {
+            return "icmp eq";
+        } else if (strcmp(oper, "!=") == 0) {
+            return "icmp ne";
         }
     } else if (strcmp(t, "double") == 0) {
-        switch (*oper) {
-            case '+':
-                return "fadd";
-            case '-':
-                return "fsub";
-            case '*':
-                return "fmul";
-            case '/':
-                return "fdiv";
+        if (strcmp(oper, "+") == 0) {
+            return "fadd";
+        } else if (strcmp(oper, "-") == 0) {
+            return "fsub";
+        } else if (strcmp(oper, "*") == 0) {
+            return "fmul";
+        } else if (strcmp(oper, "/") == 0) {
+            return "fdiv";
         }
     }
     return "";
@@ -95,13 +107,34 @@ char* generate_operation_asm(Operator_node* n, char* expr_type, char* c) {
     strcat(c, op_name);
     strcat(c, " = ");
     char* oper = ((Operator_node*) n)->oper;
-    strcat(c, find_operation_asm(oper, expr_type));
+    char* oper_asm = find_operation_asm(oper, expr_type);
+    strcat(c, oper_asm);
     strcat(c, " ");
     strcat(c, expr_type);
     strcat(c, " ");
     strcat(c, l);
     strcat(c, ", ");
     strcat(c, r);
+    if (oper_asm[0] == 'i') {
+        char* op_name_new = heap_alloc(100);
+        snprintf(op_name_new, 100, "%%%d", var_c++);
+        strcat(c, "\n");
+        strcat(c, op_name_new);
+        strcat(c, " = zext i1 ");
+        strcat(c, op_name);
+        strcat(c, " to i32\n");
+        return op_name_new;
+    }
+    if (oper_asm[0] == 'f' && oper_asm[1] == 'c') {
+        char* op_name_new = heap_alloc(100);
+        snprintf(op_name_new, 100, "%%%d", var_c++);
+        strcat(c, "\n");
+        strcat(c, op_name_new);
+        strcat(c, " = zext i1 ");
+        strcat(c, op_name);
+        strcat(c, " to i32\n");
+        return op_name_new;
+    }
     strcat(c, "\n");
     return op_name;
 }
