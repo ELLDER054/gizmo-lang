@@ -279,7 +279,11 @@ Node* primary(int start) {
     }
 
     if (expect_type(T_CHAR) != NULL) {
-        return (Node*) new_Char_node(strtof(tokens[ind - 1].value, NULL));
+        return (Node*) new_Char_node((int) (tokens[ind - 1].value[0]));
+    }
+
+    if (expect_type(T_STR) != NULL) {
+        return (Node*) new_String_node(tokens[ind - 1].value);
     }
 
     if (expect_type(T_LEFT_PAREN) != NULL) {

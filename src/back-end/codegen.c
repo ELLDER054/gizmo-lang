@@ -32,7 +32,7 @@ char* types(char* t) {
     } else if (strcmp(t, "real") == 0) {
         return "double";
     } else if (strcmp(t, "char") == 0) {
-        return "i32";
+        return "i8";
     } else if (strcmp(t, "string") == 0) {
         return "i8*";
     } else if (strcmp(t, "none") == 0) {
@@ -118,17 +118,7 @@ char* generate_operation_asm(Operator_node* n, char* expr_type, char* c) {
     if (oper_asm[0] == 'i') {
         char* op_name_new = heap_alloc(100);
         snprintf(op_name_new, 100, "%%%d", var_c++);
-        strcat(c, "\n");
-        strcat(c, op_name_new);
-        strcat(c, " = zext i1 ");
-        strcat(c, op_name);
-        strcat(c, " to i32\n");
-        return op_name_new;
-    }
-    if (oper_asm[0] == 'f' && oper_asm[1] == 'c') {
-        char* op_name_new = heap_alloc(100);
-        snprintf(op_name_new, 100, "%%%d", var_c++);
-        strcat(c, "\n");
+        strcat(c, "\n\t");
         strcat(c, op_name_new);
         strcat(c, " = zext i1 ");
         strcat(c, op_name);
@@ -171,7 +161,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(digit_char, 100, "%d", (int)(((Char_node*) n)->value));
         strcat(c, "\t");
         strcat(c, char_name);
-        strcat(c, " = add i32 0, ");
+        strcat(c, " = add i8 0, ");
         strcat(c, digit_char);
         strcat(c, "\n");
         return char_name;
@@ -330,7 +320,7 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, ")");
                 }
             } else if (strcmp(type(func->args[0]), "char") == 0) {
-                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.chr, i32 0, i32 0), i32 ");
+                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.chr, i32 0, i32 0), i8 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
