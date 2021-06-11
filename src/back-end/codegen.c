@@ -56,7 +56,6 @@ void insert(char* buf, int pos, int size, char* str) {
 }
 
 char* find_operation_asm(char* oper, char* t) {
-    printf("TYPE: %s, OPER: %s\n", t, oper);
     if (strcmp(t, "i32") == 0) {
         if (strcmp(oper, "+") == 0) {
             return "add";
