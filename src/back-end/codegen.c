@@ -343,7 +343,7 @@ void generate_statement(Node* n, char* code) {
             memset(arg_code, 0, 100);
             for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
                 char* arg_buf = heap_alloc(100);
-                char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), code, arg_buf);
+                char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], types(type(((Func_call_node*) n)->args[i])), code, arg_buf);
                 strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
                 strcat(arg_code, " ");
                 strcat(arg_code, arg);
