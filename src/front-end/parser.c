@@ -293,6 +293,7 @@ Node* primary(int start) {
         return expr;
     }
     
+    Error(tokens[start], "Unexpected token", 0);
     return NULL;
 }
 
@@ -329,6 +330,9 @@ void func_decl_args(int start, Node** args, int* len) {
     int should_find = 0;
     while (1) {
         char* arg_type = expect_type(T_TYPE);
+        if (strcmp(arg_type, "auto") == 0) {
+            Error(tokens[ind - 1], "Cannot use auto type for arguments", 0);
+        }
         if (arg_type == NULL) {
             if (should_find) {
                 Error(tokens[ind], "Expected type after comma", 1);
@@ -400,8 +404,8 @@ Node* incomplete_initializers(char* t) { /* Returns the most low-level value for
 
 Node* incomplete_var_declaration(int start) { /* A variable declaration with no semi-colon */
     ind = start;
-    char* type = expect_type(T_TYPE);
-    if (type == NULL) {
+    char* var_type = expect_type(T_TYPE);
+    if (var_type == NULL) {
         ind = start;
         return NULL;
     }
@@ -426,10 +430,16 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
         snprintf(error, 100, "Redefinition of variable `%s`", id);
         Error(tokens[start + 1], error, 0);
     }
+    if (strcmp(var_type, "none") == 0) {
+        Error(tokens[start], "Cannot use `none` like a type", 0);
+    }
+    if (strcmp(var_type, "auto") == 0) {
+        Error(tokens[start], "Cannot use auto type for an incomplete variable declaration", 0);
+    }
     char cgid[MAX_NAME_LEN + 4] = {0};
     snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
-    symtab_add_symbol(type, "var", id, 0, cgid);
-    return (Node*) new_Var_declaration_node(type, cgid, id, incomplete_initializers(type));
+    symtab_add_symbol(var_type, "var", id, 0, cgid);
+    return (Node*) new_Var_declaration_node(var_type, cgid, id, incomplete_initializers(var_type));
 }
 
 Node* function_call(int start) { /* A function call with a semi-colon */
@@ -496,12 +506,21 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
         free_node(expr);
         Error(tokens[start + 1], error, 0);
     }
-    if (strcmp(type(expr), var_type)) {
-        char* error = malloc(100);
-        memset(error, 0, 100);
-        snprintf(error, 100, "For variable `%s`\nCannot assign `%s` to variable of type `%s`", id, type(expr), var_type);
-        free_node(expr);
-        Error(tokens[start], error, 0);
+    if (strcmp(var_type, "none") == 0) {
+        Error(tokens[start], "Cannot use `none` like a type", 0);
+    } if (strcmp(var_type, "auto") == 0 && strcmp(type(expr), "none") == 0) {
+        Error(tokens[start], "Cannot figure out what type `none` is", 0);
+    }
+    if (strcmp(var_type, "auto") != 0) {
+        if (strcmp(type(expr), var_type)) {
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "For variable `%s`\nCannot assign `%s` to variable of type `%s`", id, type(expr), var_type);
+            free_node(expr);
+            Error(tokens[start], error, 0);
+        }
+    } else {
+        strcpy(var_type, type(expr));
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
     snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
@@ -600,6 +619,9 @@ Node* function_declaration(int start) {
     if (func_type == NULL) {
         ind = start;
         return NULL;
+    }
+    if (strcmp(func_type, "auto") == 0) {
+        Error(tokens[start], "Cannot use auto type for functions", 0);
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
