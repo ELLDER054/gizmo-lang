@@ -285,7 +285,7 @@ void generate_statement(Node* n, char* code) {
             } else if (strcmp(v->type, "char") == 0) {
                 strcat(code, "\t%");
                 strcat(code, v->codegen_name);
-                strcat(code, " = add i32 0, ");
+                strcat(code, " = add i8 0, ");
                 strcat(code, var_name);
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "\t%");

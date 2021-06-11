@@ -499,9 +499,9 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     if (strcmp(type(expr), var_type)) {
         char* error = malloc(100);
         memset(error, 0, 100);
-        snprintf(error, 100, "For variable `%s`\nAssignment to type %s from %s", id, type(expr), var_type);
+        snprintf(error, 100, "For variable `%s`\nCannot assign `%s` to variable of type `%s`", id, type(expr), var_type);
         free_node(expr);
-        Error(tokens[ind], error, 0);
+        Error(tokens[start], error, 0);
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
     snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
