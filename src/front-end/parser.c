@@ -356,6 +356,10 @@ void func_decl_args(int start, Node** args, int* len) {
 Node* incomplete_function_call(int start) { /* A function call with no semi-colon */
     ind = start;
     char* id = expect_type(T_ID);
+    int args_len = 0;
+    Node* args[1024];
+    memset(args, 0, 1024);
+
     if (id == NULL) {
         ind = start;
         return NULL;
@@ -365,12 +369,18 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
         ind = start;
         return NULL;
     }
-    Node* args[1024];
-    memset(args, 0, 1024);
-    int args_len;
-    func_expr_args(ind, args, &args_len);
-    char b[MAX_NAME_LEN];
-    consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
+
+    /* check for function with no args */
+    char* right = expect_type(T_RIGHT_PAREN);
+
+    /* if the function has args, process them */
+    if (right == NULL) {
+        ind = start;
+        func_expr_args(ind, args, &args_len);
+        char b[MAX_NAME_LEN];
+        consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
+    }
+
     if (!symtab_find_global(id, "func")) {
         char* error = malloc(100);
         memset(error, 0, 100);
