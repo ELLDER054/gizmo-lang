@@ -1,4 +1,4 @@
-#include <stdio.h>
+#include<stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ast.h"
@@ -17,17 +17,11 @@ Token tokens[1024];
 
 void Error(Token token, const char* error, const int after) { /* Gives errors */
     fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", token.lineno, error, token.line);
-    int col = after ? token.col + 1 : token.col;
+    int col = after ? strlen(token.value) : strlen(token.value) - 1;
     for (int i = 0; i < col; i++) {
         fprintf(stderr, " ");
     }
     fprintf(stderr, "\x1b[32;1m^\x1b[0m");
-    if (after) {
-        for (int i = 1; i < strlen(token.value); i++) {
-            fprintf(stderr, " ");
-        }
-        fprintf(stderr, "\x1b[32;1m^\x1b[0m");
-    }
     if (strlen(token.value) > 1 && !after) {
         for (int i = 1; i < strlen(token.value) - 1; i++) {
             fprintf(stderr, "\x1b[32;1m^\x1b[0m");
@@ -239,6 +233,9 @@ Node* factor(int start) {
     while (expect_type(T_TIMES) != NULL || expect_type(T_DIVIDE) != NULL || expect_type(T_MOD) != NULL) {
         int save = ind - 1;
         Node* right = unary(ind);
+        if (right == NULL) {
+            Error(tokens[ind - 1], "Expected right side of expression", 1);
+        }
         check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
@@ -590,7 +587,7 @@ Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /*
         log_trace("ind %d\n", ind);
         return (Node*) new_Block_node(statements, size);
     } else {
-        Error(tokens[ind - 1], "Expected closing brace", 1);
+        Error(tokens[ind - 2], "Expected closing brace", 1);
         return NULL; /* To satisfy Clang */
     }
 }
