@@ -85,7 +85,6 @@ Node* unary(int start);
 Node* incomplete_function_call(int start);
 
 int is_logical_operator(char* operator) {
-    printf("|%s|\n", operator);
     return (strcmp(operator, "<") == 0) || (strcmp(operator, ">") == 0) || (strcmp(operator, "<=") == 0) || (strcmp(operator, ">=") == 0) || (strcmp(operator, "==") == 0);
 }
 
@@ -198,6 +197,7 @@ Node* equality(int start) {
     while (expect_type(T_NOT_EQUALS) != NULL || expect_type(T_EQUALS_EQUALS) != NULL) {
         int save = ind - 1;
         Node* right = comparison(ind);
+        check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
 
@@ -211,6 +211,7 @@ Node* comparison(int start) {
     while (expect_type(T_GREATER_THAN) != NULL || expect_type(T_LESS_THAN) != NULL || expect_type(T_GREATER_THAN_EQUALS) != NULL || expect_type(T_LESS_THAN_EQUALS) != NULL) {
         int save = ind - 1;
         Node* right = term(ind);
+        check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
 

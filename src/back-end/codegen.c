@@ -119,7 +119,6 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     strcat(c, op_name);
     strcat(c, " = ");
     char* oper = ((Operator_node*) n)->oper;
-    printf("IS: %s\n", types(type(((Operator_node*) n)->left)));
     char* oper_asm = find_operation_asm(oper, types(type(((Operator_node*) n)->left)));
     strcat(c, oper_asm);
     strcat(c, " ");
