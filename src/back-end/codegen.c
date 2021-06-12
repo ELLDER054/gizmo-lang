@@ -89,6 +89,18 @@ char* find_operation_asm(char* oper, char* t) {
             return "fmul";
         } else if (strcmp(oper, "/") == 0) {
             return "fdiv";
+        } else if (strcmp(oper, ">") == 0) {
+            return "fcmp ogt";
+        } else if (strcmp(oper, "<") == 0) {
+            return "fcmp olt";
+        } else if (strcmp(oper, ">=") == 0) {
+            return "fcmp oge";
+        } else if (strcmp(oper, "<=") == 0) {
+            return "fcmp ole";
+        } else if (strcmp(oper, "==") == 0) {
+            return "fcmp oeq";
+        } else if (strcmp(oper, "!=") == 0) {
+            return "fcmp one";
         }
     }
     return "";
@@ -96,26 +108,27 @@ char* find_operation_asm(char* oper, char* t) {
 
 char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size);
 
-char* generate_operation_asm(Operator_node* n, char* expr_type, char* c) {
+char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     char* l_buf = heap_alloc(100);
-    char* l = generate_expression_asm(n->left, expr_type, c, l_buf);
+    char* l = generate_expression_asm(((Operator_node*) n)->left, expr_type, c, l_buf);
     char* r_buf = heap_alloc(100);
-    char* r = generate_expression_asm(n->right, expr_type, c, r_buf);
+    char* r = generate_expression_asm(((Operator_node*) n)->right, expr_type, c, r_buf);
     char* op_name = heap_alloc(100);
     snprintf(op_name, 100, "%%%d", var_c++);
     strcat(c, "\t");
     strcat(c, op_name);
     strcat(c, " = ");
     char* oper = ((Operator_node*) n)->oper;
-    char* oper_asm = find_operation_asm(oper, expr_type);
+    printf("IS: %s\n", types(type(((Operator_node*) n)->left)));
+    char* oper_asm = find_operation_asm(oper, types(type(((Operator_node*) n)->left)));
     strcat(c, oper_asm);
     strcat(c, " ");
-    strcat(c, expr_type);
+    strcat(c, types(type(((Operator_node*) n)->left)));
     strcat(c, " ");
     strcat(c, l);
     strcat(c, ", ");
     strcat(c, r);
-    if (oper_asm[0] == 'i') {
+    if (oper_asm[1] == 'c') {
         char* op_name_new = heap_alloc(100);
         snprintf(op_name_new, 100, "%%%d", var_c++);
         strcat(c, "\n\t");
@@ -257,7 +270,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         return temp_var2;
     }
     
-    return generate_operation_asm((Operator_node*) n, expr_type, c);
+    return generate_operation_asm(n, expr_type, c);
 }
 
 void generate_statement(Node* n, char* code) {

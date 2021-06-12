@@ -110,7 +110,7 @@ int operators(char ch, char nch) { /* Returns operator token based on the curren
 }
 
 int in_operators(char c) { /* Checks if variable `c` is an operator */
-    return (c == '+') || (c == '-') || (c == '*') || (c == '/') || (c == '>') || (c == '<' || (c == '%'));
+    return (c == '+') || (c == '-') || (c == '*') || (c == '/') || (c == '>') || (c == '<') || (c == '%');
 }
 
 int split(const char *txt, char delim, char ***tokens) {
@@ -262,6 +262,7 @@ void scan(char* code, Token* tokens) {
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = col;
             if (next(code, pos) == '=' || next(code, pos) == ch) {
+                memset(tok.value, 0, sizeof(tok.value));
                 tok.value[0] = ch;
                 char nch = next(code, pos);
                 strncat(tok.value, &nch, 1);

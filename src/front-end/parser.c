@@ -84,6 +84,11 @@ Node* unary(int start);
 
 Node* incomplete_function_call(int start);
 
+int is_logical_operator(char* operator) {
+    printf("|%s|\n", operator);
+    return (strcmp(operator, "<") == 0) || (strcmp(operator, ">") == 0) || (strcmp(operator, "<=") == 0) || (strcmp(operator, ">=") == 0) || (strcmp(operator, "==") == 0);
+}
+
 char* type(Node* n) { /* Returns the type of the given Node* */
     if (n == NULL) {
         return NULL;
@@ -99,6 +104,9 @@ char* type(Node* n) { /* Returns the type of the given Node* */
                     return "int";
                 }
                 return "real";
+            }
+            if (is_logical_operator(((Operator_node*) n)->oper)) {
+                return "int";
             }
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
