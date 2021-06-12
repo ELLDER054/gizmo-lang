@@ -347,7 +347,7 @@ void func_decl_args(int start, Node** args, int* len) {
             Error(tokens[ind - 1], "Cannot use auto type for arguments", 0);
         }
         char* arg_id = expect_type(T_ID);
-        if (arg_type == NULL) {
+        if (arg_id == NULL) {
             Error(tokens[ind], "Expected id after type", 1);
         }
         char* comma = expect_type(T_COMMA);
