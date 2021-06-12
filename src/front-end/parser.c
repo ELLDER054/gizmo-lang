@@ -248,13 +248,14 @@ Node* unary(int start) {
     return primary(ind);
 }
 
+
 Node* primary(int start) {
 	ind = start;
 
 	if (expect_type(T_INT) != NULL) {
         return (Node*) new_Integer_node(atoi(tokens[ind - 1].value));
     }
-    
+
     Node* func_call = incomplete_function_call(ind);
     if (func_call != NULL) {
         return func_call;
@@ -272,7 +273,7 @@ Node* primary(int start) {
     }
 
     if (expect_type(T_CHAR) != NULL) {
-        return (Node*) new_Char_node((int) (tokens[ind - 1].value[0]));
+        return (Node*) new_Char_node(strtof(tokens[ind - 1].value, NULL));
     }
 
     if (expect_type(T_STR) != NULL) {
@@ -282,11 +283,10 @@ Node* primary(int start) {
     if (expect_type(T_LEFT_PAREN) != NULL) {
         Node* expr = expression(ind);
 		char b[100];
-        consume(T_RIGHT_PAREN, "Expected `)` after expression", b);
+        consume(T_RIGHT_PAREN, "Expect ')' after expression.", b);
         return expr;
     }
     
-    Error(tokens[start], "Unexpected token", 0);
     return NULL;
 }
 
@@ -356,10 +356,6 @@ void func_decl_args(int start, Node** args, int* len) {
 Node* incomplete_function_call(int start) { /* A function call with no semi-colon */
     ind = start;
     char* id = expect_type(T_ID);
-    int args_len = 0;
-    Node* args[1024];
-    memset(args, 0, 1024);
-
     if (id == NULL) {
         ind = start;
         return NULL;
@@ -369,18 +365,12 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
         ind = start;
         return NULL;
     }
-
-    /* check for function with no args */
-    char* right = expect_type(T_RIGHT_PAREN);
-
-    /* if the function has args, process them */
-    if (right == NULL) {
-        ind = start;
-        func_expr_args(ind, args, &args_len);
-        char b[MAX_NAME_LEN];
-        consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
-    }
-
+    Node* args[1024];
+    memset(args, 0, 1024);
+    int args_len;
+    func_expr_args(ind, args, &args_len);
+    char b[MAX_NAME_LEN];
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
     if (!symtab_find_global(id, "func")) {
         char* error = malloc(100);
         memset(error, 0, 100);
@@ -482,7 +472,7 @@ Node* function_call(int start) { /* A function call with a semi-colon */
         Error(tokens[ind], error, 0);
     }
     return (Node*) new_Func_call_node(id, args);
-}
+} 
 
 Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
     ind = start;
