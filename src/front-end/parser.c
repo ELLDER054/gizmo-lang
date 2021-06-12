@@ -134,11 +134,11 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start], "Expected integer on right side of expression", 0);
             }
         }
-        else if (!strcmp(type(left), "string")) {
+        /*else if (!strcmp(type(left), "string")) {
             if (strcmp(type(right), "string")) {
                 Error(tokens[start], "Expected string on right side of expression", 0);
             }
-        }
+        }*/
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
                 Error(tokens[start], "Expected real on right side of expression", 0);
@@ -250,18 +250,11 @@ Node* unary(int start) {
 
 Node* primary(int start) {
 	ind = start;
-	
-	if (expect_type(T_FALSE) != NULL) {
-		return (Node*) new_Integer_node(0);
-	}
-	if (expect_type(T_TRUE) != NULL) {
-		return (Node*) new_Integer_node(1);
-	}
 
 	if (expect_type(T_INT) != NULL) {
         return (Node*) new_Integer_node(atoi(tokens[ind - 1].value));
     }
-
+    
     Node* func_call = incomplete_function_call(ind);
     if (func_call != NULL) {
         return func_call;
@@ -289,7 +282,7 @@ Node* primary(int start) {
     if (expect_type(T_LEFT_PAREN) != NULL) {
         Node* expr = expression(ind);
 		char b[100];
-        consume(T_RIGHT_PAREN, "Expect ')' after expression.", b);
+        consume(T_RIGHT_PAREN, "Expected `)` after expression", b);
         return expr;
     }
     
@@ -305,12 +298,14 @@ void func_expr_args(int start, Node** args, int* len) { /* Puts caller arguments
     int arg_c = 0;
     int should_find = 0;
     while (1) {
+        int save = ind;
         Node* expr = expression(ind);
         log_trace("typeofexpr: |%s|\n", type(expr));
         if (expr == NULL) {
             if (should_find) {
-                Error(tokens[ind - 1], "Expected argument", 0);
+                Error(tokens[ind - 1], "Expected argument after comma", 0);
             } else {
+                ind = save;
                 break;
             }
         }
@@ -329,16 +324,18 @@ void func_decl_args(int start, Node** args, int* len) {
     int arg_c = 0;
     int should_find = 0;
     while (1) {
+        int save = ind;
         char* arg_type = expect_type(T_TYPE);
-        if (strcmp(arg_type, "auto") == 0) {
-            Error(tokens[ind - 1], "Cannot use auto type for arguments", 0);
-        }
         if (arg_type == NULL) {
             if (should_find) {
                 Error(tokens[ind], "Expected type after comma", 1);
             } else {
+                ind = save;
                 break;
             }
+        }
+        if (strcmp(arg_type, "auto") == 0) {
+            Error(tokens[ind - 1], "Cannot use auto type for arguments", 0);
         }
         char* arg_id = expect_type(T_ID);
         if (arg_type == NULL) {

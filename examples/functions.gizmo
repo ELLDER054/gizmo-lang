@@ -9,4 +9,4 @@ int square(int a) {
 }
 
 write(square(5)); \ 25
-write(square(10)) \ 100
+write(square(10)); \ 100
