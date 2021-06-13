@@ -9,6 +9,16 @@
 
 #define MAX_BUF_LEN 2048
 
+/*
+define i8* @constr(i8* %a, i8* %b) {
+entry:
+    %0 = call i8* @malloc(i32 6)
+    call i8* @strcpy(i8* %0, i8* %a)
+    call i8* @strcat(i8* %0, i8* %b)
+    ret i8* %0
+}
+*/
+
 char* current_function_return_type;
 int var_c = 0;
 int save_var_c = 0;
@@ -102,6 +112,10 @@ char* find_operation_asm(char* oper, char* t) {
         } else if (strcmp(oper, "!=") == 0) {
             return "fcmp one";
         }
+    } else if (strcmp(t, "i8*") == 0)  {
+        if (strcmp(oper, "+") == 0) {
+            return "call i8* @constr(";
+        }
     }
     return "";
 }
@@ -126,7 +140,14 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     strcat(c, " ");
     strcat(c, l);
     strcat(c, ", ");
+    if (strcmp(oper_asm, "call i8* @constr(") == 0) {
+        strcat(c, types(type(((Operator_node*) n)->left)));
+        strcat(c, " ");
+    }
     strcat(c, r);
+    if (strcmp(oper_asm, "call i8* @constr(") == 0) {
+        strcat(c, ")");
+    }
     if (oper_asm[1] == 'c') {
         char* op_name_new = heap_alloc(100);
         snprintf(op_name_new, 100, "%%%d", var_c++);
@@ -327,7 +348,7 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, write_arg_name);
                     strcat(code, ", i8** ");
                     strcat(code, name);
-                    strcat(code, "\n");
+                    strcat(code, "\n\t");
                     strcat(code, extra_name);
                     strcat(code, " = load i8*, i8** ");
                     strcat(code, name);
@@ -419,7 +440,7 @@ void generate_statement(Node* n, char* code) {
 void generate(Node** ast, int size, char* code, char* file_name) {
     current_function_return_type = malloc(100);
     memset(current_function_return_type, 0, 100);
-    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.strnn = private unnamed_addr constant [7 x i8] c \"%1024s\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
+    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i8* @constr(i8* %a, i8* %b, i32 %len) {\nentry:\n\t%0 = call i8* @malloc(i32 %len)\n\tcall i8* @strcpy(i8* %0, i8* %a)\n\tcall i8* @strcat(i8* %0, i8* %b)\n\tret i8* %0\n}\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -431,7 +452,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     char* module_id = heap_alloc(400);
     snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\n", file_name, file_name);
     insert(code, 0, strlen(code), module_id);
-    strcat(code, "\tret i32 0\n}\n\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
+    strcat(code, "\tret i32 0\n}\n\ndeclare i8* @malloc(i32)\ndeclare i8* @strcpy(i8*, i8*)\ndeclare i8* @strcat(i8*, i8*)\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
     symtab_destroy();
 }

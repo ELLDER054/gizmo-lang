@@ -140,11 +140,11 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start + 2], "Expected integer on right side of expression", 0);
             }
         }
-        /*else if (!strcmp(type(left), "string")) {
+        else if (!strcmp(type(left), "string")) {
             if (strcmp(type(right), "string")) {
                 Error(tokens[start], "Expected string on right side of expression", 0);
             }
-        }*/
+        }
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
                 Error(tokens[start + 2], "Expected real on right side of expression", 0);
