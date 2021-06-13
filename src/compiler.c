@@ -94,7 +94,7 @@ int main(int argc, char** argv) {
     if (out_file == NULL) {
         out_file = fopen("a.ll", "w");
     }
-    char output[2047];
+    char output[4096];
     memset(output, 0, sizeof(output));
     compile(code, output, argv[1]);
     fprintf(out_file, "%s", output);

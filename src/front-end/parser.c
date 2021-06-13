@@ -142,7 +142,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
         }
         else if (!strcmp(type(left), "string")) {
             if (strcmp(type(right), "string")) {
-                Error(tokens[start], "Expected string on right side of expression", 0);
+                Error(tokens[ind - 1], "Expected string on right side of expression", 0);
             }
         }
         else if (!strcmp(type(left), "real")) {
@@ -293,7 +293,7 @@ Node* primary(int start) {
     }
 
     if (expect_type(T_CHAR) != NULL) {
-        return (Node*) new_Char_node(strtof(tokens[ind - 1].value, NULL));
+        return (Node*) new_Char_node(tokens[ind - 1].value[0]);
     }
 
     if (expect_type(T_STR) != NULL) {

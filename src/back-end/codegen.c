@@ -275,7 +275,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* ");
         strcat(c, func_call_name);
         strcat(c, ", i32 0, i32 0\n\t");
-        strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.strnn, i32 0, i32 0), i8* ");
+        strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strnn, i32 0, i32 0), i8* ");
         strcat(c, temp_var);
         var_c++;
         char* temp_var2 = heap_alloc(100);
@@ -446,7 +446,7 @@ void generate_statement(Node* n, char* code) {
 void generate(Node** ast, int size, char* code, char* file_name) {
     current_function_return_type = malloc(100);
     memset(current_function_return_type, 0, 100);
-    strcpy(code, "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i8* @constr(i8* %a, i8* %b, i32 %len) {\nentry:\n\t%0 = call i8* @malloc(i32 %len)\n\tcall i8* @strcpy(i8* %0, i8* %a)\n\tcall i8* @strcat(i8* %0, i8* %b)\n\tret i8* %0\n}\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
+    strcpy(code, "@.strnn = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i8* @constr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i32 @strlen(i8* %a)\n\t%1 = call i32 @strlen(i8* %b)\n\t%2 = add i32 %0, %1\n\t%3 = call i8* @malloc(i32 %2)\n\tcall i8* @strcpy(i8* %3, i8* %a)\n\tcall i8* @strcat(i8* %3, i8* %b)\n\tret i8* %3\n}\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];
@@ -458,7 +458,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     char* module_id = heap_alloc(400);
     snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\n", file_name, file_name);
     insert(code, 0, strlen(code), module_id);
-    strcat(code, "\tret i32 0\n}\n\ndeclare i8* @malloc(i32)\ndeclare i8* @strcpy(i8*, i8*)\ndeclare i8* @strcat(i8*, i8*)\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
+    strcat(code, "\tret i32 0\n}\n\ndeclare i32 @strlen(i8*)\ndeclare i8* @malloc(i32)\ndeclare i8* @strcpy(i8*, i8*)\ndeclare i8* @strcat(i8*, i8*)\ndeclare i32 @scanf(i8*, ...)\ndeclare i32 @printf(i8* noalias nocapture, ...)\n");
     heap_free_all();
     symtab_destroy();
 }

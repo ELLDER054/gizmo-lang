@@ -175,7 +175,7 @@ void scan(char* code, Token* tokens) {
             tok.col = begin;
             tokens[token_count++] = tok;
         } else if (isDigit(ch)) {
-            char num[1024] = {'\0'};
+            char num[100] = {'\0'};
             TokenType tok_type = T_INT;
 
             int begin = col;
@@ -204,6 +204,15 @@ void scan(char* code, Token* tokens) {
                 } else {
                     tok_type = T_REAL;
                 }
+            }
+            if (col - begin >= 100) {
+                Token fake_tok;
+                fake_tok.type = T_INT;
+                strcpy(fake_tok.value, " ");
+                fake_tok.lineno = lineno;
+                strcpy(fake_tok.line, lines[lineno - 1]);
+                fake_tok.col = begin;
+                Error(fake_tok, "Surpassed maximum number length", 0);
             }
 
             Token tok;
@@ -292,7 +301,7 @@ void scan(char* code, Token* tokens) {
             tok.lineno = lineno;
             tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
-            char string[1024] = {'\0'};
+            char string[100] = {'\0'};
             char delim = ch;
             TokenType tok_type = T_STR;
 
@@ -316,11 +325,12 @@ void scan(char* code, Token* tokens) {
             col++;
 
             Token tok;
-            if (strlen(string) == 1) {
+            if (delim == '\'') {
                 tok_type = T_CHAR;
+            } else {
+                strcat(string, "\\00");
             }
             tok.type = tok_type;
-            strcat(string, "\\00");
             strcpy(tok.value, string);
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
