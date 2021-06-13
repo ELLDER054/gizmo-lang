@@ -1,4 +1,4 @@
-#include<stdio.h>
+#include <stdio.h>
 #include <string.h>
 #include <stdlib.h>
 #include "ast.h"
@@ -17,13 +17,18 @@ Token tokens[1024];
 
 void Error(Token token, const char* error, const int after) { /* Gives errors */
     fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", token.lineno, error, token.line);
-    int col = after ? strlen(token.value) : strlen(token.value) - 1;
+    int col = after ? token.col + 1 : token.col;
     for (int i = 0; i < col; i++) {
         fprintf(stderr, " ");
     }
-    fprintf(stderr, "\x1b[32;1m^\x1b[0m");
+    if (after || strlen(token.value) == 1) {
+        for (int i = 1; i < strlen(token.value); i++) {
+            fprintf(stderr, " ");
+        }
+        fprintf(stderr, "\x1b[32;1m^\x1b[0m");
+    }
     if (strlen(token.value) > 1 && !after) {
-        for (int i = 1; i < strlen(token.value) - 1; i++) {
+        for (int i = 1; i < strlen(token.value); i++) {
             fprintf(stderr, "\x1b[32;1m^\x1b[0m");
         }
         fprintf(stderr, "\x1b[32;1m^\x1b[0m");
@@ -132,7 +137,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
     if (strcmp(oper, "+") == 0) {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
-                Error(tokens[start], "Expected integer on right side of expression", 0);
+                Error(tokens[start + 2], "Expected integer on right side of expression", 0);
             }
         }
         /*else if (!strcmp(type(left), "string")) {
@@ -142,7 +147,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
         }*/
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
-                Error(tokens[start], "Expected real on right side of expression", 0);
+                Error(tokens[start + 2], "Expected real on right side of expression", 0);
             }
         } else {
             char* error = malloc(100);
@@ -153,7 +158,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
     } else if (strcmp(oper, "%") == 0) {
         if (strcmp(type(left), "int") == 0) {
             if (strcmp(type(right), "int")) {
-                Error(tokens[start], "Expected integer on right side of expression", 0);
+                Error(tokens[start + 2], "Expected integer on right side of expression", 0);
             }
         } else {
             char* error = malloc(100);
@@ -164,12 +169,12 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
     } else {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
-                Error(tokens[start], "Expected integer on right side of expression", 0);
+                Error(tokens[start + 2], "Expected integer on right side of expression", 0);
             }
         }
         else if (!strcmp(type(left), "real")) {
             if (strcmp(type(right), "real")) {
-                Error(tokens[start], "Expected real on right side of expression", 0);
+                Error(tokens[start + 2], "Expected real on right side of expression", 0);
             }
         } else {
             char* error = malloc(100);
@@ -191,6 +196,9 @@ Node* equality(int start) {
     while (expect_type(T_NOT_EQUALS) != NULL || expect_type(T_EQUALS_EQUALS) != NULL) {
         int save = ind - 1;
         Node* right = comparison(ind);
+        if (right == NULL) {
+            Error(tokens[save], "Expected right side of expression", 1);
+        }
         check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
@@ -205,6 +213,9 @@ Node* comparison(int start) {
     while (expect_type(T_GREATER_THAN) != NULL || expect_type(T_LESS_THAN) != NULL || expect_type(T_GREATER_THAN_EQUALS) != NULL || expect_type(T_LESS_THAN_EQUALS) != NULL) {
         int save = ind - 1;
         Node* right = term(ind);
+        if (right == NULL) {
+            Error(tokens[save], "Expected right side of expression", 1);
+        }
         check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
@@ -219,6 +230,9 @@ Node* term(int start) {
     while (expect_type(T_PLUS) != NULL || expect_type(T_MINUS) != NULL) {
         int save = ind - 1;
         Node* right = factor(ind);
+        if (right == NULL) {
+            Error(tokens[save], "Expected right side of expression", 1);
+        }
         check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
     }
@@ -234,7 +248,7 @@ Node* factor(int start) {
         int save = ind - 1;
         Node* right = unary(ind);
         if (right == NULL) {
-            Error(tokens[ind - 1], "Expected right side of expression", 1);
+            Error(tokens[save], "Expected right side of expression", 1);
         }
         check_type(start, expr, right, tokens[save].value);
         expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
@@ -309,7 +323,7 @@ void func_expr_args(int start, Node** args, int* len) { /* Puts caller arguments
         log_trace("typeofexpr: |%s|\n", type(expr));
         if (expr == NULL) {
             if (should_find) {
-                Error(tokens[ind - 1], "Expected argument after comma", 0);
+                Error(tokens[ind - 1], "Expected argument after comma", 1);
             } else {
                 ind = save;
                 break;
@@ -334,7 +348,7 @@ void func_decl_args(int start, Node** args, int* len) {
         char* arg_type = expect_type(T_TYPE);
         if (arg_type == NULL) {
             if (should_find) {
-                Error(tokens[ind], "Expected type after comma", 1);
+                Error(tokens[ind - 1], "Expected type after comma", 1);
             } else {
                 ind = save;
                 break;
@@ -345,7 +359,7 @@ void func_decl_args(int start, Node** args, int* len) {
         }
         char* arg_id = expect_type(T_ID);
         if (arg_id == NULL) {
-            Error(tokens[ind], "Expected id after type", 1);
+            Error(tokens[ind - 1], "Expected identifier after type", 1);
         }
         char* comma = expect_type(T_COMMA);
         char cgid[MAX_NAME_LEN + 4] = {0};
@@ -381,13 +395,13 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Use of undefined function `%s`", id);
-        Error(tokens[ind - 1], error, 0);
+        Error(tokens[start], error, 0);
     }
     if (args_len != symtab_find_global(id, "func")->args_len) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
-        Error(tokens[ind - 1], error, 0);
+        Error(tokens[start], error, 0);
     }
     return (Node*) new_Func_call_node(id, args);
 }
@@ -414,7 +428,7 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        Error(tokens[ind], "Expected identifier after type", 0);
+        Error(tokens[start], "Expected identifier after type", 1);
     }
     char* end = expect_type(T_SEMI_COLON);
     if (end == NULL) {
@@ -469,13 +483,13 @@ Node* function_call(int start) { /* A function call with a semi-colon */
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Use of undefined function `%s`", id);
-        Error(tokens[ind], error, 0);
+        Error(tokens[start], error, 0);
     }
     if (args_len != symtab_find_global(id, "func")->args_len) {
         char* error = malloc(100);
         memset(error, 0, 100);
         snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
-        Error(tokens[ind], error, 0);
+        Error(tokens[start], error, 0);
     }
     return (Node*) new_Func_call_node(id, args);
 } 
@@ -489,7 +503,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-       Error(tokens[ind], "Expected identifier after type", 0);
+       Error(tokens[start], "Expected identifier after type", 1);
     }
     char* eq = expect_type(T_ASSIGN);
     if (eq == NULL) {
@@ -498,7 +512,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
-        Error(tokens[ind], "Expected expression after assignment operator", 0);
+        Error(tokens[start + 2], "Expected expression after assignment operator", 1);
     }
     char b[MAX_NAME_LEN];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
@@ -511,15 +525,12 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     }
     if (strcmp(var_type, "none") == 0) {
         Error(tokens[start], "Cannot use `none` like a type", 0);
-    } if (strcmp(var_type, "auto") == 0 && strcmp(type(expr), "none") == 0) {
-        Error(tokens[start], "Cannot figure out what type `none` is", 0);
     }
     if (strcmp(var_type, "auto") != 0) {
         if (strcmp(type(expr), var_type)) {
             char* error = malloc(100);
             memset(error, 0, 100);
             snprintf(error, 100, "For variable `%s`\nCannot assign `%s` to variable of type `%s`", id, type(expr), var_type);
-            free_node(expr);
             Error(tokens[start], error, 0);
         }
     } else {
@@ -606,12 +617,12 @@ Node* return_statement(int start) {
         expr = (Node*) new_Identifier_node("none", "none", "none");
     }
     if (strcmp(function_type, type(expr)) != 0) {
-        Error(tokens[start + 1], "The return type of function is different from the type given in the return expression", 0);
+        Error(tokens[start + 1], "Return type of function is different from the return expression", 0);
     }
     char b[100];
     consume(T_SEMI_COLON, "Expected semi-colon to terminate return statement", b);
     if (!in_function) {
-        Error(tokens[start + 1], "Can't have return statement outside of function", 0);
+        Error(tokens[start], "Can't have return statement outside of function", 0);
     }
     return (Node*) new_Return_node(expr);
 }
@@ -628,7 +639,7 @@ Node* function_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        ind = start; /* TODO: ERROR */
+        ind = start;
         fprintf(stderr, "Expected identifier after type");
         return NULL;
     }
