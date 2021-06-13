@@ -276,7 +276,6 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, func_call_name);
         strcat(c, ", i32 0, i32 0\n\t");
         strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.strnn, i32 0, i32 0), i8* ");
-        previous_str_is_ptr = 1;
         strcat(c, temp_var);
         var_c++;
         char* temp_var2 = heap_alloc(100);
@@ -287,7 +286,14 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, temp_var);
         strcat(c, ", i8** ");
         strcat(c, temp_var2);
-        return temp_var2;
+        strcat(c, "\n");
+        char* last_temp_var = heap_alloc(100);
+        snprintf(last_temp_var, 100, "%%%d", var_c++);
+        strcat(c, last_temp_var);
+        strcat(c, " = load i8*, i8** ");
+        strcat(c, temp_var2);
+        strcat(c, "\n");
+        return last_temp_var;
     }
     
     return generate_operation_asm(n, expr_type, c);
