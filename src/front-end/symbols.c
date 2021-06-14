@@ -19,6 +19,16 @@ void symtab_init(void) { /* Initializes a symbol table */
   cur = global;
 }
 
+void symtab_print_all(void) {
+  Symbol *sym = cur->sym_head;
+  SymbolTable *parent = cur->parent;
+  while (sym != NULL) {
+    Symbol *next = sym->next;
+    printf("SYM: name (%s), type (%s), symtype (%s), cgid (%s)\n", sym->name, sym->type, sym->sym_type, sym->cgid);
+    sym = next;
+  }
+}
+
 void symtab_destroy(void) { /* Frees a symbol table */
   Symbol* sym = global->sym_head;
   while (sym != NULL) {

@@ -83,6 +83,8 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case REAL_NODE:
             print_real(f, (Real_node*) n);
             break;
+        case VAR_ASSIGN_NODE:
+            break;
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
@@ -133,6 +135,21 @@ void free_Var_declaration_node(Var_declaration_node* n) { /* Frees a variable de
         }
         free(n);
     }
+}
+
+Var_assignment_node* new_Var_assignment_node(char* name, Node* value) {
+    Var_assignment_node* var = malloc(sizeof(Var_assignment_node));
+    memset(var, 0, sizeof(Var_assignment_node));
+
+    var->n_type = VAR_ASSIGN_NODE;
+    strncpy(var->name, name, MAX_NAME_LEN);
+    var->value = value;
+    return var;
+}
+
+void free_Var_assignment_node(Var_assignment_node* v) {
+    free_node(v->value);
+    free(v);
 }
 
 Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a function call node */
@@ -344,6 +361,9 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case VAR_DECLARATION_NODE:
             free_Var_declaration_node((Var_declaration_node*) n);
+            break;
+        case VAR_ASSIGN_NODE:
+            free_Var_assignment_node((Var_assignment_node*) n);
             break;
         case OPERATOR_NODE:
             free_Operator_node((Operator_node*) n);

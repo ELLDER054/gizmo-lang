@@ -184,7 +184,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             strcat(c, id_code);
             previous_str_is_ptr = 1;
         } else {
-            snprintf(id_name, 105, "%%%s", ((Identifier_node*) n)->codegen_name);
+            snprintf(id_name, 105, "%%%s", symtab_find_global(((Identifier_node*) n)->name, "var")->cgid);
         }
         return id_name;
     } else if (n->n_type == CHAR_NODE) {
@@ -320,7 +320,7 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, extra_name);
                     strcat(code, "\n\t%");
                     strcat(code, v->codegen_name);
-                    strcat(code, " = load i8*, i8** \n");
+                    strcat(code, " = load i8*, i8** ");
                     strcat(code, extra_name);
                     strcat(code, "\n");
             } else if (strcmp(v->type, "char") == 0) {
@@ -331,6 +331,45 @@ void generate_statement(Node* n, char* code) {
             } else if (strcmp(v->type, "real") == 0) {
                 strcat(code, "\t%");
                 strcat(code, v->codegen_name);
+                strcat(code, " = fadd double 0.0, ");
+                strcat(code, var_name);
+            }
+            strcat(code, "\n");
+        } else if (n->n_type == VAR_ASSIGN_NODE) {
+            Var_assignment_node* v = (Var_assignment_node*) n;
+            char* var_buf = heap_alloc(100);
+            char* var_name = generate_expression_asm(v->value, types(type(v->value)), code, var_buf);
+            char* new_id = heap_alloc(100);
+            memset(new_id, 0, 100);
+            snprintf(new_id, 100, "%d", var_c++);
+            strcpy(symtab_find_global(v->name, "var")->cgid, new_id);
+            if (strcmp(type(v->value), "int") == 0) {
+                strcat(code, "\t%");
+                strcat(code, symtab_find_global(v->name, "var")->cgid);
+                strcat(code, " = add i32 0, ");
+                strcat(code, var_name);
+            } else if (strcmp(type(v->value), "string") == 0) {
+                    strcat(code, "\t");
+                    char* extra_name = heap_alloc(100);
+                    snprintf(extra_name, 100, "%%%d", var_c++);
+                    strcat(code, extra_name);
+                    strcat(code, " = alloca i8*\n\tstore i8* ");
+                    strcat(code, var_name);
+                    strcat(code, ", i8** ");
+                    strcat(code, extra_name);
+                    strcat(code, "\n\t%");
+                    strcat(code, symtab_find_global(v->name, "var")->cgid);
+                    strcat(code, " = load i8*, i8** \n");
+                    strcat(code, extra_name);
+                    strcat(code, "\n");
+            } else if (strcmp(type(v->value), "char") == 0) {
+                strcat(code, "\t%");
+                strcat(code, symtab_find_global(v->name, "var")->cgid);
+                strcat(code, " = add i8 0, ");
+                strcat(code, var_name);
+            } else if (strcmp(type(v->value), "real") == 0) {
+                strcat(code, "\t%");
+                strcat(code, symtab_find_global(v->name, "var")->cgid);
                 strcat(code, " = fadd double 0.0, ");
                 strcat(code, var_name);
             }

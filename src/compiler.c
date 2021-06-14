@@ -43,7 +43,7 @@ void compile(char* code, char* out, char* file_name) {
 
 void parse_command_line_args(int argc, char** argv) {
     if (argc < 2) {
-        fprintf(stderr, "gizmo: Expected at least an input file\n");
+        fprintf(stdout, "Gizmo, a fast and user-friendly programming language for parsing and manipulating strings\n");
         exit(-1);
     }
     int has_found_in_file = 0;
