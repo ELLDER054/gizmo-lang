@@ -118,7 +118,6 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case REAL_NODE:
             return "real";
         case VAR_DECLARATION_NODE:
-        case VAR_ASSIGN_NODE:
             break;
         case ID_NODE:
             return ((Identifier_node*) n)->type;
@@ -364,7 +363,7 @@ void func_decl_args(int start, Node** args, int* len) {
         }
         char* comma = expect_type(T_COMMA);
         char cgid[MAX_NAME_LEN + 4] = {0};
-        snprintf(cgid, MAX_NAME_LEN + 4, "%%.%d", id_c++);
+        snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", arg_id, id_c++);
         args[arg_c++] = (Node*) new_Var_declaration_node(arg_type, cgid, arg_id, NULL);
         if (comma == NULL) {
             break;
@@ -455,7 +454,7 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
         Error(tokens[start], "Cannot use auto type for an incomplete variable declaration", 0);
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
-    snprintf(cgid, MAX_NAME_LEN + 4, "%%.%d", id_c++);
+    snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
     symtab_add_symbol(var_type, "var", id, 0, cgid);
     return (Node*) new_Var_declaration_node(var_type, cgid, id, incomplete_initializers(var_type));
 }
@@ -538,36 +537,9 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
         strcpy(var_type, type(expr));
     }
     char cgid[MAX_NAME_LEN + 4] = {0};
-    snprintf(cgid, MAX_NAME_LEN + 4, "%%.%d", id_c++);
+    snprintf(cgid, MAX_NAME_LEN + 4, "%s.%d", id, id_c++);
     symtab_add_symbol(var_type, "var", id, 0, cgid);
     return (Node*) new_Var_declaration_node(var_type, cgid, id, expr);
-}
-
-Node* var_assignment(int start) {
-    ind = start;
-    char* id = expect_type(T_ID);
-    if (id == NULL) {
-        ind = start;
-        return NULL;
-    }
-    char* eq = expect_type(T_ASSIGN);
-    if (eq == NULL) {
-        ind = start;
-        return NULL;
-    }
-    Node* expr = expression(ind);
-    if (expr == NULL) {
-        Error(tokens[ind - 1], "Expected expression after assignment operator", 1);
-    }
-    char b[MAX_NAME_LEN];
-    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
-    if (symtab_find_global(id, "var") == NULL) {
-        Error(tokens[start], "Cannot change undefined variable", 0);
-    }
-    if (strcmp(symtab_find_global(id, "var")->type, type(expr)) != 0) {
-        Error(tokens[start], "Cannot assign old variable to new type", 0);
-    }
-    return (Node*) new_Var_assignment_node(id, symtab_find_global(id, "var")->cgid, expr);
 }
 
 void program(Node** ast, int max_len);
@@ -715,10 +687,6 @@ Node* statement(int start) { /* Calls all possible statements */
     if (var != NULL) {
         log_trace("found var decl\n");
         return var;
-    }
-    Node* va = var_assignment(start);
-    if (va != NULL) {
-        return va;
     }
     Node* func = function_call(start);
     if (func != NULL) {
