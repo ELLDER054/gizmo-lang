@@ -184,7 +184,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             strcat(c, id_code);
             previous_str_is_ptr = 1;
         } else {
-            snprintf(id_name, 105, "%%%s", ((Identifier_node*) n)->codegen_name);
+            snprintf(id_name, 105, "%s", symtab_find_global(((Identifier_node*) n)->name, "var")->cgid);
         }
         return id_name;
     } else if (n->n_type == CHAR_NODE) {
@@ -305,7 +305,7 @@ void generate_statement(Node* n, char* code) {
             char* var_buf = heap_alloc(100);
             char* var_name = generate_expression_asm(v->value, types(v->type), code, var_buf);
             if (strcmp(v->type, "int") == 0) {
-                strcat(code, "\t%");
+                strcat(code, "\t");
                 strcat(code, v->codegen_name);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
@@ -318,21 +318,52 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, var_name);
                     strcat(code, ", i8** ");
                     strcat(code, extra_name);
-                    strcat(code, "\n\t%");
+                    strcat(code, "\n\t");
                     strcat(code, v->codegen_name);
-                    strcat(code, " = load i8*, i8** \n");
+                    strcat(code, " = load i8*, i8** ");
                     strcat(code, extra_name);
                     strcat(code, "\n");
             } else if (strcmp(v->type, "char") == 0) {
-                strcat(code, "\t%");
+                strcat(code, "\t");
                 strcat(code, v->codegen_name);
                 strcat(code, " = add i8 0, ");
                 strcat(code, var_name);
             } else if (strcmp(v->type, "real") == 0) {
-                strcat(code, "\t%");
+                strcat(code, "\t");
                 strcat(code, v->codegen_name);
                 strcat(code, " = fadd double 0.0, ");
                 strcat(code, var_name);
+            }
+            strcat(code, "\n");
+        } else if (n->n_type == VAR_ASSIGN_NODE) {
+            Var_assignment_node* var = (Var_assignment_node*) n;
+            char* end_len = heap_alloc(100);
+            char* expr_name = generate_expression_asm(var->value, types(type(var->value)), code, end_len);
+            if (strcmp(type(var->value), "int") == 0) {
+                strcat(code, "\t");
+                snprintf(symtab_find_global(var->name, "var")->cgid, 100, "%%%d", var_c++);
+                strcat(code, symtab_find_global(var->name, "var")->cgid);
+                strcat(code, " = add i32 0, ");
+                strcat(code, expr_name);
+            } else if (strcmp(type(var->value), "string") == 0) {
+                    strcat(code, "\t");
+                    snprintf(symtab_find_global(var->name, "var")->cgid, 100, "%%%d", var_c++);
+                    strcat(code, symtab_find_global(var->name, "var")->cgid);
+                    strcat(code, " = call i8* @constr(i8* getelementptr inbounds ([1 x i8], [1 x i8]* @.strnut, i32 0, i32 0), i8* ");
+                    strcat(code, expr_name);
+                    strcat(code, ")\n");
+            } else if (strcmp(type(var->value), "char") == 0) {
+                strcat(code, "\t");
+                snprintf(symtab_find_global(var->name, "var")->cgid, 100, "%%%d", var_c++);
+                strcat(code, symtab_find_global(var->name, "var")->cgid);
+                strcat(code, " = add i8 0, ");
+                strcat(code, expr_name);
+            } else if (strcmp(type(var->value), "real") == 0) {
+                strcat(code, "\t");
+                snprintf(symtab_find_global(var->name, "var")->cgid, 100, "%%%d", var_c++);
+                strcat(code, symtab_find_global(var->name, "var")->cgid);
+                strcat(code, " = fadd double 0.0, ");
+                strcat(code, expr_name);
             }
             strcat(code, "\n");
         } else if (n->n_type == WRITE_NODE) {
@@ -446,7 +477,7 @@ void generate_statement(Node* n, char* code) {
 void generate(Node** ast, int size, char* code, char* file_name) {
     current_function_return_type = malloc(100);
     memset(current_function_return_type, 0, 100);
-    strcpy(code, "@.strnn = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i8* @constr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i32 @strlen(i8* %a)\n\t%1 = call i32 @strlen(i8* %b)\n\t%2 = add i32 %0, %1\n\t%3 = call i8* @malloc(i32 %2)\n\tcall i8* @strcpy(i8* %3, i8* %a)\n\tcall i8* @strcat(i8* %3, i8* %b)\n\tret i8* %3\n}\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
+    strcpy(code, "@.strnut = private unnamed_addr constant [1 x i8] c\"\\00\"\n@.strnn = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n\ndefine i8* @constr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i32 @strlen(i8* %a)\n\t%1 = call i32 @strlen(i8* %b)\n\t%2 = add i32 %0, %1\n\t%3 = call i8* @malloc(i32 %2)\n\tcall i8* @strcpy(i8* %3, i8* %a)\n\tcall i8* @strcat(i8* %3, i8* %b)\n\tret i8* %3\n}\ndefine double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n\ndefine i32 @main() {\nentry:\n");
     heap_init();
     for (int i = 0; i < size; i++) {
         Node* n = ast[i];

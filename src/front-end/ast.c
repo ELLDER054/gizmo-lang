@@ -51,6 +51,10 @@ void print_str(FILE* f, String_node* s) { /* Prints a string node */
     fprintf(f, "(STR_NODE, %s)", s->value);
 }
 
+void print_var_assign(FILE* f, Var_assignment_node* n) {
+    fprintf(f, "(VA, %s)", n->name);
+}
+
 void print_var(FILE* f, Var_declaration_node* v);
 void print_func_call(FILE* f, Func_call_node* func);
 
@@ -58,6 +62,9 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
     switch (n->n_type) {
         case VAR_DECLARATION_NODE:
             print_var(f, (Var_declaration_node*) n);
+            break;
+        case VAR_ASSIGN_NODE:
+            print_var_assign(f, (Var_assignment_node*) n);
             break;
         case OPERATOR_NODE:
             print_oper(f, (Operator_node*) n);
@@ -132,6 +139,26 @@ void free_Var_declaration_node(Var_declaration_node* n) { /* Frees a variable de
             free_node(n->value);
         }
         free(n);
+    }
+}
+
+Var_assignment_node* new_Var_assignment_node(char* name, char* codegen_name, Node* value) {
+    Var_assignment_node* var = malloc(sizeof(Var_assignment_node));
+    memset(var, 0, sizeof(Var_assignment_node));
+
+    var->n_type = VAR_ASSIGN_NODE;
+    strncpy(var->name, name, MAX_NAME_LEN);
+    strncpy(var->codegen_name, codegen_name, MAX_NAME_LEN + 4);
+    var->value = value;
+    return var;
+}
+
+void free_Var_assignment_node(Var_assignment_node* v) {
+    if (v != NULL) {
+        if (v->value != NULL) {
+            free_node(v->value);
+        }
+        free(v);
     }
 }
 
@@ -344,6 +371,9 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case VAR_DECLARATION_NODE:
             free_Var_declaration_node((Var_declaration_node*) n);
+            break;
+        case VAR_ASSIGN_NODE:
+            free_Var_assignment_node((Var_assignment_node*) n);
             break;
         case OPERATOR_NODE:
             free_Operator_node((Operator_node*) n);

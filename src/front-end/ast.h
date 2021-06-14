@@ -11,6 +11,7 @@ struct Node;
 
 typedef enum {
     VAR_DECLARATION_NODE,
+    VAR_ASSIGN_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
     STRING_NODE,
@@ -38,6 +39,13 @@ typedef struct {
     char codegen_name[MAX_NAME_LEN + 4];
     Node* value;
 } Var_declaration_node;
+
+typedef struct {
+    NodeType n_type;
+    char name[MAX_NAME_LEN];
+    char codegen_name[MAX_NAME_LEN + 4];
+    Node* value;
+} Var_assignment_node;
 
 typedef struct {
     NodeType n_type;
@@ -103,6 +111,7 @@ typedef struct {
 void free_node(Node* n);
 void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
+Var_assignment_node* new_Var_assignment_node(char* name, char* codegen_name, Node* value);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
