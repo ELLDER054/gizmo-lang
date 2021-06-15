@@ -118,9 +118,9 @@ void symtab_push_context(void) { /* Pushes a new context to the symbol table */
 }
 
 void symtab_pop_context(void) { /* Pops a context from the symbol table */
-  Symbol *sym = cur->sym_head;
+  /*Symbol *sym = cur->sym_head;*/
   SymbolTable *parent = cur->parent;
-  while (sym != NULL) {
+  /*while (sym != NULL) {
     Symbol *next = sym->next;
     free(sym->name);
     free(sym->type);
@@ -129,6 +129,6 @@ void symtab_pop_context(void) { /* Pops a context from the symbol table */
     free(sym);
     sym = next;
   }
-  free(cur);
+  free(cur);*/
   cur = parent;
 }
