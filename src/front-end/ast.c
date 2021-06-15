@@ -137,13 +137,14 @@ void free_Var_declaration_node(Var_declaration_node* n) { /* Frees a variable de
     }
 }
 
-Var_assignment_node* new_Var_assignment_node(char* name, Node* value) {
+Var_assignment_node* new_Var_assignment_node(char* name, Node* value, SymbolTable* current) {
     Var_assignment_node* var = malloc(sizeof(Var_assignment_node));
     memset(var, 0, sizeof(Var_assignment_node));
 
     var->n_type = VAR_ASSIGN_NODE;
     strncpy(var->name, name, MAX_NAME_LEN);
     var->value = value;
+    var->currentScope = current;
     return var;
 }
 
@@ -205,7 +206,7 @@ void free_Operator_node(Operator_node* n) { /* Frees an operator node */
     free(n);
 }
 
-Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type) { /* Initializes an identifier node */
+Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type, SymbolTable* current) { /* Initializes an identifier node */
     Identifier_node* i = malloc(sizeof(Identifier_node));
     memset(i, 0, sizeof(Identifier_node));
     
@@ -213,6 +214,7 @@ Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type)
     strncpy(i->type, type, MAX_TYPE_LEN);
     strncpy(i->name, name, MAX_NAME_LEN);
     strncpy(i->codegen_name, codegen_name, MAX_NAME_LEN + 4);
+    i->currentScope = current;
     return i;
 }
 

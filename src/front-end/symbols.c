@@ -29,6 +29,21 @@ void symtab_print_all(void) {
   }
 }
 
+SymbolTable* symtab_get_current() {
+    return cur;
+}
+
+Symbol* symtab_find_in(SymbolTable* symtab, char* name, char* sym_type) {
+  for (SymbolTable* sym_tab = symtab; sym_tab != NULL; sym_tab = sym_tab->parent) {
+    for (Symbol *sym = sym_tab->sym_head; sym != NULL; sym = sym->next) {
+      if (strcmp(sym->name, name) == 0 && strcmp(sym->sym_type, sym_type) == 0) {
+        return sym;
+      }
+    }
+  }
+  return NULL;
+} 
+
 void symtab_destroy(void) { /* Frees a symbol table */
   Symbol* sym = global->sym_head;
   while (sym != NULL) {

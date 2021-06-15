@@ -184,7 +184,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             strcat(c, id_code);
             previous_str_is_ptr = 1;
         } else {
-            snprintf(id_name, 105, "%%%s", symtab_find_global(((Identifier_node*) n)->name, "var")->cgid);
+            snprintf(id_name, 105, "%%%s", symtab_find_in(((Identifier_node*) n)->currentScope, ((Identifier_node*) n)->name, "var")->cgid);
         }
         return id_name;
     } else if (n->n_type == CHAR_NODE) {
@@ -342,10 +342,10 @@ void generate_statement(Node* n, char* code) {
             char* new_id = heap_alloc(100);
             memset(new_id, 0, 100);
             snprintf(new_id, 100, "%d", var_c++);
-            strcpy(symtab_find_global(v->name, "var")->cgid, new_id);
+            strcpy(symtab_find_in(v->currentScope, v->name, "var")->cgid, new_id);
             if (strcmp(type(v->value), "int") == 0) {
                 strcat(code, "\t%");
-                strcat(code, symtab_find_global(v->name, "var")->cgid);
+                strcat(code, symtab_find_in(v->currentScope, v->name, "var")->cgid);
                 strcat(code, " = add i32 0, ");
                 strcat(code, var_name);
             } else if (strcmp(type(v->value), "string") == 0) {
@@ -358,18 +358,18 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, ", i8** ");
                     strcat(code, extra_name);
                     strcat(code, "\n\t%");
-                    strcat(code, symtab_find_global(v->name, "var")->cgid);
+                    strcat(code, symtab_find_in(v->currentScope, v->name, "var")->cgid);
                     strcat(code, " = load i8*, i8** \n");
                     strcat(code, extra_name);
                     strcat(code, "\n");
             } else if (strcmp(type(v->value), "char") == 0) {
                 strcat(code, "\t%");
-                strcat(code, symtab_find_global(v->name, "var")->cgid);
+                strcat(code, symtab_find_in(v->currentScope, v->name, "var")->cgid);
                 strcat(code, " = add i8 0, ");
                 strcat(code, var_name);
             } else if (strcmp(type(v->value), "real") == 0) {
                 strcat(code, "\t%");
-                strcat(code, symtab_find_global(v->name, "var")->cgid);
+                strcat(code, symtab_find_in(v->currentScope, v->name, "var")->cgid);
                 strcat(code, " = fadd double 0.0, ");
                 strcat(code, var_name);
             }

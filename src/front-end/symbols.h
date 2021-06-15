@@ -18,6 +18,8 @@ struct Symbol {
 
 
 void symtab_print_all();
+SymbolTable* symtab_get_current();
+Symbol* symtab_find_in(SymbolTable* symtab, char* name, char* sym_type);
 Symbol* symtab_find_local(char *name, char* sym_type);
 Symbol* symtab_find_global(char *name, char* sym_type);
 int symtab_add_symbol(char* type, char* sym_type, char* name, int args_len, char* cgid);

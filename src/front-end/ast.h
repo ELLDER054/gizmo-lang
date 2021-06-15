@@ -2,6 +2,7 @@
 #define AST_H
 
 #include "scanner.h"
+#include "symbols.h"
 
 #define MAX_NAME_LEN  100
 #define MAX_TYPE_LEN  8
@@ -44,6 +45,7 @@ typedef struct {
     NodeType n_type;
     char name[MAX_NAME_LEN];
     Node* value;
+    SymbolTable* currentScope;
 } Var_assignment_node;
 
 typedef struct {
@@ -58,6 +60,7 @@ typedef struct {
     char name[MAX_NAME_LEN];
     char codegen_name[MAX_NAME_LEN + 4];
     char type[MAX_TYPE_LEN];
+    SymbolTable* currentScope;
 } Identifier_node;
 
 typedef struct {
@@ -110,13 +113,13 @@ typedef struct {
 void free_node(Node* n);
 void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
-Var_assignment_node* new_Var_assignment_node(char* name, Node* value);
+Var_assignment_node* new_Var_assignment_node(char* name, Node* value, SymbolTable* current);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 String_node* new_String_node(char* val);
 Char_node* new_Char_node(char val);
 Real_node* new_Real_node(double val);
-Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type);
+Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type, SymbolTable* current);
 Func_call_node* new_Func_call_node(char* name, Node** args);
 Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args_len, Node* body);
 Return_node* new_Return_node(Node* expr);

@@ -286,7 +286,7 @@ Node* primary(int start) {
         if (symtab_find_global(tokens[ind - 1].value, "var") == NULL) {
             Error(tokens[ind - 1], "Use of undefined variable", 0);
         }
-        return (Node*) new_Identifier_node(tokens[ind - 1].value, symtab_find_global(tokens[ind - 1].value, "var")->cgid, symtab_find_global(tokens[ind - 1].value, "var")->type);
+        return (Node*) new_Identifier_node(tokens[ind - 1].value, symtab_find_global(tokens[ind - 1].value, "var")->cgid, symtab_find_global(tokens[ind - 1].value, "var")->type, symtab_get_current());
     }
 
     if (expect_type(T_REAL) != NULL) {
@@ -564,7 +564,7 @@ Node* var_assignment(int start) {
     }
     char b[100];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement", b);
-    return (Node*) new_Var_assignment_node(id, expr);
+    return (Node*) new_Var_assignment_node(id, expr, symtab_get_current());
 }
 
 void program(Node** ast, int max_len);
@@ -639,7 +639,7 @@ Node* return_statement(int start) {
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
-        expr = (Node*) new_Identifier_node("none", "none", "none");
+        expr = (Node*) new_Identifier_node("none", "none", "none", symtab_get_current());
     }
     if (strcmp(function_type, type(expr)) != 0) {
         Error(tokens[start + 1], "Return type of function is different from the return expression", 0);
