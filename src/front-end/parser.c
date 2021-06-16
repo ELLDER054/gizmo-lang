@@ -85,7 +85,7 @@ Node* unary(int start);
 Node* incomplete_function_call(int start);
 
 int is_logical_operator(char* operator) {
-    return (strcmp(operator, "<") == 0) || (strcmp(operator, ">") == 0) || (strcmp(operator, "<=") == 0) || (strcmp(operator, ">=") == 0) || (strcmp(operator, "==") == 0);
+    return (strcmp(operator, "<") == 0) || (strcmp(operator, ">") == 0) || (strcmp(operator, "<=") == 0) || (strcmp(operator, ">=") == 0) || (strcmp(operator, "==") == 0) || (strcmp(operator, "!=") == 0);
 }
 
 char* type(Node* n) { /* Returns the type of the given Node* */
@@ -179,6 +179,54 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
             char* error = malloc(100);
             memset(error, 0, 100);
             snprintf(error, 100, "Invalid operand type `%s` for operator `%%`", type(left));
+            Error(tokens[start], error, 0);
+        }
+    } else if (strcmp(oper, "==") == 0 || strcmp(oper, "!=") == 0) {
+        if (!strcmp(type(left), "int")) {
+            if (strcmp(type(right), "int")) {
+                Error(tokens[start + 2], "Expected integer on right side of expression", 0);
+            }
+        }
+        else if (!strcmp(type(left), "string")) {
+            if (strcmp(type(right), "string")) {
+                Error(tokens[ind - 1], "Expected string on right side of expression", 0);
+            }
+        }
+        else if (!strcmp(type(left), "real")) {
+            if (strcmp(type(right), "real")) {
+                Error(tokens[start + 2], "Expected real on right side of expression", 0);
+            }
+        } else if (!strcmp(type(left), "bool")) {
+            if (strcmp(type(right), "bool")) {
+                Error(tokens[start + 2], "Expected boolean on right side of expression", 0);
+            }
+        } else if (!strcmp(type(left), "char")) {
+            if (strcmp(type(right), "char")) {
+                Error(tokens[start + 2], "Expected character on right side of expression", 0);
+            }
+        } else {
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Invalid operand type `%s` for operator `%s`", type(left), oper);
+            Error(tokens[start], error, 0);
+        }
+    } else if (is_logical_operator(oper)) {
+        if (!strcmp(type(left), "int")) {
+            if (strcmp(type(right), "int")) {
+                Error(tokens[start + 2], "Expected integer on right side of expression", 0);
+            }
+        } else if (!strcmp(type(left), "real")) {
+            if (strcmp(type(right), "real")) {
+                Error(tokens[start + 2], "Expected real on right side of expression", 0);
+            }
+        } else if (!strcmp(type(left), "char")) {
+            if (strcmp(type(right), "char")) {
+                Error(tokens[start + 2], "Expected character on right side of expression", 0);
+            }
+        } else {
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Invalid operand type `%s` for operator `%s`", type(left), oper);
             Error(tokens[start], error, 0);
         }
     } else {
@@ -303,6 +351,14 @@ Node* unary(int start) {
 
 Node* primary(int start) {
 	ind = start;
+
+    if (expect_type(T_TRUE) != NULL) {
+        return (Node*) new_Boolean_node(1);
+    }
+
+    if (expect_type(T_FALSE) != NULL) {
+        return (Node*) new_Boolean_node(0);
+    }
 
 	if (expect_type(T_INT) != NULL) {
         return (Node*) new_Integer_node(atoi(tokens[ind - 1].value));

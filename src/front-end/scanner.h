@@ -53,6 +53,8 @@ typedef enum {
     T_DIVIDE_DIVIDE,
     T_MOD,
     T_MOD_EQUALS,
+    T_TRUE,
+    T_FALSE,
 } TokenType;
 
 typedef struct {

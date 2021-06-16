@@ -68,8 +68,12 @@ void insert(char* buf, int pos, int size, char* str) {
 }
 
 int needs_constr = 0;
+int needs_cmpstr = 0;
+int needs_strcmp = 0;
 int needs_div_int = 0;
 int needs_str_const = 0;
+int needs_true_const = 0;
+int needs_false_const = 0;
 int needs_num_const = 0;
 int needs_real_const = 0;
 int needs_chr_const = 0;
@@ -80,6 +84,8 @@ int needs_malloc = 0;
 int needs_strcpy = 0;
 int needs_strcat = 0;
 int needs_strlen = 0;
+
+int bool_c = 0;
 
 char* find_operation_asm(char* oper, char* t) {
     if (strcmp(t, "i32") == 0) {
@@ -129,15 +135,47 @@ char* find_operation_asm(char* oper, char* t) {
             return "fcmp one";
         }
     } else if (strcmp(t, "i8*") == 0)  {
-        needs_constr = 1;
         if (strcmp(oper, "+") == 0) {
+            needs_constr = 1;
             return "call i8* @constr(";
+        } else if (strcmp(oper, "==") == 0) {
+            needs_cmpstr = 1;
+            return "call i1 @cmpstr(";
+        } else if (strcmp(oper, "!=") == 0) {
+            needs_strcmp = 1;
+            return "call i1 @strcmp(";
         }
     } else if (strcmp(t, "i1") == 0) {
         if (strcmp(oper, "and") == 0) {
             return "and";
         } else if (strcmp(oper, "or") == 0) {
             return "or";
+        } else if (strcmp(oper, "==") == 0) {
+            return "icmp eq";
+        } else if (strcmp(oper, "!=") == 0) {
+            return "icmp ne";
+        }
+    } else if (strcmp(t, "i8") == 0) {
+        if (strcmp(oper, "+") == 0) {
+            return "add";
+        } else if (strcmp(oper, "-") == 0) {
+            return "sub";
+        } else if (strcmp(oper, "*") == 0) {
+            return "mul";
+        } else if (strcmp(oper, "/") == 0) {
+            return "sdiv";
+        } else if (strcmp(oper, ">") == 0) {
+            return "icmp sgt";
+        } else if (strcmp(oper, "<") == 0) {
+            return "icmp slt";
+        } else if (strcmp(oper, ">=") == 0) {
+            return "icmp sge";
+        } else if (strcmp(oper, "<=") == 0) {
+            return "icmp sle";
+        } else if (strcmp(oper, "==") == 0) {
+            return "icmp eq";
+        } else if (strcmp(oper, "!=") == 0) {
+            return "icmp ne";
         }
     }
     return "";
@@ -159,20 +197,16 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     char* oper_asm = find_operation_asm(oper, types(type(((Operator_node*) n)->left)));
     strcat(c, oper_asm);
     strcat(c, " ");
-    if (strcmp(oper_asm, "or") == 0 || strcmp(oper_asm, "and") == 0) {
-        strcat(c, "i32");
-    } else {
-        strcat(c, types(type(((Operator_node*) n)->left)));
-    }
+    strcat(c, types(type(((Operator_node*) n)->left)));
     strcat(c, " ");
     strcat(c, l);
     strcat(c, ", ");
-    if (strcmp(oper_asm, "call i8* @constr(") == 0) {
+    if (oper_asm[strlen(oper_asm) - 1] == '(') {
         strcat(c, types(type(((Operator_node*) n)->left)));
         strcat(c, " ");
     }
     strcat(c, r);
-    if (strcmp(oper_asm, "call i8* @constr(") == 0) {
+    if (strcmp(oper_asm, "call i8* @constr(") == 0 || strcmp(oper_asm, "call i1 @cmpstr(") == 0 || strcmp(oper_asm, "call i1 @strcmp(") == 0) {
         strcat(c, ")");
     }
     /*if (strlen(oper_asm) > 0 && oper_asm[1] == 'c') {
@@ -245,6 +279,10 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
     } else if (n->n_type == REAL_NODE) {
         char* number = heap_alloc(100);
         snprintf(number, 100, "%f", ((Real_node*) n)->value);
+        return number;
+    } else if (n->n_type == BOOL_NODE) {
+        char* number = heap_alloc(100);
+        snprintf(number, 100, "%d", ((Boolean_node*) n)->value);
         return number;
     } else if (n->n_type == FUNC_CALL_NODE) {
         char* call = malloc(1024);
@@ -428,10 +466,32 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, extra_name);
                     strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "bool") == 0) {
-                needs_num_const = 1;
-                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i1 ");
+                needs_true_const = 1;
+                needs_false_const = 1;
+                char* t = heap_alloc(100);
+                snprintf(t, 100, "true%d", bool_c);
+                char* f = heap_alloc(100);
+                snprintf(f, 100, "false%d", bool_c);
+                char* end = heap_alloc(100);
+                snprintf(end, 100, "end%d", bool_c++);
+                var_c++;
+                strcat(code, "\tbr i1 ");
                 strcat(code, write_arg_name);
-                strcat(code, ")");
+                strcat(code, ", label %");
+                strcat(code, t);
+                strcat(code, ", label %");
+                strcat(code, f);
+                strcat(code, "\n");
+                strcat(code, t);
+                strcat(code, ":\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.true, i32 0, i32 0))\n\tbr label %");
+                strcat(code, end);
+                strcat(code, "\n");
+                strcat(code, f);
+                strcat(code, ":\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.false, i32 0, i32 0))\n\tbr label %");
+                strcat(code, end);
+                strcat(code, "\n");
+                strcat(code, end);
+                strcat(code, ":");
             } else if (strcmp(type(func->args[0]), "char") == 0) {
                 needs_chr_const = 1;
                 strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.chr, i32 0, i32 0), i8 ");
@@ -543,12 +603,22 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     if (needs_num_const) {
         insert(code, 0, strlen(code), "@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n");
     }
+    if (needs_true_const) {
+        insert(code, 0, strlen(code), "@.true = private unnamed_addr constant [6 x i8] c\"true\\0A\\00\"");
+    }
+    if (needs_false_const) {
+        insert(code, 0, strlen(code), "@.false = private unnamed_addr constant [7 x i8] c\"false\\0A\\00\"");
+    }
     if (needs_constr) {
         needs_malloc = 1;
         needs_strlen = 1;
         needs_strcpy = 1;
         needs_strcat = 1;
         insert(code, 0, strlen(code), "\ndefine i8* @constr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i32 @strlen(i8* %a)\n\t%1 = call i32 @strlen(i8* %b)\n\t%2 = add i32 %0, %1\n\t%3 = call i8* @malloc(i32 %2)\n\tcall i8* @strcpy(i8* %3, i8* %a)\n\tcall i8* @strcat(i8* %3, i8* %b)\n\tret i8* %3\n}\n");
+    }
+    if (needs_cmpstr) {
+        needs_strcmp = 1;
+        insert(code, 0, strlen(code), "\ndefine i1 @cmpstr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i1 @strcmp(i8* %a, i8* %b)\n\t%1 = icmp eq i1 %0, 0\n\tret i1 %1\n}\n");
     }
     if (needs_div_int) {
         insert(code, 0, strlen(code), "define double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n");
@@ -574,6 +644,9 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     }
     if (needs_printf) {
         strcat(code, "declare i32 @printf(i8* noalias nocapture, ...)\n");
+    }
+    if (needs_strcmp) {
+        strcat(code, "declare i1 @strcmp(i8*, i8*)\n");
     }
     heap_free_all();
     symtab_destroy();

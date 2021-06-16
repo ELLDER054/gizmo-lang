@@ -172,7 +172,11 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_OR;
             } /*else if (strcmp(name, "not") == 0) {
                 tok.type = T_NOT;
-            }*/ else { /* Is an identifier */
+            }*/ else if (strcmp(name, "true") == 0) {
+                tok.type = T_TRUE;
+            } else if (strcmp(name, "false") == 0) {
+                tok.type = T_FALSE;
+            } else { /* Is an identifier */
                 tok.type = T_ID;
             }
             tok.lineno = lineno;
@@ -300,6 +304,22 @@ void scan(char* code, Token* tokens) {
             } else {
                 strcpy(tok.value, "=");
                 tok.type = T_ASSIGN;
+            }
+            tok.col = col++;
+            pos++;
+            strcpy(tok.line, lines[lineno - 1]);
+            tok.lineno = lineno;
+            tokens[token_count++] = tok;
+        } else if (ch == '!') {
+            Token tok;
+            if (next(code, pos) == '=') {
+                strcpy(tok.value, "!=");
+                tok.type = T_NOT_EQUALS;
+                col++;
+                pos++;
+            } else {
+                printf("In dev Error: Expected `=` after `!`");
+                exit(-1);
             }
             tok.col = col++;
             pos++;
