@@ -40,7 +40,7 @@ void Error(Token token, const char* error, const int after) { /* Gives errors */
 int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     int len = 0;
     for (int i = 0; i < 1024; i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 245) {
+        if (tokens[i].type < 200 || tokens[i].type > 244) {
             break;
         }
         len++;
@@ -72,6 +72,7 @@ char* expect_type(TokenType type) { /* Expects a Token Type and if wrong type, r
 // end helper functions
 
 Node* expression(int start);
+Node* logical(int start);
 Node* term(int start);
 Node* equality(int start);
 Node* comparison(int start);
@@ -104,11 +105,13 @@ char* type(Node* n) { /* Returns the type of the given Node* */
                 return "real";
             }
             if (is_logical_operator(((Operator_node*) n)->oper)) {
-                return "int";
+                return "bool";
             }
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
             return "int";
+        case BOOL_NODE:
+            return "bool";
         case BLOCK_NODE:
             break;
         case CHAR_NODE:
@@ -156,6 +159,17 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
             snprintf(error, 100, "Invalid operand type `%s` for operator `+`", type(left));
             Error(tokens[start], error, 0);
         }
+    } else if (strcmp(oper, "and") == 0 || strcmp(oper, "or") == 0) {
+        if (strcmp(type(left), "bool") == 0) {
+            if (strcmp(type(right), "bool")) {
+                Error(tokens[start + 2], "Expected boolean on right side of expression", 0);
+            }
+        } else {
+            char* error = malloc(100);
+            memset(error, 0, 100);
+            snprintf(error, 100, "Invalid operand type `%s` for logical operator `%s`", type(left), oper);
+            Error(tokens[start], error, 0);
+        }
     } else if (strcmp(oper, "%") == 0) {
         if (strcmp(type(left), "int") == 0) {
             if (strcmp(type(right), "int")) {
@@ -187,7 +201,24 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
 }
 
 Node* expression(int start) {
-    return equality(start);
+    return logical(start);
+}
+
+Node* logical(int start) {
+    ind = start;
+    Node* expr = equality(ind);
+
+    while (expect_type(T_AND) != NULL || expect_type(T_OR) != NULL) {
+        int save = ind - 1;
+        Node* right = equality(ind);
+        if (right == NULL) {
+            Error(tokens[save], "Expected right side of expression", 1);
+        }
+        check_type(start, expr, right, tokens[save].value);
+        expr = (Node*) new_Operator_node(tokens[save].value, expr, right);
+    }
+
+    return expr;
 }
 
 Node* equality(int start) {

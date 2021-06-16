@@ -162,11 +162,17 @@ void scan(char* code, Token* tokens) {
             }
 
             Token tok;
-            if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "none") == 0 || strcmp(name, "char") == 0 || strcmp(name, "real") == 0 || strcmp(name, "auto") == 0) { /* Is a type */
+            if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "none") == 0 || strcmp(name, "char") == 0 || strcmp(name, "real") == 0 || strcmp(name, "auto") == 0 || strcmp(name, "bool") == 0) { /* Is a type */
                 tok.type = T_TYPE;
             } else if (strcmp(name, "return") == 0) /* Is return */ {
                 tok.type = T_RETURN;
-            } else { /* Is an identifier */
+            } else if (strcmp(name, "and") == 0) {
+                tok.type = T_AND;
+            } else if (strcmp(name, "or") == 0) {
+                tok.type = T_OR;
+            } /*else if (strcmp(name, "not") == 0) {
+                tok.type = T_NOT;
+            }*/ else { /* Is an identifier */
                 tok.type = T_ID;
             }
             tok.lineno = lineno;
@@ -358,7 +364,7 @@ void scan(char* code, Token* tokens) {
     }
 
     /*for (int i = 0; i < strlen(code); i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 245) {
+        if (tokens[i].type < 200 || tokens[i].type > 244) {
             break;
         }
         printf("%d", tokens[i].type);

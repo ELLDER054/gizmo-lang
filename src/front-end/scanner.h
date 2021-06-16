@@ -32,9 +32,8 @@ typedef enum {
     T_EQUALS,
     T_EQUALS_EQUALS,
     T_NOT,
-    T_NONE,
-    T_TRUE,
-    T_FALSE,
+    T_AND,
+    T_OR,
     T_NOT_EQUALS,
     T_LESS_THAN,
     T_GREATER_THAN,
@@ -54,9 +53,6 @@ typedef enum {
     T_DIVIDE_DIVIDE,
     T_MOD,
     T_MOD_EQUALS,
-    T_BEGIN_COMMENT,
-    T_BEGIN_LINE_COMMENT,
-    T_END_LINE_COMMENT,
 } TokenType;
 
 typedef struct {

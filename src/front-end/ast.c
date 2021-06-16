@@ -85,6 +85,8 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
             break;
         case VAR_ASSIGN_NODE:
             break;
+        case BOOL_NODE:
+            break;
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
@@ -235,6 +237,19 @@ void free_Integer_node(Integer_node* n) { /* Frees an integer node */
     free(n);
 }
 
+Boolean_node* new_Boolean_node(int val) {
+    Boolean_node* boo = malloc(sizeof(Boolean_node));
+    memset(boo, 0, sizeof(Boolean_node));
+
+    boo->n_type = BOOL_NODE;
+    boo->value = val;
+    return boo;
+}
+
+void free_Boolean_node(Boolean_node* b) {
+    free(b);
+}
+
 Real_node* new_Real_node(double val) { /* Initializes a real value node */
     Real_node* real = malloc(sizeof(Real_node));
     memset(real, 0, sizeof(Real_node));
@@ -351,6 +366,9 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case RET_NODE:
             free_Return_node((Return_node*) n);
+            break;
+        case BOOL_NODE:
+            free_Boolean_node((Boolean_node*) n);
             break;
         case CHAR_NODE:
             free_Char_node((Char_node*) n);

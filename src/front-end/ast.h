@@ -15,6 +15,7 @@ typedef enum {
     VAR_ASSIGN_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
+    BOOL_NODE,
     STRING_NODE,
     CHAR_NODE,
     REAL_NODE,
@@ -68,6 +69,12 @@ typedef struct {
     int value;
 } Integer_node;
 
+
+typedef struct {
+    NodeType n_type;
+    int value;
+} Boolean_node;
+
 typedef struct {
     NodeType n_type;
     double value;
@@ -116,6 +123,7 @@ Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, c
 Var_assignment_node* new_Var_assignment_node(char* name, Node* value, SymbolTable* current);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
+Boolean_node* new_Boolean_node(int val);
 String_node* new_String_node(char* val);
 Char_node* new_Char_node(char val);
 Real_node* new_Real_node(double val);

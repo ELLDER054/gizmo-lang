@@ -47,6 +47,8 @@ char* types(char* t) {
         return "i8*";
     } else if (strcmp(t, "none") == 0) {
         return "void";
+    } else if (strcmp(t, "bool") == 0) {
+        return "i1";
     }
     return "";
 }
@@ -131,6 +133,12 @@ char* find_operation_asm(char* oper, char* t) {
         if (strcmp(oper, "+") == 0) {
             return "call i8* @constr(";
         }
+    } else if (strcmp(t, "i1") == 0) {
+        if (strcmp(oper, "and") == 0) {
+            return "and";
+        } else if (strcmp(oper, "or") == 0) {
+            return "or";
+        }
     }
     return "";
 }
@@ -151,7 +159,11 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     char* oper_asm = find_operation_asm(oper, types(type(((Operator_node*) n)->left)));
     strcat(c, oper_asm);
     strcat(c, " ");
-    strcat(c, types(type(((Operator_node*) n)->left)));
+    if (strcmp(oper_asm, "or") == 0 || strcmp(oper_asm, "and") == 0) {
+        strcat(c, "i32");
+    } else {
+        strcat(c, types(type(((Operator_node*) n)->left)));
+    }
     strcat(c, " ");
     strcat(c, l);
     strcat(c, ", ");
@@ -163,7 +175,7 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     if (strcmp(oper_asm, "call i8* @constr(") == 0) {
         strcat(c, ")");
     }
-    if (oper_asm[1] == 'c') {
+    /*if (strlen(oper_asm) > 0 && oper_asm[1] == 'c') {
         char* op_name_new = heap_alloc(100);
         snprintf(op_name_new, 100, "%%%d", var_c++);
         strcat(c, "\n\t");
@@ -172,7 +184,7 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
         strcat(c, op_name);
         strcat(c, " to i32\n");
         return op_name_new;
-    }
+    }*/
     strcat(c, "\n");
     return op_name;
 }
@@ -318,6 +330,11 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, " = load i8*, i8** ");
                     strcat(code, extra_name);
                     strcat(code, "\n");
+            } else if (strcmp(v->type, "bool") == 0) {
+                strcat(code, "\t%");
+                strcat(code, v->codegen_name);
+                strcat(code, " = add i1 0, ");
+                strcat(code, var_name);
             } else if (strcmp(v->type, "char") == 0) {
                 strcat(code, "\t%");
                 strcat(code, v->codegen_name);
@@ -358,6 +375,13 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, " = load i8*, i8** ");
                     strcat(code, extra_name);
                     strcat(code, "\n");
+            } else if (strcmp(type(v->value), "bool") == 0) {
+                snprintf(new_id, 100, "%d", var_c++);
+                strcpy(symtab_find_in(v->currentScope, v->name, "var")->cgid, new_id);
+                strcat(code, "\t%");
+                strcat(code, new_id);
+                strcat(code, " = add i1 0, ");
+                strcat(code, var_name);
             } else if (strcmp(type(v->value), "char") == 0) {
                 snprintf(new_id, 100, "%d", var_c++);
                 strcpy(symtab_find_in(v->currentScope, v->name, "var")->cgid, new_id);
@@ -403,6 +427,11 @@ void generate_statement(Node* n, char* code) {
                     strcat(code, "\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
                     strcat(code, extra_name);
                     strcat(code, ")");
+            } else if (strcmp(type(func->args[0]), "bool") == 0) {
+                needs_num_const = 1;
+                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i1 ");
+                strcat(code, write_arg_name);
+                strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "char") == 0) {
                 needs_chr_const = 1;
                 strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.chr, i32 0, i32 0), i8 ");
