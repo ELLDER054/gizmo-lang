@@ -306,6 +306,22 @@ void scan(char* code, Token* tokens) {
             strcpy(tok.line, lines[lineno - 1]);
             tok.lineno = lineno;
             tokens[token_count++] = tok;
+        } else if (ch == '!') {
+            Token tok;
+            if (next(code, pos) == '=') {
+                strcpy(tok.value, "!=");
+                tok.type = T_NOT_EQUALS;
+                col++;
+                pos++;
+            } else {
+                printf("In dev Error: Expected `=` after `!`");
+                exit(-1);
+            }
+            tok.col = col++;
+            pos++;
+            strcpy(tok.line, lines[lineno - 1]);
+            tok.lineno = lineno;
+            tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
             char string[100] = {'\0'};
             char delim = ch;

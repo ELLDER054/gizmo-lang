@@ -68,6 +68,8 @@ void insert(char* buf, int pos, int size, char* str) {
 }
 
 int needs_constr = 0;
+int needs_cmpstr = 0;
+int needs_strcmp = 0;
 int needs_div_int = 0;
 int needs_str_const = 0;
 int needs_num_const = 0;
@@ -82,7 +84,7 @@ int needs_strcat = 0;
 int needs_strlen = 0;
 
 char* find_operation_asm(char* oper, char* t) {
-    if (strcmp(t, "i32") == 0) {
+    if (strcmp(t, "i32") == 0 || strcmp(t, "i8") == 0) {
         if (strcmp(oper, "+") == 0) {
             return "add";
         } else if (strcmp(oper, "-") == 0) {
@@ -129,15 +131,25 @@ char* find_operation_asm(char* oper, char* t) {
             return "fcmp one";
         }
     } else if (strcmp(t, "i8*") == 0)  {
-        needs_constr = 1;
         if (strcmp(oper, "+") == 0) {
+            needs_constr = 1;
             return "call i8* @constr(";
+        } else if (strcmp(oper, "==") == 0) {
+            needs_cmpstr = 1;
+            return "call i1 @cmpstr(";
+        } else if (strcmp(oper, "!=") == 0) {
+            needs_strcmp = 1;
+            return "call i1 @strcmp(";
         }
     } else if (strcmp(t, "i1") == 0) {
         if (strcmp(oper, "and") == 0) {
             return "and";
         } else if (strcmp(oper, "or") == 0) {
             return "or";
+        } else if (strcmp(oper, "==") == 0) {
+            return "icmp eq";
+        } else if (strcmp(oper, "!=") == 0) {
+            return "icmp ne";
         }
     }
     return "";
@@ -159,20 +171,16 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     char* oper_asm = find_operation_asm(oper, types(type(((Operator_node*) n)->left)));
     strcat(c, oper_asm);
     strcat(c, " ");
-    if (strcmp(oper_asm, "or") == 0 || strcmp(oper_asm, "and") == 0) {
-        strcat(c, "i32");
-    } else {
-        strcat(c, types(type(((Operator_node*) n)->left)));
-    }
+    strcat(c, types(type(((Operator_node*) n)->left)));
     strcat(c, " ");
     strcat(c, l);
     strcat(c, ", ");
-    if (strcmp(oper_asm, "call i8* @constr(") == 0) {
+    if (oper_asm[strlen(oper_asm) - 1] == '(') {
         strcat(c, types(type(((Operator_node*) n)->left)));
         strcat(c, " ");
     }
     strcat(c, r);
-    if (strcmp(oper_asm, "call i8* @constr(") == 0) {
+    if (strcmp(oper_asm, "call i8* @constr(") == 0 || strcmp(oper_asm, "call i1 @cmpstr(") == 0 || strcmp(oper_asm, "call i1 @strcmp(") == 0) {
         strcat(c, ")");
     }
     /*if (strlen(oper_asm) > 0 && oper_asm[1] == 'c') {
@@ -550,6 +558,10 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         needs_strcat = 1;
         insert(code, 0, strlen(code), "\ndefine i8* @constr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i32 @strlen(i8* %a)\n\t%1 = call i32 @strlen(i8* %b)\n\t%2 = add i32 %0, %1\n\t%3 = call i8* @malloc(i32 %2)\n\tcall i8* @strcpy(i8* %3, i8* %a)\n\tcall i8* @strcat(i8* %3, i8* %b)\n\tret i8* %3\n}\n");
     }
+    if (needs_cmpstr) {
+        needs_strcmp = 1;
+        insert(code, 0, strlen(code), "\ndefine i1 @cmpstr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i1 @strcmp(i8* %a, i8* %b)\n\t%1 = icmp eq i1 %0, 0\n\tret i1 %1\n}\n");
+    }
     if (needs_div_int) {
         insert(code, 0, strlen(code), "define double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n");
     }
@@ -574,6 +586,9 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     }
     if (needs_printf) {
         strcat(code, "declare i32 @printf(i8* noalias nocapture, ...)\n");
+    }
+    if (needs_strcmp) {
+        strcat(code, "declare i1 @strcmp(i8*, i8*)\n");
     }
     heap_free_all();
     symtab_destroy();
