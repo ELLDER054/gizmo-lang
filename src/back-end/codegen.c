@@ -88,7 +88,7 @@ int needs_strlen = 0;
 int bool_c = 0;
 
 char* find_operation_asm(char* oper, char* t) {
-    if (strcmp(t, "i32") == 0) {
+    if (strcmp(t, "i32") == 0 || strcmp(t, "i8") == 0) {
         if (strcmp(oper, "+") == 0) {
             return "add";
         } else if (strcmp(oper, "-") == 0) {
@@ -154,6 +154,7 @@ char* find_operation_asm(char* oper, char* t) {
             return "icmp eq";
         } else if (strcmp(oper, "!=") == 0) {
             return "icmp ne";
+<<<<<<< HEAD
         }
     } else if (strcmp(t, "i8") == 0) {
         if (strcmp(oper, "+") == 0) {
@@ -176,6 +177,8 @@ char* find_operation_asm(char* oper, char* t) {
             return "icmp eq";
         } else if (strcmp(oper, "!=") == 0) {
             return "icmp ne";
+=======
+>>>>>>> 737b7447439ce967de0b6480867b1d078c526b7a
         }
     }
     return "";
