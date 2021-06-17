@@ -139,6 +139,57 @@ int split(const char *txt, char delim, char ***tokens) {
     return count;
 }
 
+void parse_string(char* str, char* endstr, int is_in_str) {
+    int pos = 0;
+    while (pos < strlen(str)) {
+        char c = str[pos];
+        if (c == '\\') {
+            switch (str[pos + 1]) {
+                case '\\':
+                    strcat(endstr, "\\");
+                    break;
+                case 'n':
+                    if (is_in_str) {
+                        strcat(endstr, "\\0A");
+                    } else {
+                        strcat(endstr, "\n");
+                    }
+                    break;
+                case 't':
+                    if (is_in_str) {
+                        strcat(endstr, "\\09");
+                    } else {
+                        strcat(endstr, "\t");
+                    }
+                    break;
+                case '"':
+                    if (is_in_str) {
+                        strcat(endstr, "\\22");
+                    } else {
+                        strcat(endstr, "\"");
+                    }
+                    break;
+                case '\'':
+                    if (is_in_str) {
+                        strcat(endstr, "\\27");
+                    } else {
+                        strcat(endstr, "'");
+                    }
+                    break;
+                default:
+                    strcat(endstr, "\\");
+            }
+            pos++;
+        } else {
+            strncat(endstr, &c, 1);
+        }
+        pos++;
+    }
+    if (is_in_str) {
+        strcat(endstr, "\\00");
+    }
+}
+
 void scan(char* code, Token* tokens) {
     int lineno = 1;
     char** lines;
@@ -328,6 +379,7 @@ void scan(char* code, Token* tokens) {
             tokens[token_count++] = tok;
         } else if (ch == '"' || ch == '\'') {
             char string[100] = {'\0'};
+            memset(string, 0, 100);
             char delim = ch;
             TokenType tok_type = T_STR;
 
@@ -343,6 +395,14 @@ void scan(char* code, Token* tokens) {
                     fake_tok.col = col;
                     Error(fake_tok, "Expected end of string", 0);
                 }
+                if (code[pos - 1] != '\\' && ch == '\\' && next(code, pos) == delim) {
+                    pos += 2;
+                    col += 2;
+                    ch = code[pos];
+                    strcat(string, "\\");
+                    strncat(string, &delim, 1);
+                    continue;
+                }
                 strncat(string, &ch, 1);
                 ch = code[++pos];
                 col++;
@@ -353,11 +413,10 @@ void scan(char* code, Token* tokens) {
             Token tok;
             if (delim == '\'') {
                 tok_type = T_CHAR;
-            } else {
-                strcat(string, "\\00");
             }
+            memset(tok.value, 0, sizeof(tok.value));
+            parse_string(string, tok.value, delim == '"');
             tok.type = tok_type;
-            strcpy(tok.value, string);
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;

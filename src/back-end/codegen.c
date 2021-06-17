@@ -154,7 +154,6 @@ char* find_operation_asm(char* oper, char* t) {
             return "icmp eq";
         } else if (strcmp(oper, "!=") == 0) {
             return "icmp ne";
-<<<<<<< HEAD
         }
     } else if (strcmp(t, "i8") == 0) {
         if (strcmp(oper, "+") == 0) {
@@ -177,8 +176,6 @@ char* find_operation_asm(char* oper, char* t) {
             return "icmp eq";
         } else if (strcmp(oper, "!=") == 0) {
             return "icmp ne";
-=======
->>>>>>> 737b7447439ce967de0b6480867b1d078c526b7a
         }
     }
     return "";
@@ -226,6 +223,22 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     return op_name;
 }
 
+int gizmo_strlen(char* str) {
+    int pos = 0;
+    int len = 0;
+    while (pos < strlen(str)) {
+        char c = str[pos];
+        if (c == '\\') {
+            len++;
+            pos += 3;
+        } else {
+            len++;
+            pos++;
+        }
+    }
+    return len;
+}
+
 char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size) {
     log_trace("type: %d\n", n->n_type);
     if (n->n_type == INTEGER_NODE) {
@@ -256,10 +269,10 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* str_name = heap_alloc(100);
         snprintf(str_name, 100, "%%%d", var_c++);
         char* str_assignment = heap_alloc(100);
-        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%lu x i8] c\"%s\"\n", str_llvm_name, strlen(str) - 2, str);
+        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c\"%s\"\n", str_llvm_name, gizmo_strlen(str), str);
         insert(c, 0, strlen(c), str_assignment);
         char* len = heap_alloc(100);
-        snprintf(len, 100, "%lu", strlen(str) - 2);
+        snprintf(len, 100, "%d", gizmo_strlen(str));
         strcat(c, "\t");
         strcat(c, str_name);
         strcat(c, " = getelementptr inbounds [");
