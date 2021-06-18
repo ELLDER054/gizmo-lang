@@ -155,6 +155,22 @@ void free_Var_assignment_node(Var_assignment_node* v) {
     free(v);
 }
 
+While_loop_node* new_While_loop_node(Node* condition, Node* body) {
+    While_loop_node* w = malloc(sizeof(While_loop_node));
+    memset(w, 0, sizeof(While_loop_node));
+
+    w->n_type = WHILE_NODE;
+    w->condition = condition;
+    w->body = body;
+    return w;
+}
+
+void free_While_loop_node(While_loop_node* w) {
+    free_node(w->condition);
+    free_node(w->body);
+    free(w);
+}
+
 Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a function call node */
     Func_call_node* func = malloc(sizeof(Func_call_node));
     memset(func, 0, sizeof(Func_call_node));
@@ -389,6 +405,9 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case ID_NODE:
             free_Identifier_node((Identifier_node*) n);
+            break;
+        case WHILE_NODE:
+            free_While_loop_node((While_loop_node*) n);
             break;
         case FUNC_CALL_NODE:
         case READ_NODE:

@@ -225,6 +225,8 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_NOT;
             }*/ else if (strcmp(name, "true") == 0) {
                 tok.type = T_TRUE;
+            } else if (strcmp(name, "while") == 0) {
+                tok.type = T_WHILE;
             } else if (strcmp(name, "false") == 0) {
                 tok.type = T_FALSE;
             } else { /* Is an identifier */
@@ -443,7 +445,7 @@ void scan(char* code, Token* tokens) {
     }
 
     /*for (int i = 0; i < strlen(code); i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 244) {
+        if (tokens[i].type < 200 || tokens[i].type > 250) {
             break;
         }
         printf("%d", tokens[i].type);

@@ -40,7 +40,7 @@ void Error(Token token, const char* error, const int after) { /* Gives errors */
 int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     int len = 0;
     for (int i = 0; i < 1024; i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 244) {
+        if (tokens[i].type < 200 || tokens[i].type > 250) {
             break;
         }
         len++;
@@ -656,6 +656,25 @@ Node* var_assignment(int start) {
 
 void program(Node** ast, int max_len);
 void parse(Token* toks, Node** program, Symbol** sym_t);
+Node* statement(int start);
+
+Node* while_statement(int start) {
+    ind = start;
+    char* key = expect_type(T_WHILE);
+    if (key == NULL) {
+        ind = start;
+        return NULL;
+    }
+    Node* condition = expression(ind);
+    if (condition == NULL) {
+        Error(tokens[start], "Expected condition after while keyword", 1);
+    }
+    Node* body = statement(ind);
+    if (body == NULL) {
+        Error(tokens[ind - 1], "Expected body", 1);
+    }
+    return (Node*) new_While_loop_node(condition, body);
+}
 
 Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /* A statement with multiple statements surrounded by curly braces inside it */
     ind = start;
@@ -807,6 +826,10 @@ Node* statement(int start) { /* Calls all possible statements */
     if (func != NULL) {
         log_trace("found function call\n");
         return func;
+    }
+    Node* w = while_statement(start);
+    if (w != NULL) {
+        return w;
     }
     Node* va = var_assignment(start);
     if (va != NULL) {

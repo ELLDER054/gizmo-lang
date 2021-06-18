@@ -86,6 +86,8 @@ int needs_strcat = 0;
 int needs_strlen = 0;
 
 int bool_c = 0;
+int end_c = 0;
+int while_c = 0;
 
 char* find_operation_asm(char* oper, char* t) {
     if (strcmp(t, "i32") == 0 || strcmp(t, "i8") == 0) {
@@ -474,11 +476,45 @@ void generate_statement(Node* n, char* code) {
                 strcat(code, "\n");
             }
             strcat(code, "\n");
+        } else if (n->n_type == WHILE_NODE) {
+            char* end_len = malloc(100);
+            memset(end_len, 0, 100);
+            While_loop_node* wh = (While_loop_node*) n;
+            char* while_name = generate_expression_asm(wh->condition, type(wh->condition), code, end_len);
+            char* cont = malloc(100);
+            memset(cont, 0, 100);
+            snprintf(cont, 100, "while%d", while_c++);
+            char* end = malloc(100);
+            memset(end, 0, 100);
+            snprintf(end, 100, "end%d", end_c++);
+            strcat(code, "\n\tbr i1 ");
+            strcat(code, while_name);
+            strcat(code, ", label %");
+            strcat(code, cont);
+            strcat(code, ", label %");
+            strcat(code, end);
+            strcat(code, "\n");
+            strcat(code, cont);
+            strcat(code, ":\n\t");
+            generate_statement(wh->body, code);
+            char* while_name2 = generate_expression_asm(wh->condition, type(wh->condition), code, end_len);
+            free(end_len);
+            strcat(code, "\n\tbr i1 ");
+            strcat(code, while_name2);
+            strcat(code, ", label %");
+            strcat(code, cont);
+            strcat(code, ", label %");
+            strcat(code, end);
+            strcat(code, "\n");
+            strcat(code, end);
+            strcat(code, ":\n");
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
-            char* end_len = heap_alloc(100);
+            char* end_len = malloc(100);
+            memset(end_len, 0, 100);
             needs_printf = 1;
             char* write_arg_name = generate_expression_asm(func->args[0], type(func->args[0]), code, end_len);
+            free(end_len);
             if (strcmp(type(func->args[0]), "int") == 0) {
                 needs_num_const = 1;
                 strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
@@ -500,7 +536,7 @@ void generate_statement(Node* n, char* code) {
                 snprintf(f, 100, "false%d", bool_c);
                 char* end = malloc(100);
                 memset(end, 0, 100);
-                snprintf(end, 100, "end%d", bool_c++);
+                snprintf(end, 100, "end%d", end_c++);
                 var_c++;
                 strcat(code, "\tbr i1 ");
                 strcat(code, write_arg_name);

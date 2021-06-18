@@ -13,6 +13,7 @@ struct Node;
 typedef enum {
     VAR_DECLARATION_NODE,
     VAR_ASSIGN_NODE,
+    WHILE_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
     BOOL_NODE,
@@ -49,6 +50,12 @@ typedef struct {
     SymbolTable* currentScope;
     char codegen_name[MAX_NAME_LEN + 4];
 } Var_assignment_node;
+
+typedef struct {
+    NodeType n_type;
+    Node* condition;
+    Node* body;
+} While_loop_node;
 
 typedef struct {
     NodeType n_type;
@@ -122,6 +129,7 @@ void free_node(Node* n);
 void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid);
+While_loop_node* new_While_loop_node(Node* condition, Node* body);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 Boolean_node* new_Boolean_node(int val);

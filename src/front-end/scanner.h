@@ -55,6 +55,7 @@ typedef enum {
     T_MOD_EQUALS,
     T_TRUE,
     T_FALSE,
+    T_WHILE,
 } TokenType;
 
 typedef struct {
