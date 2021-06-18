@@ -65,7 +65,7 @@ void parse_command_line_args(int argc, char** argv) {
         } else if (argv[i][0] != '-' && !has_found_in_file) {
             in_file = fopen(argv[i], "r");
             if (in_file == NULL) {
-                fprintf(stderr, "gizmo: Could not open input file");
+                fprintf(stderr, "gizmo: Could not open input file\n");
                 exit(-1);
             }
             has_found_in_file = 1;
