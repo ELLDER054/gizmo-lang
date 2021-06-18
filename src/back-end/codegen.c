@@ -45,8 +45,6 @@ char* types(char* t) {
         return "i8";
     } else if (strcmp(t, "string") == 0) {
         return "i8*";
-    } else if (strcmp(t, "none") == 0) {
-        return "void";
     } else if (strcmp(t, "bool") == 0) {
         return "i1";
     }
@@ -481,22 +479,8 @@ void generate_statement(Node* n, char* code) {
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "string") == 0) {
                 needs_str_const = 1;
-                char* name = heap_alloc(100);
-                snprintf(name, 100, "%%%d", var_c++);
-                char* extra_name = heap_alloc(100);
-                snprintf(extra_name, 100, "%%%d", var_c++);
-                strcat(code, "\t");
-                strcat(code, name);
-                strcat(code, " = alloca i8*\n\tstore i8* ");
+                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
                 strcat(code, write_arg_name);
-                strcat(code, ", i8** ");
-                strcat(code, name);
-                strcat(code, "\n\t");
-                strcat(code, extra_name);
-                strcat(code, " = load i8*, i8** ");
-                strcat(code, name);
-                strcat(code, "\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
-                strcat(code, extra_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "bool") == 0) {
                 needs_true_const = 1;
@@ -587,9 +571,6 @@ void generate_statement(Node* n, char* code) {
             generate_statement(((Func_decl_node*) n)->body, mini_code);
             leave_function();
             strcpy(current_function_return_type, "");
-            if (strcmp(types(((Func_decl_node*) n)->type), "void") == 0) {
-                strcat(mini_code, "\tret void\n");
-            }
             strcat(mini_code, "}\n");
             insert(code, 0, strlen(code), mini_code);
             free(mini_code);
@@ -676,10 +657,11 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         strcat(code, "declare i32 @scanf(i8*, ...)\n");
     }
     if (needs_printf) {
-        strcat(code, "declare i32 @printf(i8* noalias nocapture, ...)\n");
+        strcat(code, "declare i32 @printf(i8*, ...)\n");
     }
     if (needs_strcmp) {
         strcat(code, "declare i1 @strcmp(i8*, i8*)\n");
     }
     heap_free_all();
+    symtab_destroy();
 }

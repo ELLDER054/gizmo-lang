@@ -213,7 +213,7 @@ void scan(char* code, Token* tokens) {
             }
 
             Token tok;
-            if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "none") == 0 || strcmp(name, "char") == 0 || strcmp(name, "real") == 0 || strcmp(name, "auto") == 0 || strcmp(name, "bool") == 0) { /* Is a type */
+            if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "char") == 0 || strcmp(name, "real") == 0 || strcmp(name, "auto") == 0 || strcmp(name, "bool") == 0) { /* Is a type */
                 tok.type = T_TYPE;
             } else if (strcmp(name, "return") == 0) /* Is return */ {
                 tok.type = T_RETURN;

@@ -726,7 +726,7 @@ Node* return_statement(int start) {
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
-        expr = (Node*) new_Identifier_node("none", "none", "none");
+        expr = (Node*) new_Integer_node(0);
     }
     if (strcmp(function_type, type(expr)) != 0) {
         Error(tokens[start + 1], "Return type of function is different from the return expression", 0);
@@ -763,6 +763,9 @@ Node* function_declaration(int start) {
     func_decl_args(ind, args, &args_len);
     char b2[100];
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments", b2);
+    if (in_function) {
+        Error(tokens[start], "Cannot have nested functions", 0);
+    }
     in_function = 1;
     strcpy(function_type, func_type);
     Symbol* predeclared[1024];
@@ -849,13 +852,11 @@ void parse(Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
     symtab_init();
     function_type = malloc(MAX_TYPE_LEN);
     memset(function_type, 0, MAX_TYPE_LEN);
-    symtab_add_symbol("none", "var", "none", 0, "none");
     symtab_add_symbol("none", "func", "write", 1, "write");
     symtab_add_symbol("string", "func", "read", 0, "read");
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }
     program(ast, -1);
-    symtab_destroy();
     return;
 }
