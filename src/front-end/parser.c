@@ -669,6 +669,9 @@ Node* while_statement(int start) {
     if (condition == NULL) {
         Error(tokens[start], "Expected condition after while keyword", 1);
     }
+    if (strcmp(type(condition), "bool") != 0) {
+        Error(tokens[start + 1], "Expected condition, not expression, after while keyword", 0);
+    }
     Node* body = statement(ind);
     if (body == NULL) {
         Error(tokens[ind - 1], "Expected body", 1);

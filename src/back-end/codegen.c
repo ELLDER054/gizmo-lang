@@ -487,7 +487,7 @@ void generate_statement(Node* n, char* code) {
             char* end = malloc(100);
             memset(end, 0, 100);
             snprintf(end, 100, "end%d", end_c++);
-            strcat(code, "\n\tbr i1 ");
+            strcat(code, "\tbr i1 ");
             strcat(code, while_name);
             strcat(code, ", label %");
             strcat(code, cont);
@@ -495,11 +495,11 @@ void generate_statement(Node* n, char* code) {
             strcat(code, end);
             strcat(code, "\n");
             strcat(code, cont);
-            strcat(code, ":\n\t");
+            strcat(code, ":\n");
             generate_statement(wh->body, code);
             char* while_name2 = generate_expression_asm(wh->condition, type(wh->condition), code, end_len);
             free(end_len);
-            strcat(code, "\n\tbr i1 ");
+            strcat(code, "\tbr i1 ");
             strcat(code, while_name2);
             strcat(code, ", label %");
             strcat(code, cont);
