@@ -699,7 +699,14 @@ Node* if_statement(int start) {
     if (body == NULL) {
         Error(tokens[ind - 1], "Expected body", 1);
     }
-    return (Node*) new_If_node(condition, body);
+    Node* else_body = NULL;
+    if (expect_type(T_ELSE) != NULL) {
+        else_body = statement(ind);
+        if (else_body == NULL) {
+            Error(tokens[ind - 1], "Expected body after else", 1);
+        }
+    }
+    return (Node*) new_If_node(condition, body, else_body);
 }
 
 Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /* A statement with multiple statements surrounded by curly braces inside it */

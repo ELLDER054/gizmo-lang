@@ -89,6 +89,7 @@ int bool_c = 0;
 int end_c = 0;
 int while_c = 0;
 int if_c = 0;
+int else_c = 0;
 
 char* find_operation_asm(char* oper, char* t) {
     if (strcmp(t, "i32") == 0 || strcmp(t, "i8") == 0) {
@@ -411,7 +412,7 @@ void generate_statement(Node* n, char* code) {
                 strcat(code, ", i32* %");
                 strcat(code, v->codegen_name);
             } else if (strcmp(v->type, "string") == 0) {
-                strcat(code, "\t");
+                strcat(code, "\t%");
                 strcat(code, v->codegen_name);
                 strcat(code, " = alloca i8*\n\tstore i8* ");
                 strcat(code, var_name);
@@ -517,6 +518,13 @@ void generate_statement(Node* n, char* code) {
             char* cont = malloc(100);
             memset(cont, 0, 100);
             snprintf(cont, 100, "if%d", if_c++);
+            char* el = malloc(100);
+            if (i->else_body != NULL) {
+                memset(el, 0, 100);
+                snprintf(el, 100, "else%d", else_c++);
+            } else {
+                free(el);
+            }
             char* end = malloc(100);
             memset(end, 0, 100);
             snprintf(end, 100, "end%d", end_c++);
@@ -525,7 +533,7 @@ void generate_statement(Node* n, char* code) {
             strcat(code, ", label %");
             strcat(code, cont);
             strcat(code, ", label %");
-            strcat(code, end);
+            strcat(code, i->else_body == NULL ? end : el);
             strcat(code, "\n");
             strcat(code, cont);
             strcat(code, ":\n");
@@ -533,9 +541,19 @@ void generate_statement(Node* n, char* code) {
             free(end_len);
             strcat(code, "\tbr label %");
             strcat(code, end);
+            if (i->else_body != NULL) {
+                strcat(code, "\n");
+                strcat(code, el);
+                strcat(code, ":\n");
+                generate_statement(i->else_body, code);
+                strcat(code, "\tbr label %");
+                strcat(code, end);
+                strcat(code, "\n");
+            }
             strcat(code, "\n");
             strcat(code, end);
             strcat(code, ":\n");
+            free(el);
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
             char* end_len = malloc(100);

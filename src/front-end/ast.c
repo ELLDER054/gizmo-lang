@@ -174,13 +174,14 @@ void free_While_loop_node(While_loop_node* w) {
     free(w);
 }
 
-If_node* new_If_node(Node* condition, Node* body) {
+If_node* new_If_node(Node* condition, Node* body, Node* else_body) {
     If_node* i = malloc(sizeof(If_node));
     memset(i, 0, sizeof(If_node));
 
     i->n_type = IF_NODE;
     i->condition = condition;
     i->body = body;
+    i->else_body = else_body;
     return i;
 }
 
