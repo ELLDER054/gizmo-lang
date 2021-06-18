@@ -59,6 +59,9 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case VAR_DECLARATION_NODE:
             print_var(f, (Var_declaration_node*) n);
             break;
+        case IF_NODE:
+        case WHILE_NODE:
+            break;
         case OPERATOR_NODE:
             print_oper(f, (Operator_node*) n);
             break;
@@ -169,6 +172,22 @@ void free_While_loop_node(While_loop_node* w) {
     free_node(w->condition);
     free_node(w->body);
     free(w);
+}
+
+If_node* new_If_node(Node* condition, Node* body) {
+    If_node* i = malloc(sizeof(If_node));
+    memset(i, 0, sizeof(If_node));
+
+    i->n_type = IF_NODE;
+    i->condition = condition;
+    i->body = body;
+    return i;
+}
+
+void free_If_node(If_node* i) {
+    free_node(i->condition);
+    free_node(i->body);
+    free(i);
 }
 
 Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a function call node */
@@ -408,6 +427,9 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case WHILE_NODE:
             free_While_loop_node((While_loop_node*) n);
+            break;
+        case IF_NODE:
+            free_If_node((If_node*) n);
             break;
         case FUNC_CALL_NODE:
         case READ_NODE:

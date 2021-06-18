@@ -88,6 +88,7 @@ int needs_strlen = 0;
 int bool_c = 0;
 int end_c = 0;
 int while_c = 0;
+int if_c = 0;
 
 char* find_operation_asm(char* oper, char* t) {
     if (strcmp(t, "i32") == 0 || strcmp(t, "i8") == 0) {
@@ -310,7 +311,6 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(len, 100, "%d", gizmo_strlen(str));
         strcat(c, "\t");
         strcat(c, str_name);
-        free(str_name);
         strcat(c, " = getelementptr inbounds [");
         previous_str_is_ptr = 1;
         strcat(c, len);
@@ -327,6 +327,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         free(len);
         strcat(c, " x i8]* ");
         strcat(c, str_name);
+        free(str_name);
         strcat(c, " to i8*\n");
         return extra_name;
     } else if (n->n_type == REAL_NODE) {
@@ -504,6 +505,33 @@ void generate_statement(Node* n, char* code) {
             strcat(code, ", label %");
             strcat(code, cont);
             strcat(code, ", label %");
+            strcat(code, end);
+            strcat(code, "\n");
+            strcat(code, end);
+            strcat(code, ":\n");
+        } else if (n->n_type == IF_NODE) {
+            char* end_len = malloc(100);
+            memset(end_len, 0, 100);
+            If_node* i = (If_node*) n;
+            char* if_name = generate_expression_asm(i->condition, type(i->condition), code, end_len);
+            char* cont = malloc(100);
+            memset(cont, 0, 100);
+            snprintf(cont, 100, "if%d", if_c++);
+            char* end = malloc(100);
+            memset(end, 0, 100);
+            snprintf(end, 100, "end%d", end_c++);
+            strcat(code, "\tbr i1 ");
+            strcat(code, if_name);
+            strcat(code, ", label %");
+            strcat(code, cont);
+            strcat(code, ", label %");
+            strcat(code, end);
+            strcat(code, "\n");
+            strcat(code, cont);
+            strcat(code, ":\n");
+            generate_statement(i->body, code);
+            free(end_len);
+            strcat(code, "\tbr label %");
             strcat(code, end);
             strcat(code, "\n");
             strcat(code, end);

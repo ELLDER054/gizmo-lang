@@ -130,6 +130,8 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case WRITE_NODE:
            return symtab_find_global(((Func_call_node*) n)->name, "func")->type;
         case FUNC_DECL_NODE:
+        case IF_NODE:
+        case WHILE_NODE:
         case RET_NODE:
         case NODE_NODE:
             break;
@@ -679,6 +681,27 @@ Node* while_statement(int start) {
     return (Node*) new_While_loop_node(condition, body);
 }
 
+Node* if_statement(int start) {
+    ind = start;
+    char* key = expect_type(T_IF);
+    if (key == NULL) {
+        ind = start;
+        return NULL;
+    }
+    Node* condition = expression(ind);
+    if (condition == NULL) {
+        Error(tokens[start], "Expected condition after if keyword", 1);
+    }
+    if (strcmp(type(condition), "bool") != 0) {
+        Error(tokens[start + 1], "Expected condition, not expression, after if keyword", 0);
+    }
+    Node* body = statement(ind);
+    if (body == NULL) {
+        Error(tokens[ind - 1], "Expected body", 1);
+    }
+    return (Node*) new_If_node(condition, body);
+}
+
 Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /* A statement with multiple statements surrounded by curly braces inside it */
     ind = start;
     char* begin = expect_type(T_LEFT_BRACE);
@@ -833,6 +856,10 @@ Node* statement(int start) { /* Calls all possible statements */
     Node* w = while_statement(start);
     if (w != NULL) {
         return w;
+    }
+    Node* if_s = if_statement(start);
+    if (if_s != NULL) {
+        return if_s;
     }
     Node* va = var_assignment(start);
     if (va != NULL) {
