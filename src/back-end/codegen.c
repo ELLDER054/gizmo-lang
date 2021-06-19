@@ -77,7 +77,6 @@ int needs_false_const = 0;
 int needs_num_const = 0;
 int needs_real_const = 0;
 int needs_chr_const = 0;
-int needs_strnn_const = 0;
 int needs_printf = 0;
 int needs_scanf = 0;
 int needs_malloc = 0;
@@ -379,7 +378,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         if (strcmp(type(((Func_call_node*) n)->args[0]), "string")) {
             fprintf(stderr, "error: Argument 1 of the 'read' function must be a string\n");
         }
-        needs_strnn_const = 1;
+        needs_str_const = 1;
         char* func_call_name = heap_alloc(100);
         snprintf(func_call_name, 100, "%%%d", var_c++);
         char* temp_var = heap_alloc(100);
@@ -393,11 +392,11 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, ", i32 0, i32 0\n\t");
         char end_len[100];
         char* write_name = generate_expression_asm(((Func_call_node*) n)->args[0], "string", c, end_len);
-        strcat(c, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strnn, i32 0, i32 0), i8* ");
+        strcat(c, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
         strcat(c, write_name);
         var_c++;
         strcat(c, ")\n\t");
-        strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strnn, i32 0, i32 0), i8* ");
+        strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
         strcat(c, temp_var);
         var_c++;
         char* temp_var2 = heap_alloc(100);
@@ -565,12 +564,12 @@ void generate_statement(Node* n, char* code) {
             free(end_len);
             if (strcmp(type(func->args[0]), "int") == 0) {
                 needs_num_const = 1;
-                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.num, i32 0, i32 0), i32 ");
+                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.num, i32 0, i32 0), i32 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "string") == 0) {
                 needs_str_const = 1;
-                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.str, i32 0, i32 0), i8* ");
+                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "bool") == 0) {
@@ -608,12 +607,12 @@ void generate_statement(Node* n, char* code) {
                 free(end);
             } else if (strcmp(type(func->args[0]), "char") == 0) {
                 needs_chr_const = 1;
-                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.chr, i32 0, i32 0), i8 ");
+                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.chr, i32 0, i32 0), i8 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
                 needs_real_const = 1;
-                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([4 x i8], [4 x i8]* @.real, i32 0, i32 0), double ");
+                strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.real, i32 0, i32 0), double ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             }
@@ -712,20 +711,17 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         }
         generate_statement(n, code);
     }
-    if (needs_strnn_const) {
-        insert(code, 0, strlen(code), "@.strnn = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n");
-    }
     if (needs_chr_const) {
-        insert(code, 0, strlen(code), "@.chr = private unnamed_addr constant [4 x i8] c\"%c\\0A\\00\"\n");
+        insert(code, 0, strlen(code), "@.chr = private unnamed_addr constant [3 x i8] c\"%c\\00\"\n");
     }
     if (needs_str_const) {
-        insert(code, 0, strlen(code), "@.str = private unnamed_addr constant [4 x i8] c\"%s\\0A\\00\"\n");
+        insert(code, 0, strlen(code), "@.str = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n");
     }
     if (needs_real_const) {
-        insert(code, 0, strlen(code), "@.real = private unnamed_addr constant [4 x i8] c\"%f\\0A\\00\"\n");
+        insert(code, 0, strlen(code), "@.real = private unnamed_addr constant [3 x i8] c\"%f\\00\"\n");
     }
     if (needs_num_const) {
-        insert(code, 0, strlen(code), "@.num = private unnamed_addr constant [4 x i8] c\"%d\\0A\\00\"\n");
+        insert(code, 0, strlen(code), "@.num = private unnamed_addr constant [3 x i8] c\"%d\\00\"\n");
     }
     if (needs_true_const) {
         insert(code, 0, strlen(code), "@.true = private unnamed_addr constant [6 x i8] c\"true\\0A\\00\"");
