@@ -678,7 +678,11 @@ Node* while_statement(int start) {
     if (body == NULL) {
         Error(tokens[ind - 1], "Expected body", 1);
     }
-    return (Node*) new_While_loop_node(condition, body);
+    char bcgid[100];
+    snprintf(bcgid, 100, ".%d", id_c++);
+    char ecgid[100];
+    snprintf(ecgid, 100, ".%d", id_c++);
+    return (Node*) new_While_loop_node(condition, body, bcgid, ecgid);
 }
 
 Node* if_statement(int start) {
@@ -706,7 +710,13 @@ Node* if_statement(int start) {
             Error(tokens[ind - 1], "Expected body after else", 1);
         }
     }
-    return (Node*) new_If_node(condition, body, else_body);
+    char bcgid[100];
+    snprintf(bcgid, 100, ".%d", id_c++);
+    char elcgid[100];
+    snprintf(elcgid, 100, ".%d", id_c++);
+    char ecgid[100];
+    snprintf(ecgid, 100, ".%d", id_c++);
+    return (Node*) new_If_node(condition, body, else_body, bcgid, ecgid, elcgid);
 }
 
 Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /* A statement with multiple statements surrounded by curly braces inside it */
@@ -913,7 +923,7 @@ void parse(Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
     function_type = malloc(MAX_TYPE_LEN);
     memset(function_type, 0, MAX_TYPE_LEN);
     symtab_add_symbol("none", "func", "write", 1, "write");
-    symtab_add_symbol("string", "func", "read", 0, "read");
+    symtab_add_symbol("string", "func", "read", 1, "read");
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }

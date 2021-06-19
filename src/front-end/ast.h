@@ -56,6 +56,8 @@ typedef struct {
     NodeType n_type;
     Node* condition;
     Node* body;
+    char begin_cgid[MAX_NAME_LEN + 4];
+    char end_cgid[MAX_NAME_LEN + 4];
 } While_loop_node;
 
 typedef struct {
@@ -63,6 +65,9 @@ typedef struct {
     Node* condition;
     Node* body;
     Node* else_body;
+    char begin_cgid[MAX_NAME_LEN + 4];
+    char else_cgid[MAX_NAME_LEN + 4];
+    char end_cgid[MAX_NAME_LEN + 4];
 } If_node;
 
 typedef struct {
@@ -137,8 +142,8 @@ void free_node(Node* n);
 void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid);
-While_loop_node* new_While_loop_node(Node* condition, Node* body);
-If_node* new_If_node(Node* condition, Node* body, Node* else_body);
+While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid);
+If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 Boolean_node* new_Boolean_node(int val);

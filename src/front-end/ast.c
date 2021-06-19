@@ -158,13 +158,15 @@ void free_Var_assignment_node(Var_assignment_node* v) {
     free(v);
 }
 
-While_loop_node* new_While_loop_node(Node* condition, Node* body) {
+While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid) {
     While_loop_node* w = malloc(sizeof(While_loop_node));
     memset(w, 0, sizeof(While_loop_node));
 
     w->n_type = WHILE_NODE;
     w->condition = condition;
     w->body = body;
+    strncpy(w->begin_cgid, bcgid, MAX_NAME_LEN + 4);
+    strncpy(w->end_cgid, ecgid, MAX_NAME_LEN + 4);
     return w;
 }
 
@@ -174,7 +176,7 @@ void free_While_loop_node(While_loop_node* w) {
     free(w);
 }
 
-If_node* new_If_node(Node* condition, Node* body, Node* else_body) {
+If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid) {
     If_node* i = malloc(sizeof(If_node));
     memset(i, 0, sizeof(If_node));
 
@@ -182,6 +184,9 @@ If_node* new_If_node(Node* condition, Node* body, Node* else_body) {
     i->condition = condition;
     i->body = body;
     i->else_body = else_body;
+    strncpy(i->begin_cgid, bcgid, MAX_NAME_LEN + 4);
+    strncpy(i->else_cgid, elcgid, MAX_NAME_LEN + 4);
+    strncpy(i->end_cgid, ecgid, MAX_NAME_LEN + 4);
     return i;
 }
 

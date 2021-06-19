@@ -345,14 +345,27 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* arg_code = malloc(100);
         memset(arg_code, 0, 100);
         for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
-            char* arg_buf = heap_alloc(100);
+            char* arg_buf = malloc(100);
+            memset(arg_buf, 0, 100);
             char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), c, arg_buf);
+            strcat(c, "\t");
+            char* extra_name = malloc(100);
+            memset(extra_name, 0, 100);
+            snprintf(extra_name, 100, "%%%d", var_c++);
+            strcat(c, extra_name);
+            strcat(c, " = alloca i32\n\tstore i32 ");
+            strcat(c, arg);
+            strcat(c, ", i32* ");
+            strcat(c, extra_name);
+            strcat(c, "\n");
             strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
-            strcat(arg_code, " ");
-            strcat(arg_code, arg);
+            strcat(arg_code, "* ");
+            strcat(arg_code, extra_name);
+            free(extra_name);
             if (i + 1 < ((Func_call_node*) n)->args_len) {
                 strcat(arg_code, ", ");
             }
+            free(arg_buf);
         }
         char* func_call_name = heap_alloc(100);
         snprintf(func_call_name, 100, "%%%d", var_c++);
@@ -363,6 +376,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         return func_call_name;
     } else if (n->n_type == READ_NODE) {
         needs_scanf = 1;
+        if (strcmp(type(((Func_call_node*) n)->args[0]), "string")) {
+            fprintf(stderr, "error: Argument 1 of the 'read' function must be a string\n");
+        }
         needs_strnn_const = 1;
         char* func_call_name = heap_alloc(100);
         snprintf(func_call_name, 100, "%%%d", var_c++);
@@ -375,6 +391,12 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* ");
         strcat(c, func_call_name);
         strcat(c, ", i32 0, i32 0\n\t");
+        char end_len[100];
+        char* write_name = generate_expression_asm(((Func_call_node*) n)->args[0], "string", c, end_len);
+        strcat(c, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strnn, i32 0, i32 0), i8* ");
+        strcat(c, write_name);
+        var_c++;
+        strcat(c, ")\n\t");
         strcat(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.strnn, i32 0, i32 0), i8* ");
         strcat(c, temp_var);
         var_c++;
@@ -483,20 +505,14 @@ void generate_statement(Node* n, char* code) {
             memset(end_len, 0, 100);
             While_loop_node* wh = (While_loop_node*) n;
             char* while_name = generate_expression_asm(wh->condition, type(wh->condition), code, end_len);
-            char* cont = malloc(100);
-            memset(cont, 0, 100);
-            snprintf(cont, 100, "while%d", while_c++);
-            char* end = malloc(100);
-            memset(end, 0, 100);
-            snprintf(end, 100, "end%d", end_c++);
             strcat(code, "\tbr i1 ");
             strcat(code, while_name);
             strcat(code, ", label %");
-            strcat(code, cont);
+            strcat(code, wh->begin_cgid);
             strcat(code, ", label %");
-            strcat(code, end);
+            strcat(code, wh->end_cgid);
             strcat(code, "\n");
-            strcat(code, cont);
+            strcat(code, wh->begin_cgid);
             strcat(code, ":\n");
             generate_statement(wh->body, code);
             char* while_name2 = generate_expression_asm(wh->condition, type(wh->condition), code, end_len);
@@ -504,56 +520,42 @@ void generate_statement(Node* n, char* code) {
             strcat(code, "\tbr i1 ");
             strcat(code, while_name2);
             strcat(code, ", label %");
-            strcat(code, cont);
+            strcat(code, wh->begin_cgid);
             strcat(code, ", label %");
-            strcat(code, end);
+            strcat(code, wh->end_cgid);
             strcat(code, "\n");
-            strcat(code, end);
+            strcat(code, wh->end_cgid);
             strcat(code, ":\n");
         } else if (n->n_type == IF_NODE) {
             char* end_len = malloc(100);
             memset(end_len, 0, 100);
             If_node* i = (If_node*) n;
             char* if_name = generate_expression_asm(i->condition, type(i->condition), code, end_len);
-            char* cont = malloc(100);
-            memset(cont, 0, 100);
-            snprintf(cont, 100, "if%d", if_c++);
-            char* el = malloc(100);
-            if (i->else_body != NULL) {
-                memset(el, 0, 100);
-                snprintf(el, 100, "else%d", else_c++);
-            } else {
-                free(el);
-            }
-            char* end = malloc(100);
-            memset(end, 0, 100);
-            snprintf(end, 100, "end%d", end_c++);
             strcat(code, "\tbr i1 ");
             strcat(code, if_name);
             strcat(code, ", label %");
-            strcat(code, cont);
+            strcat(code, i->begin_cgid);
             strcat(code, ", label %");
-            strcat(code, i->else_body == NULL ? end : el);
+            strcat(code, i->else_body == NULL ? i->end_cgid : i->else_cgid);
             strcat(code, "\n");
-            strcat(code, cont);
+            strcat(code, i->begin_cgid);
             strcat(code, ":\n");
             generate_statement(i->body, code);
             free(end_len);
             strcat(code, "\tbr label %");
-            strcat(code, end);
+            strcat(code, i->end_cgid);
             if (i->else_body != NULL) {
                 strcat(code, "\n");
-                strcat(code, el);
+                strcat(code, i->else_cgid);
                 strcat(code, ":\n");
                 generate_statement(i->else_body, code);
                 strcat(code, "\tbr label %");
-                strcat(code, end);
+                strcat(code, i->end_cgid);
                 strcat(code, "\n");
             }
             strcat(code, "\n");
-            strcat(code, end);
+            strcat(code, i->end_cgid);
             strcat(code, ":\n");
-            free(el);
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
             char* end_len = malloc(100);
@@ -632,15 +634,26 @@ void generate_statement(Node* n, char* code) {
                 char* arg_buf = malloc(100);
                 memset(arg_buf, 0, 100);
                 char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), code, arg_buf);
+                strcat(code, "\t");
+                char* extra_name = malloc(100);
+                memset(extra_name, 0, 100);
+                snprintf(extra_name, 100, "%%%d", var_c++);
+                strcat(code, extra_name);
+                strcat(code, " = alloca i32\n\tstore i32 ");
+                strcat(code, arg);
+                strcat(code, ", i32* ");
+                strcat(code, extra_name);
+                strcat(code, "\n");
                 strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
-                strcat(arg_code, " ");
-                strcat(arg_code, arg);
+                strcat(arg_code, "* ");
+                strcat(arg_code, extra_name);
+                free(extra_name);
                 if (i + 1 < ((Func_call_node*) n)->args_len) {
                     strcat(arg_code, ", ");
                 }
                 free(arg_buf);
             }
-            snprintf(call, 195, "call %s @%s(%s)\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code);
+            snprintf(call, 195, "\tcall %s @%s(%s)\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code);
             strcat(code, call);
             free(call);
             free(arg_code);
@@ -654,7 +667,7 @@ void generate_statement(Node* n, char* code) {
             for (int i = 0; i < ((Func_decl_node*) n)->args_len; i++) {
                 Var_declaration_node* arg = (Var_declaration_node*) ((Func_decl_node*) n)->args[i];
                 strcat(arg_code, types(arg->type));
-                strcat(arg_code, " %");
+                strcat(arg_code, "* %");
                 strcat(arg_code, arg->codegen_name);
                 if (i + 1 < ((Func_decl_node*) n)->args_len) {
                     strcat(arg_code, ", ");
