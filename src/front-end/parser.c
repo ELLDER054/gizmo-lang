@@ -7,7 +7,10 @@
 #include "symbols.h"
 
 int id_c = 0;
+int nested_loops = 0;
 char* function_type;
+char* current_loop_begin;
+char* current_loop_end;
 int in_function = 0;
 int has_returned_in_definite_scope = 0;
 int ind = 0;
@@ -674,15 +677,42 @@ Node* while_statement(int start) {
     if (strcmp(type(condition), "bool") != 0) {
         Error(tokens[start + 1], "Expected condition, not expression, after while keyword", 0);
     }
-    Node* body = statement(ind);
-    if (body == NULL) {
-        Error(tokens[ind - 1], "Expected body", 1);
-    }
+    nested_loops++;
     char bcgid[100];
     snprintf(bcgid, 100, ".%d", id_c++);
     char ecgid[100];
     snprintf(ecgid, 100, ".%d", id_c++);
+    char save_b[100];
+    char save_e[100];
+    strcpy(save_b, current_loop_begin);
+    strcpy(save_e, current_loop_end);
+    strcpy(current_loop_end, ecgid);
+    strcpy(current_loop_begin, bcgid);
+    Node* body = statement(ind);
+    if (body == NULL) {
+        Error(tokens[ind - 1], "Expected body", 1);
+    }
+    strcpy(current_loop_end, save_e);
+    strcpy(current_loop_begin, save_b);
+    nested_loops--;
     return (Node*) new_While_loop_node(condition, body, bcgid, ecgid);
+}
+
+Node* skip_statement(int start) {
+    ind = start;
+    char* key = expect_type(T_SKIP);
+    if (key == NULL) {
+        ind = start;
+        return NULL;
+    }
+    char b[100];
+    consume(T_SEMI_COLON, "Expected semi-colon after 'break' or 'continue'", b);
+    char code[100];
+    if (nested_loops == 0) {
+        Error(tokens[start], "'break' or 'continue' statements must only be in loops", 0);
+    }
+    snprintf(code, 100, "br label %%%s\n", strcmp(key, "break") == 0 ? current_loop_end : current_loop_begin);
+    return (Node*) new_Skip_node(strcmp(key, "break") == 0 ? 0 : 1, code);
 }
 
 Node* if_statement(int start) {
@@ -874,6 +904,10 @@ Node* statement(int start) { /* Calls all possible statements */
     if (w != NULL) {
         return w;
     }
+    Node* skip = skip_statement(start);
+    if (skip != NULL) {
+        return skip;
+    }
     Node* if_s = if_statement(start);
     if (if_s != NULL) {
         return if_s;
@@ -922,6 +956,10 @@ void parse(Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
     symtab_init();
     function_type = malloc(MAX_TYPE_LEN);
     memset(function_type, 0, MAX_TYPE_LEN);
+    current_loop_begin = malloc(MAX_NAME_LEN);
+    memset(current_loop_begin, 0, MAX_NAME_LEN);
+    current_loop_end = malloc(MAX_NAME_LEN);
+    memset(current_loop_end, 0, MAX_NAME_LEN);
     symtab_add_symbol("none", "func", "write", 1, "write");
     symtab_add_symbol("string", "func", "read", 1, "read");
     for (int i = 0; i < tokslen(toks); i++) {

@@ -499,6 +499,10 @@ void generate_statement(Node* n, char* code) {
                 strcat(code, "\n");
             }
             strcat(code, "\n");
+        } else if (n->n_type == SKIP_NODE) {
+            strcat(code, "\t");
+            strcat(code, ((Skip_node*) n)->code);
+            var_c++;
         } else if (n->n_type == WHILE_NODE) {
             char* end_len = malloc(100);
             memset(end_len, 0, 100);

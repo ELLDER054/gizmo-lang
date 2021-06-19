@@ -233,6 +233,8 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_ELSE;
             } else if (strcmp(name, "false") == 0) {
                 tok.type = T_FALSE;
+            } else if (strcmp(name, "break") == 0 || strcmp(name, "continue") == 0) {
+                tok.type = T_SKIP;
             } else { /* Is an identifier */
                 tok.type = T_ID;
             }

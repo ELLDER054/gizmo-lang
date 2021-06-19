@@ -176,6 +176,16 @@ void free_While_loop_node(While_loop_node* w) {
     free(w);
 }
 
+Skip_node* new_Skip_node(int kind, char* code) {
+    Skip_node* skip = malloc(sizeof(Skip_node));
+    memset(skip, 0, sizeof(Skip_node));
+
+    skip->n_type = SKIP_NODE;
+    skip->skip_kind = kind;
+    strncpy(skip->code, code, MAX_NAME_LEN);
+    return skip;
+}
+
 If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid) {
     If_node* i = malloc(sizeof(If_node));
     memset(i, 0, sizeof(If_node));

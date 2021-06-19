@@ -15,6 +15,7 @@ typedef enum {
     VAR_ASSIGN_NODE,
     WHILE_NODE,
     IF_NODE,
+    SKIP_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
     BOOL_NODE,
@@ -90,6 +91,11 @@ typedef struct {
     int value;
 } Integer_node;
 
+typedef struct {
+    NodeType n_type;
+    int skip_kind; // zero or one (break or continue)
+    char code[MAX_NAME_LEN];
+} Skip_node;
 
 typedef struct {
     NodeType n_type;
@@ -143,6 +149,7 @@ void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid);
 While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid);
+Skip_node* new_Skip_node(int kind, char* code);
 If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
