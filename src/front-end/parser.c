@@ -113,6 +113,8 @@ char* type(Node* n) { /* Returns the type of the given Node* */
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
             return "int";
+        case NEG_NODE:
+            return type(((Negative_node*) n)->node);
         case BOOL_NODE:
             return "bool";
         case BLOCK_NODE:
@@ -137,6 +139,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case WHILE_NODE:
         case RET_NODE:
         case NODE_NODE:
+        case SKIP_NODE:
             break;
     }
     return NULL;
@@ -345,9 +348,13 @@ Node* factor(int start) {
 Node* unary(int start) {
 	ind = start;
 
-    if (expect_type(T_NOT) != NULL || expect_type(T_MINUS) != NULL) {
+    if (expect_type(T_MINUS) != NULL) {
+        int save = ind - 1;
         Node* right = unary(ind);
-        return right;
+        if (right == NULL) {
+            Error(tokens[save], "Expected something after the negative sign", 1);
+        }
+        return (Node*) new_Negative_node(right);
     }
 
     return primary(ind);
@@ -400,6 +407,7 @@ Node* primary(int start) {
         return expr;
     }
     
+    Error(tokens[start], "Unexpected token", 0);
     return NULL;
 }
 
@@ -820,14 +828,14 @@ Node* return_statement(int start) {
     if (expr == NULL) {
         expr = (Node*) new_Integer_node(0);
     }
+    if (!in_function) {
+        Error(tokens[start], "Can't have return statement outside of function", 0);
+    }
     if (strcmp(function_type, type(expr)) != 0) {
         Error(tokens[start + 1], "Return type of function is different from the return expression", 0);
     }
     char b[100];
     consume(T_SEMI_COLON, "Expected semi-colon to terminate return statement", b);
-    if (!in_function) {
-        Error(tokens[start], "Can't have return statement outside of function", 0);
-    }
     return (Node*) new_Return_node(expr);
 }
 

@@ -98,7 +98,7 @@ char* find_operation_asm(char* oper, char* t) {
         } else if (strcmp(oper, "-") == 0) {
             return "sub";
         } else if (strcmp(oper, "*") == 0) {
-            return "mul";
+            return "mul nsw";
         } else if (strcmp(oper, "/") == 0) {
             return "sdiv";
         } else if (strcmp(oper, "%") == 0) {
@@ -254,6 +254,16 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* number = heap_alloc(100);
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
         return number;
+    } else if (n->n_type == NEG_NODE) {
+        Negative_node* neg_node = (Negative_node*) n;
+        char end_size[100];
+        char* neg_name = generate_expression_asm(neg_node->node, type(neg_node->node), c, end_size);
+        char* new_neg_name = heap_alloc(100);
+        snprintf(new_neg_name, 100, "%%%d", var_c++);
+        char* neg_code = heap_alloc(100);
+        snprintf(neg_code, 100, "%s = %smul %s %s, -1", new_neg_name, strcmp(type(neg_node->node), "real") == 0 ? "f" : "", types(type(neg_node->node)), neg_name);
+        strcat(c, neg_code);
+        return new_neg_name;
     } else if (n->n_type == ID_NODE) {
         char* id_name = heap_alloc(105);
         char* id_code = malloc(164);

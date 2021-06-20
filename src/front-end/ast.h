@@ -14,6 +14,7 @@ typedef enum {
     VAR_DECLARATION_NODE,
     VAR_ASSIGN_NODE,
     WHILE_NODE,
+    NEG_NODE,
     IF_NODE,
     SKIP_NODE,
     OPERATOR_NODE,
@@ -144,6 +145,11 @@ typedef struct {
     Node* expr;
 } Return_node;
 
+typedef struct {
+    NodeType n_type;
+    Node* node;
+} Negative_node;
+
 void free_node(Node* n);
 void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
@@ -162,5 +168,6 @@ Func_call_node* new_Func_call_node(char* name, Node** args);
 Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args_len, Node* body);
 Return_node* new_Return_node(Node* expr);
 Block_node* new_Block_node(Node** statements, int ssize);
+Negative_node* new_Negative_node(Node* node);
 
 #endif
