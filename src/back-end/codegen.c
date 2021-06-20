@@ -69,6 +69,7 @@ void insert(char* buf, int pos, int size, char* str) {
 
 int needs_constr = 0;
 int needs_cmpstr = 0;
+int needs_cmpnstr = 0;
 int needs_strcmp = 0;
 int needs_div_int = 0;
 int needs_str_const = 0;
@@ -145,8 +146,8 @@ char* find_operation_asm(char* oper, char* t) {
             needs_cmpstr = 1;
             return "call i1 @cmpstr(";
         } else if (strcmp(oper, "!=") == 0) {
-            needs_strcmp = 1;
-            return "call i1 @strcmp(";
+            needs_cmpnstr = 1;
+            return "call i1 @cmpnstr(";
         }
     } else if (strcmp(t, "i1") == 0) {
         if (strcmp(oper, "and") == 0) {
@@ -214,7 +215,7 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
         strcat(c, " ");
     }
     strcat(c, r);
-    if (strcmp(oper_asm, "call i8* @constr(") == 0 || strcmp(oper_asm, "call i1 @cmpstr(") == 0 || strcmp(oper_asm, "call i1 @strcmp(") == 0) {
+    if (strcmp(oper_asm, "call i8* @constr(") == 0 || strcmp(oper_asm, "call i1 @cmpstr(") == 0 || strcmp(oper_asm, "call i1 @cmpnstr(") == 0) {
         strcat(c, ")");
     }
     /*if (strlen(oper_asm) > 0 && oper_asm[1] == 'c') {
@@ -742,7 +743,11 @@ void generate(Node** ast, int size, char* code, char* file_name) {
     }
     if (needs_cmpstr) {
         needs_strcmp = 1;
-        insert(code, 0, strlen(code), "\ndefine i1 @cmpstr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i1 @strcmp(i8* %a, i8* %b)\n\t%1 = icmp eq i1 %0, 0\n\tret i1 %1\n}\n");
+        insert(code, 0, strlen(code), "\ndefine i1 @cmpstr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i32 @strcmp(i8* %a, i8* %b)\n\t%1 = icmp eq i32 %0, 0\n\tret i1 %1\n}\n");
+    }
+    if (needs_cmpnstr) {
+        needs_strcmp = 1;
+        insert(code, 0, strlen(code), "\n i1 @cmpnstr(i8* %a, i8* %b) {\nentry:\n\t%0 = call i32 @strcmp(i8* %a, i8* %b)\n\t%1 = icmp ne i32 %0, 0\n\tret i1 %1\n}\n");
     }
     if (needs_div_int) {
         insert(code, 0, strlen(code), "define double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n");
@@ -772,7 +777,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         strcat(code, "declare i32 @printf(i8*, ...)\n");
     }
     if (needs_strcmp) {
-        strcat(code, "declare i1 @strcmp(i8*, i8*)\n");
+        strcat(code, "declare i32 @strcmp(i8*, i8*)\n");
     }
     heap_free_all();
     symtab_destroy();
