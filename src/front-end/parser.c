@@ -348,13 +348,13 @@ Node* factor(int start) {
 Node* unary(int start) {
 	ind = start;
 
-    if (expect_type(T_MINUS) != NULL) {
+    if (expect_type(T_MINUS) != NULL || expect_type(T_NOT) != NULL) {
         int save = ind - 1;
         Node* right = unary(ind);
         if (right == NULL) {
-            Error(tokens[save], "Expected something after the negative sign", 1);
+            Error(tokens[save], "Expected something after operator", 1);
         }
-        return (Node*) new_Negative_node(right);
+        return (Node*) new_Operator_node(tokens[save].type == T_MINUS ? "*" : "!=", (Node*) new_Integer_node(tokens[save].type == T_MINUS ? -1 : 1), right);
     }
 
     return primary(ind);

@@ -235,6 +235,8 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_FALSE;
             } else if (strcmp(name, "break") == 0 || strcmp(name, "continue") == 0) {
                 tok.type = T_SKIP;
+            } else if (strcmp(name, "not") == 0) {
+                tok.type = T_NOT;
             } else { /* Is an identifier */
                 tok.type = T_ID;
             }
