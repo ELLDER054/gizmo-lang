@@ -206,7 +206,7 @@ void free_Skip_node(Skip_node* s) {
     free(s);
 }
 
-If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid) {
+If_node* new_If_node(Node* condition, Node* body, Node* else_body, Node** else_ifs, int else_if_len, char* bcgid, char* ecgid, char* elcgid) {
     If_node* i = malloc(sizeof(If_node));
     memset(i, 0, sizeof(If_node));
 
@@ -217,12 +217,19 @@ If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, 
     strncpy(i->begin_cgid, bcgid, MAX_NAME_LEN + 4);
     strncpy(i->else_cgid, elcgid, MAX_NAME_LEN + 4);
     strncpy(i->end_cgid, ecgid, MAX_NAME_LEN + 4);
+    for (int j = 0; j < else_if_len; j++) {
+        i->else_ifs[j] = else_ifs[j];
+    }
+    i->else_if_len = else_if_len;
     return i;
 }
 
 void free_If_node(If_node* i) {
     free_node(i->condition);
     free_node(i->body);
+    for (int j = 0; j < i->else_if_len; j++) {
+        free_node(i->else_ifs[j]);
+    }
     free(i);
 }
 

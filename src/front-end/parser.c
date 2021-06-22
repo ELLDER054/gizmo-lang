@@ -723,6 +723,35 @@ Node* skip_statement(int start) {
     return (Node*) new_Skip_node(strcmp(key, "break") == 0 ? 0 : 1, code);
 }
 
+void find_else_ifs(int start, Node** else_ifs, int* else_if_count) {
+    ind = start;
+    int else_if_c = 0;
+    while (1) {
+        int save = ind;
+        char* key = expect_type(T_ELSE_IF);
+        if (key == NULL) {
+            break;
+        }
+        Node* cond = expression(ind);
+        if (cond == NULL) {
+            Error(tokens[save], "Expected condition after 'else-if' key", 1);
+        }
+        int save2 = ind;
+        Node* else_if_body = statement(ind);
+        if (else_if_body == NULL) {
+            Error(tokens[save2], "Expected body after condition key", 1);
+        }
+        char bcgid[100];
+        snprintf(bcgid, 100, ".%d", id_c++);
+        char ecgid[100];
+        snprintf(ecgid, 100, ".%d", id_c++);
+        char elcgid[100];
+        snprintf(elcgid, 100, ".%d", id_c++);
+        else_ifs[else_if_c++] = (Node*) new_If_node(cond, else_if_body, NULL, NULL, 0, bcgid, ecgid, elcgid);
+    }
+    *else_if_count = else_if_c;
+}
+
 Node* if_statement(int start) {
     ind = start;
     char* key = expect_type(T_IF);
@@ -741,6 +770,9 @@ Node* if_statement(int start) {
     if (body == NULL) {
         Error(tokens[ind - 1], "Expected body", 1);
     }
+    Node* else_ifs[1024];
+    int else_if_len = 0;
+    find_else_ifs(ind, else_ifs, &else_if_len);
     Node* else_body = NULL;
     if (expect_type(T_ELSE) != NULL) {
         else_body = statement(ind);
@@ -754,7 +786,7 @@ Node* if_statement(int start) {
     snprintf(elcgid, 100, ".%d", id_c++);
     char ecgid[100];
     snprintf(ecgid, 100, ".%d", id_c++);
-    return (Node*) new_If_node(condition, body, else_body, bcgid, ecgid, elcgid);
+    return (Node*) new_If_node(condition, body, else_body, else_ifs, else_if_len, bcgid, ecgid, elcgid);
 }
 
 Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /* A statement with multiple statements surrounded by curly braces inside it */
