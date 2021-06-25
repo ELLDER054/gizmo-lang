@@ -61,7 +61,6 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
             break;
         case IF_NODE:
         case SKIP_NODE:
-        case NEG_NODE:
         case WHILE_NODE:
             break;
         case OPERATOR_NODE:
@@ -178,20 +177,6 @@ void free_While_loop_node(While_loop_node* w) {
     free(w);
 }
 
-Negative_node* new_Negative_node(Node* node) {
-    Negative_node* neg = malloc(sizeof(Negative_node));
-    memset(neg, 0, sizeof(Negative_node));
-
-    neg->n_type = NEG_NODE;
-    neg->node = node;
-    return neg;
-}
-
-void free_Negative_node(Negative_node* neg) {
-    free_node(neg->node);
-    free(neg);
-}
-
 Skip_node* new_Skip_node(int kind, char* code) {
     Skip_node* skip = malloc(sizeof(Skip_node));
     memset(skip, 0, sizeof(Skip_node));
@@ -206,7 +191,7 @@ void free_Skip_node(Skip_node* s) {
     free(s);
 }
 
-If_node* new_If_node(Node* condition, Node* body, Node* else_body, Node** else_ifs, int else_if_len, char* bcgid, char* ecgid, char* elcgid) {
+If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid) {
     If_node* i = malloc(sizeof(If_node));
     memset(i, 0, sizeof(If_node));
 
@@ -217,19 +202,12 @@ If_node* new_If_node(Node* condition, Node* body, Node* else_body, Node** else_i
     strncpy(i->begin_cgid, bcgid, MAX_NAME_LEN + 4);
     strncpy(i->else_cgid, elcgid, MAX_NAME_LEN + 4);
     strncpy(i->end_cgid, ecgid, MAX_NAME_LEN + 4);
-    for (int j = 0; j < else_if_len; j++) {
-        i->else_ifs[j] = else_ifs[j];
-    }
-    i->else_if_len = else_if_len;
     return i;
 }
 
 void free_If_node(If_node* i) {
     free_node(i->condition);
     free_node(i->body);
-    for (int j = 0; j < i->else_if_len; j++) {
-        free_node(i->else_ifs[j]);
-    }
     free(i);
 }
 
@@ -446,9 +424,6 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case RET_NODE:
             free_Return_node((Return_node*) n);
-            break;
-        case NEG_NODE:
-            free_Negative_node((Negative_node*) n);
             break;
         case BOOL_NODE:
             free_Boolean_node((Boolean_node*) n);

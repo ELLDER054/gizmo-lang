@@ -14,7 +14,6 @@ typedef enum {
     VAR_DECLARATION_NODE,
     VAR_ASSIGN_NODE,
     WHILE_NODE,
-    NEG_NODE,
     IF_NODE,
     SKIP_NODE,
     OPERATOR_NODE,
@@ -67,8 +66,6 @@ typedef struct {
     Node* condition;
     Node* body;
     Node* else_body;
-    Node* else_ifs[1024];
-    int else_if_len;
     char begin_cgid[MAX_NAME_LEN + 4];
     char else_cgid[MAX_NAME_LEN + 4];
     char end_cgid[MAX_NAME_LEN + 4];
@@ -147,18 +144,13 @@ typedef struct {
     Node* expr;
 } Return_node;
 
-typedef struct {
-    NodeType n_type;
-    Node* node;
-} Negative_node;
-
 void free_node(Node* n);
 void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid);
 While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid);
 Skip_node* new_Skip_node(int kind, char* code);
-If_node* new_If_node(Node* condition, Node* body, Node* else_body, Node** else_ifs, int else_if_len, char* bcgid, char* ecgid, char* elcgid);
+If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 Boolean_node* new_Boolean_node(int val);
@@ -170,6 +162,5 @@ Func_call_node* new_Func_call_node(char* name, Node** args);
 Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args_len, Node* body);
 Return_node* new_Return_node(Node* expr);
 Block_node* new_Block_node(Node** statements, int ssize);
-Negative_node* new_Negative_node(Node* node);
 
 #endif

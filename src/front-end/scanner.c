@@ -231,8 +231,6 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_IF;
             } else if (strcmp(name, "else") == 0) {
                 tok.type = T_ELSE;
-            } else if (strcmp(name, "elsif") == 0) {
-                tok.type = T_ELSE_IF;
             } else if (strcmp(name, "false") == 0) {
                 tok.type = T_FALSE;
             } else if (strcmp(name, "break") == 0 || strcmp(name, "continue") == 0) {
