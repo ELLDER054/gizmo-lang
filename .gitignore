@@ -1,1 +1,3 @@
 gizmoc
+*.pyc
+*.ll
