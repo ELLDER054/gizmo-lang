@@ -14,7 +14,7 @@ class CompiledTest(unittest.TestCase):
         with open(self.ipath, "w") as f:
             f.write(code)
 
-        p = subprocess.run(['gizmo', self.ipath, '-o', self.opath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        p = subprocess.run(['build/gizmo', self.ipath, '-o', self.opath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         
         return p
 
@@ -47,7 +47,6 @@ class RunTimeTest(CompiledTest):
         p = subprocess.run(['lli', self.opath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         self.assertEqual(0, p.returncode)
 
-        print(regex)
         self.assertRegex(p.stdout, regex)
 
 class TestSimpleBadSyntax(CompileTimeFailTest):
