@@ -2,6 +2,7 @@ import unittest
 import subprocess
 import tempfile
 import os
+import re
 
 class CompiledTest(unittest.TestCase):
 
@@ -13,7 +14,7 @@ class CompiledTest(unittest.TestCase):
         with open(self.ipath, "w") as f:
             f.write(code)
 
-        p = subprocess.run(['build/gizmo', self.ipath, '-o', self.opath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
+        p = subprocess.run(['gizmo', self.ipath, '-o', self.opath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         
         return p
 
@@ -39,14 +40,15 @@ class CompileTimeSucceedTest(CompiledTest):
 
 class RunTimeTest(CompiledTest):
 
-    def execute(self, code, expectedOutput):
+    def execute(self, code, regex):
         p = self.compile(code)
-        self.assertEqual(0, p.returncode)
+        self.assertEqual(0, p.returncode, p.stderr)
 
         p = subprocess.run(['lli', self.opath], stdout=subprocess.PIPE, stderr=subprocess.PIPE, text=True)
         self.assertEqual(0, p.returncode)
 
-        self.assertRegex(p.stdout, expectedOutput)
+        print(regex)
+        self.assertRegex(p.stdout, regex)
 
 class TestSimpleBadSyntax(CompileTimeFailTest):
 
@@ -82,3 +84,27 @@ class SimpleRunTimeTests(RunTimeTest):
         self.execute(
             "write(\"hello\");",
             "hello")
+
+    def test_else_if(self):
+        expectedOutput = "i is 0\n" + \
+                         "i is 1\n" + \
+                         "i is 2\n" + \
+                         "i is 3\n"
+
+        self.execute(
+            """
+            int i = 0;
+
+            while (i < 4) {
+                if (i == 0) {
+                    write("i is 0\\n");
+                } else if (i == 1) {
+                    write("i is 1\\n");
+                } else if (i == 2) {
+                    write("i is 2\\n");
+                } else {
+                    write("i is 3\\n");
+                }
+                i = i + 1;
+            }""",
+            expectedOutput)

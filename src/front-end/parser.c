@@ -652,16 +652,21 @@ Node* var_assignment(int start) {
         return NULL;
     }
     char* eq = expect_type(T_ASSIGN);
-    if (id == NULL) {
+    if (eq == NULL) {
         ind = start;
         return NULL;
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
-        Error(tokens[ind], "Expected expression", 0);
+        Error(tokens[ind - 1], "Expected expression", 1);
     }
     char b[100];
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement", b);
+    if (symtab_find_global(id, "var") == NULL) {
+        char error[100] = {0};
+        snprintf(error, 100, "Variable '%s' not created", id);
+        Error(tokens[start], error, 0);
+    }
     return (Node*) new_Var_assignment_node(id, expr, symtab_find_global(id, "var")->cgid);
 }
 
@@ -849,9 +854,7 @@ Node* function_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        ind = start;
-        fprintf(stderr, "Expected identifier after type");
-        return NULL;
+        Error(tokens[ind], "Expected identifier after type", 1);
     }
     char b[100];
     consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id", b);
