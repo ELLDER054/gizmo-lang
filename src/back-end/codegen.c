@@ -431,13 +431,13 @@ void generate_statement(Node* n, char* code) {
             strcat(code, "\t%");
             strcat(code, v->codegen_name);
             strcat(code, " = alloca ");
-            strcat(code, v->type);
+            strcat(code, types(v->type));
             strcat(code, "\n\tstore ");
-            strcat(code, v->type);
+            strcat(code, types(v->type));
             strcat(code, " ");
             strcat(code, var_name);
             strcat(code, ", ");
-            strcat(code, v->type);
+            strcat(code, types(v->type));
             strcat(code, "* %");
             strcat(code, v->codegen_name);
             strcat(code, "\n");
@@ -446,37 +446,12 @@ void generate_statement(Node* n, char* code) {
             char* var_buf = heap_alloc(100);
             char* var_name = generate_expression_asm(v->value, type(v->value), code, var_buf);
             char* new_id = heap_alloc(100);
-            if (strcmp(type(v->value), "int") == 0) {
-                strcat(code, "\tstore i32 ");
-                strcat(code, var_name);
-                strcat(code, ", i32* %");
-                strcat(code, v->codegen_name);
-                strcat(code, "\n");
-            } else if (strcmp(type(v->value), "string") == 0) {
-                strcat(code, "\tstore i8* ");
-                strcat(code, var_name);
-                strcat(code, ", i8** %");
-                strcat(code, v->codegen_name);
-                strcat(code, "\n");
-            } else if (strcmp(type(v->value), "bool") == 0) {
-                strcat(code, "\tstore i1 ");
-                strcat(code, var_name);
-                strcat(code, ", i1* %");
-                strcat(code, v->codegen_name);
-                strcat(code, "\n");
-            } else if (strcmp(type(v->value), "char") == 0) {
-                strcat(code, "\tstore i8 ");
-                strcat(code, var_name);
-                strcat(code, ", i8* %");
-                strcat(code, v->codegen_name);
-                strcat(code, "\n");
-            } else if (strcmp(type(v->value), "real") == 0) {
-                strcat(code, "\tstore double ");
-                strcat(code, var_name);
-                strcat(code, ", double* %");
-                strcat(code, v->codegen_name);
-                strcat(code, "\n");
-            }
+            strcat(code, "\tstore ");
+            strcat(code, types(type(v->value)));
+            strcat(code, " ");
+            strcat(code, var_name);
+            strcat(code, ", i32* %");
+            strcat(code, v->codegen_name);
             strcat(code, "\n");
         } else if (n->n_type == SKIP_NODE) {
             strcat(code, "\t");
