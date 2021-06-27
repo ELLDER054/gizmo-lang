@@ -353,11 +353,13 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             memset(extra_name, 0, 100);
             snprintf(extra_name, 100, "%%%d", var_c++);
             strcat(c, extra_name);
-            strcat(c, " = alloca i32\n\tstore i32 ");
+            strcat(c, " = alloca ");
+            strcat(c, types(type(((Func_call_node*) n)->args[i])));
+            strcat(c, "\n\tstore ");
+            strcat(c, types(type(((Func_call_node*) n)->args[i])));
+            strcat(c, " ");
             strcat(c, arg);
-            strcat(c, ", i32* ");
-            strcat(c, extra_name);
-            strcat(c, "\n");
+            strcat(c, ", ");
             strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
             strcat(arg_code, "* ");
             strcat(arg_code, extra_name);
@@ -426,42 +428,18 @@ void generate_statement(Node* n, char* code) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char* var_buf = heap_alloc(100);
             char* var_name = generate_expression_asm(v->value, v->type, code, var_buf);
-            if (strcmp(v->type, "int") == 0) {
-                strcat(code, "\t%");
-                strcat(code, v->codegen_name);
-                strcat(code, " = alloca i32\n\tstore i32 ");
-                strcat(code, var_name);
-                strcat(code, ", i32* %");
-                strcat(code, v->codegen_name);
-            } else if (strcmp(v->type, "string") == 0) {
-                strcat(code, "\t%");
-                strcat(code, v->codegen_name);
-                strcat(code, " = alloca i8*\n\tstore i8* ");
-                strcat(code, var_name);
-                strcat(code, ", i8** %");
-                strcat(code, v->codegen_name);
-            } else if (strcmp(v->type, "bool") == 0) {
-                strcat(code, "\t%");
-                strcat(code, v->codegen_name);
-                strcat(code, " = alloca i1\n\tstore i1 ");
-                strcat(code, var_name);
-                strcat(code, ", i1* %");
-                strcat(code, v->codegen_name);
-            } else if (strcmp(v->type, "char") == 0) {
-                strcat(code, "\t%");
-                strcat(code, v->codegen_name);
-                strcat(code, " = alloca i8\n\tstore i8 ");
-                strcat(code, var_name);
-                strcat(code, ", i8* %");
-                strcat(code, v->codegen_name);
-            } else if (strcmp(v->type, "real") == 0) {
-                strcat(code, "\t%");
-                strcat(code, v->codegen_name);
-                strcat(code, " = alloca double\n\tstore double ");
-                strcat(code, var_name);
-                strcat(code, ", double* %");
-                strcat(code, v->codegen_name);
-            }
+            strcat(code, "\t%");
+            strcat(code, v->codegen_name);
+            strcat(code, " = alloca ");
+            strcat(code, v->type);
+            strcat(code, "\n\tstore ");
+            strcat(code, v->type);
+            strcat(code, " ");
+            strcat(code, var_name);
+            strcat(code, ", ");
+            strcat(code, v->type);
+            strcat(code, "* %");
+            strcat(code, v->codegen_name);
             strcat(code, "\n");
         } else if (n->n_type == VAR_ASSIGN_NODE) {
             Var_assignment_node* v = (Var_assignment_node*) n;
@@ -643,11 +621,16 @@ void generate_statement(Node* n, char* code) {
                 memset(extra_name, 0, 100);
                 snprintf(extra_name, 100, "%%%d", var_c++);
                 strcat(code, extra_name);
-                strcat(code, " = alloca i32\n\tstore i32 ");
+                strcat(code, " = alloca ");
+                strcat(code, types(type(((Func_call_node*) n)->args[i])));
+                strcat(code, "\n\tstore ");
+                strcat(code, types(type(((Func_call_node*) n)->args[i])));
+                strcat(code, " ");
                 strcat(code, arg);
-                strcat(code, ", i32* ");
+                strcat(code, ", ");
+                strcat(code, types(type(((Func_call_node*) n)->args[i])));
+                strcat(code, "* ");
                 strcat(code, extra_name);
-                strcat(code, "\n");
                 strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
                 strcat(arg_code, "* ");
                 strcat(arg_code, extra_name);
