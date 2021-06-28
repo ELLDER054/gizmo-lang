@@ -178,6 +178,7 @@ void parse_string(char* str, char* endstr, int is_in_str) {
                     break;
                 default:
                     strcat(endstr, "\\");
+                    strncat(endstr, &(str[pos + 1]), 1);
             }
             pos++;
         } else {
