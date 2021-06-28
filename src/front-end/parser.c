@@ -74,6 +74,22 @@ char* expect_type(TokenType type) { /* Expects a Token Type and if wrong type, r
 
 // end helper functions
 
+void gizmo_type(int start, char* end_type) {
+    char* reg_type = expect_type(T_TYPE);
+    if (reg_type == NULL) {
+        ind = start;
+        return;
+    }
+    strcpy(end_type, reg_type);
+    while (expect_type(T_LEFT_BRACKET) != NULL) {
+        char* right = expect_type(T_RIGHT_BRACKET);
+        if (right == NULL) {
+            Error(tokens[ind - 1], "Expected right bracket after left bracket", 1);
+        }
+        strcat(end_type, "[]");
+    }
+}
+
 Node* expression(int start);
 Node* logical(int start);
 Node* term(int start);
@@ -91,10 +107,18 @@ int is_logical_operator(char* operator) {
     return (strcmp(operator, "<") == 0) || (strcmp(operator, ">") == 0) || (strcmp(operator, "<=") == 0) || (strcmp(operator, ">=") == 0) || (strcmp(operator, "==") == 0) || (strcmp(operator, "!=") == 0);
 }
 
+void get_type_from_str(char* str, char* end) {
+    for (int i = 0; i < strlen(str) - 2; i++) {
+        char c = str[i];
+        strncat(end, &c, 1);
+    }
+}
+
 char* type(Node* n) { /* Returns the type of the given Node* */
     if (n == NULL) {
         return NULL;
     }
+    char* str;
     switch (n->n_type) {
         case OPERATOR_NODE:
             if (((Operator_node*) n)->left->n_type == INTEGER_NODE && ((Operator_node*) n)->right->n_type == INTEGER_NODE && *((Operator_node*) n)->oper == '/') {
@@ -113,6 +137,13 @@ char* type(Node* n) { /* Returns the type of the given Node* */
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
             return "int";
+        case LIST_NODE:
+            return ((List_node*) n)->type;
+        case INDEX_NODE:
+            str = malloc(100);
+            memset(str, 0, 100);
+            get_type_from_str(symtab_find_global(((Index_node*) n)->id, "var")->type, str);
+            return str;
         case BOOL_NODE:
             return "bool";
         case BLOCK_NODE:
@@ -358,6 +389,7 @@ Node* unary(int start) {
     return primary(ind);
 }
 
+void func_expr_args(int start, Node** args, int* len);
 
 Node* primary(int start) {
 	ind = start;
@@ -380,10 +412,25 @@ Node* primary(int start) {
     }
 
     if (expect_type(T_ID) != NULL) {
-        if (symtab_find_global(tokens[ind - 1].value, "var") == NULL) {
-            Error(tokens[ind - 1], "Use of undefined variable", 0);
+        int begin = ind - 1;
+        if (expect_type(T_LEFT_BRACKET) != NULL) {
+            int save = ind;
+            Node* index = expression(ind);
+            if (index == NULL) {
+                Error(tokens[save], "Expected expression after left bracket", 1);
+            }
+            char b[100];
+            consume(T_RIGHT_BRACKET, "Expected right bracket after expression", b);
+            if (symtab_find_global(tokens[begin].value, "var") == NULL) {
+                Error(tokens[begin], "Use of undefined variable", 0);
+            }
+            return (Node*) new_Index_node(tokens[begin].value, index, symtab_find_global(tokens[begin].value, "var")->type, symtab_find_global(tokens[begin].value, "var")->cgid);
+        } else {
+            if (symtab_find_global(tokens[ind - 1].value, "var") == NULL) {
+                Error(tokens[begin], "Use of undefined variable", 0);
+            }
+            return (Node*) new_Identifier_node(tokens[begin].value, symtab_find_global(tokens[begin].value, "var")->cgid, symtab_find_global(tokens[begin].value, "var")->type);
         }
-        return (Node*) new_Identifier_node(tokens[ind - 1].value, symtab_find_global(tokens[ind - 1].value, "var")->cgid, symtab_find_global(tokens[ind - 1].value, "var")->type);
     }
 
     if (expect_type(T_REAL) != NULL) {
@@ -404,7 +451,20 @@ Node* primary(int start) {
         consume(T_RIGHT_PAREN, "Expect ')' after expression.", b);
         return expr;
     }
-    
+
+    if (expect_type(T_LEFT_BRACKET) != NULL) {
+        Node* list[1024];
+        memset(list, 0, 1024);
+        int len = 0;
+        func_expr_args(ind, list, &len);
+		char b[100];
+        consume(T_RIGHT_BRACKET, "Expect ']' after array elements.", b);
+        char list_type[MAX_TYPE_LEN];
+        strcpy(list_type, type(list[0]));
+        strcat(list_type, "[]");
+        return (Node*) new_List_node(list_type, list);
+    }
+
     Error(tokens[start], "Unexpected token", 0);
     return NULL;
 }
@@ -444,7 +504,9 @@ void func_decl_args(int start, Node** args, int* len) {
     int should_find = 0;
     while (1) {
         int save = ind;
-        char* arg_type = expect_type(T_TYPE);
+        char* arg_type = malloc(100);
+        memset(arg_type, 0, 100);
+        gizmo_type(ind, arg_type);
         if (arg_type == NULL) {
             if (should_find) {
                 Error(tokens[ind - 1], "Expected type after comma", 1);
@@ -464,6 +526,7 @@ void func_decl_args(int start, Node** args, int* len) {
         char cgid[MAX_NAME_LEN + 4] = {0};
         snprintf(cgid, MAX_NAME_LEN + 4, ".%d", id_c++);
         args[arg_c++] = (Node*) new_Var_declaration_node(arg_type, cgid, arg_id, NULL);
+        free(arg_type);
         if (comma == NULL) {
             break;
         }
@@ -520,11 +583,16 @@ Node* incomplete_initializers(char* t) { /* Returns the most low-level value for
 
 Node* incomplete_var_declaration(int start) { /* A variable declaration with no semi-colon */
     ind = start;
-    char* var_type = expect_type(T_TYPE);
-    if (var_type == NULL) {
+    char var_type[100];
+    char* malloc_var_type = malloc(100);
+    memset(malloc_var_type, 0, 100);
+    gizmo_type(ind, malloc_var_type);
+    if (malloc_var_type == NULL) {
         ind = start;
         return NULL;
     }
+    strcpy(var_type, malloc_var_type);
+    free(malloc_var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
         Error(tokens[start], "Expected identifier after type", 1);
@@ -598,11 +666,16 @@ Node* function_call(int start) { /* A function call with a semi-colon */
 
 Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
     ind = start;
-    char* var_type = expect_type(T_TYPE);
-    if (var_type == NULL) {
+    char var_type[MAX_TYPE_LEN];
+    char* malloc_var_type = malloc(100);
+    memset(malloc_var_type, 0, 100);
+    gizmo_type(ind, malloc_var_type);
+    if (malloc_var_type == NULL) {
         ind = start;
         return NULL;
     }
+    strcpy(var_type, malloc_var_type);
+    free(malloc_var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
        Error(tokens[start], "Expected identifier after type", 1);
@@ -629,7 +702,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
         Error(tokens[start], "Cannot use `none` like a type", 0);
     }
     if (strcmp(var_type, "auto") != 0) {
-        if (strcmp(type(expr), var_type)) {
+        if (strcmp(type(expr), var_type) != 0) {
             char* error = malloc(100);
             memset(error, 0, 100);
             snprintf(error, 100, "For variable `%s`\nCannot assign `%s` to variable of type `%s`", id, type(expr), var_type);

@@ -18,6 +18,8 @@ typedef enum {
     SKIP_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
+    LIST_NODE,
+    INDEX_NODE,
     BOOL_NODE,
     STRING_NODE,
     CHAR_NODE,
@@ -52,6 +54,21 @@ typedef struct {
     SymbolTable* currentScope;
     char codegen_name[MAX_NAME_LEN + 4];
 } Var_assignment_node;
+
+typedef struct {
+    NodeType n_type;
+    char type[MAX_TYPE_LEN];
+    Node** elements;
+    int len;
+} List_node;
+
+typedef struct {
+    NodeType n_type;
+    char id[MAX_NAME_LEN];
+    Node* expr;
+    char type[MAX_TYPE_LEN];
+    char cgid[MAX_NAME_LEN + 4];
+} Index_node;
 
 typedef struct {
     NodeType n_type;
@@ -153,6 +170,8 @@ Skip_node* new_Skip_node(int kind, char* code);
 If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
+List_node* new_List_node(char* type, Node** elements);
+Index_node* new_Index_node(char* id, Node* expr, char* type, char* cgid);
 Boolean_node* new_Boolean_node(int val);
 String_node* new_String_node(char* val);
 Char_node* new_Char_node(char val);

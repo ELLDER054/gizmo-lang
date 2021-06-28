@@ -62,6 +62,8 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case IF_NODE:
         case SKIP_NODE:
         case WHILE_NODE:
+        case LIST_NODE:
+        case INDEX_NODE:
             break;
         case OPERATOR_NODE:
             print_oper(f, (Operator_node*) n);
@@ -292,6 +294,51 @@ void free_Integer_node(Integer_node* n) { /* Frees an integer node */
     free(n);
 }
 
+List_node* new_List_node(char* type, Node** elements) {
+    List_node* list = malloc(sizeof(List_node));
+    memset(list, 0, sizeof(List_node));
+
+    list->n_type = LIST_NODE;
+    strcpy(list->type, type);
+    int len;
+    for (len = 0;; len++) {
+        if (elements[len] == NULL) {
+            break;
+        }
+    }
+    list->len = len;
+    list->elements = malloc(len * sizeof(Node*));
+    for (int element_c = 0; element_c < len; element_c++) {
+        list->elements[element_c] = elements[element_c];
+    }
+    return list;
+}
+
+void free_List_node(List_node* list) {
+    int element_c = 0;
+    while (element_c < list->len) {
+        free_node(list->elements[element_c++]);
+    }
+    free(list);
+}
+
+Index_node* new_Index_node(char* id, Node* expr, char* type, char* cgid) {
+    Index_node* index = malloc(sizeof(Index_node));
+    memset(index, 0, sizeof(Index_node));
+
+    index->n_type = INDEX_NODE;
+    strcpy(index->id, id);
+    strcpy(index->type, type);
+    strcpy(index->cgid, cgid);
+    index->expr = expr;
+    return index;
+}
+
+void free_Index_node(Index_node* index) {
+    free_node(index->expr);
+    free(index);
+}
+
 Boolean_node* new_Boolean_node(int val) {
     Boolean_node* boo = malloc(sizeof(Boolean_node));
     memset(boo, 0, sizeof(Boolean_node));
@@ -418,6 +465,11 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case STRING_NODE:
             free_String_node((String_node*) n);
+            break;
+        case LIST_NODE:
+            free_List_node((List_node*) n);
+            break;
+        case INDEX_NODE:
             break;
         case SKIP_NODE:
             free_Skip_node((Skip_node*) n);

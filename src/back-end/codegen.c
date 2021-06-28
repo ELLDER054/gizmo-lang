@@ -36,6 +36,15 @@ void leave_function() {
     save_var_c = 0;
 }
 
+char* get_type_from(char* str) {
+    char* type = heap_alloc(100);
+    for (int i = 0; i < strlen(str) - 2; i++) {
+        char c = str[i];
+        strncat(type, &c, 1);
+    }
+    return type;
+}
+
 char* types(char* t) {
     if (strcmp(t, "int") == 0) {
         return "i32";
@@ -47,6 +56,10 @@ char* types(char* t) {
         return "i8*";
     } else if (strcmp(t, "bool") == 0) {
         return "i1";
+    } else if (t[strlen(t) - 1] == ']') {
+        char* list = heap_alloc(100);
+        snprintf(list, 100, "[%d x %s]", 5, types(get_type_from(t)));
+        return list;
     }
     return "";
 }
@@ -254,7 +267,89 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* number = heap_alloc(100);
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
         return number;
-    } else if (n->n_type == ID_NODE) {
+    } else if (n->n_type == LIST_NODE) {
+        char* list_name = malloc(100);
+        memset(list_name, 0, 100);
+        List_node* list = (List_node*) n;
+        snprintf(list_name, 100, "%%%d", var_c++);
+        strcat(c, "\t");
+        strcat(c, list_name);
+        strcat(c, " = alloca ");
+        strcat(c, types(list->type));
+        strcat(c, " \n");
+        for (int i = 0; i < list->len; i++) {
+            char* name = malloc(100);
+            memset(name, 0, 100);
+            snprintf(name, 100, "%%%d", var_c++);
+            char* current_number = malloc(100);
+            memset(current_number, 0, 100);
+            snprintf(current_number, 100, "%d", i);
+            strcat(c, "\t");
+            strcat(c, name);
+            strcat(c, " = getelementptr inbounds ");
+            strcat(c, types(list->type));
+            strcat(c, ", ");
+            strcat(c, types(list->type));
+            strcat(c, "* ");
+            strcat(c, list_name);
+            strcat(c, ", i32 0, i32 ");
+            strcat(c, current_number);
+            strcat(c, "\n\tstore ");
+            strcat(c, types(type(list->elements[i])));
+            char buf[100];
+            char* element_name = generate_expression_asm(list->elements[i], type(list->elements[i]), c, buf);
+            strcat(c, " ");
+            strcat(c, element_name);
+            strcat(c, ", ");
+            strcat(c, types(type(list->elements[i])));
+            strcat(c, "* ");
+            strcat(c, name);
+            strcat(c, "\n");
+            free(name);
+            free(current_number);
+        }
+        char* extra_name = heap_alloc(100);
+        snprintf(extra_name, 100, "%%%d", var_c++);
+        strcat(c, "\t");
+        strcat(c, extra_name);
+        strcat(c, " = load ");
+        strcat(c, types(list->type));
+        strcat(c, ", ");
+        strcat(c, types(list->type));
+        strcat(c, "*");
+        strcat(c, list_name);
+        strcat(c, "\n");
+        free(list_name);
+        return extra_name;
+    } else if (n->n_type == INDEX_NODE) {
+        Index_node* index = (Index_node*) n;
+        char* index_name = heap_alloc(100);
+        snprintf(index_name, 100, "%%%d", var_c++);
+        strcat(c, "\t");
+        strcat(c, index_name);
+        strcat(c, " = getelementptr inbounds ");
+        strcat(c, types(index->type));
+        strcat(c, ", ");
+        strcat(c, types(index->type));
+        strcat(c, "* %");
+        strcat(c, index->cgid);
+        strcat(c, ", i32 0, i32 ");
+        char buf[100];
+        char* index_value_name = generate_expression_asm(index->expr, type(index->expr), c, buf);
+        strcat(c, index_value_name);
+        strcat(c, "\n\t");
+        char* extra_name = heap_alloc(100);
+        snprintf(extra_name, 100, "%%%d", var_c++);
+        strcat(c, extra_name);
+        strcat(c, " = load ");
+        strcat(c, types(get_type_from(index->type)));
+        strcat(c, ", ");
+        strcat(c, types(get_type_from(index->type)));
+        strcat(c, "* ");
+        strcat(c, index_name);
+        strcat(c, "\n");
+        return extra_name;
+    } if (n->n_type == ID_NODE) {
         char* id_name = heap_alloc(105);
         char* id_code = malloc(164);
         memset(id_code, 0, 164);
