@@ -26,7 +26,9 @@ Execute the following commands in your terminal or shell.
 ```shell
 git clone https://github.com/ELLDER054/gizmo-lang.git
 cd gizmo-lang
-cmake .
+mkdir build
+cd build
+cmake ..
 make
 ```
 
