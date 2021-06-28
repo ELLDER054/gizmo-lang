@@ -404,11 +404,6 @@ Node* primary(int start) {
         consume(T_RIGHT_PAREN, "Expect ')' after expression.", b);
         return expr;
     }
-
-    if (expect_type(T_RIGHT_PAREN) != NULL) {
-        ind = start;
-        return NULL;
-    }
     
     Error(tokens[start], "Unexpected token", 0);
     return NULL;
