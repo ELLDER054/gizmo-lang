@@ -78,6 +78,7 @@ void gizmo_type(int start, char* end_type) {
     char* reg_type = expect_type(T_TYPE);
     if (reg_type == NULL) {
         ind = start;
+        end_type = NULL;
         return;
     }
     strcpy(end_type, reg_type);
@@ -456,7 +457,14 @@ Node* primary(int start) {
         Node* list[1024];
         memset(list, 0, 1024);
         int len = 0;
+        int save = ind - 1;
         func_expr_args(ind, list, &len);
+        char* should_be_type = type(list[0]);
+        for (int i = 1; i < len; i++) {
+            if (strcmp(type(list[i]), should_be_type) != 0) {
+                Error(tokens[save], "Expected all list elements to be the same type", 0);
+            }
+        }
 		char b[100];
         consume(T_RIGHT_BRACKET, "Expect ']' after array elements.", b);
         char list_type[MAX_TYPE_LEN];
@@ -595,7 +603,8 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
     free(malloc_var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        Error(tokens[start], "Expected identifier after type", 1);
+        ind = start;
+        return NULL;
     }
     char* end = expect_type(T_SEMI_COLON);
     if (end == NULL) {
@@ -678,7 +687,8 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     free(malloc_var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
-       Error(tokens[start], "Expected identifier after type", 1);
+        ind = start;
+        return NULL;
     }
     char* eq = expect_type(T_ASSIGN);
     if (eq == NULL) {
@@ -726,8 +736,7 @@ Node* var_assignment(int start) {
     }
     char* eq = expect_type(T_ASSIGN);
     if (eq == NULL) {
-        ind = start;
-        return NULL;
+        Error(tokens[start], "Expected assignment operator or opening parethesis after identifier", 1);
     }
     Node* expr = expression(ind);
     if (expr == NULL) {
@@ -1025,9 +1034,7 @@ void program(Node** ast, int max_len) { /* Continuously calls statement() */
     while (ind < max_len) {
         Node* stmt = statement(ind);
         if (stmt == NULL) {
-            log_trace("stmt is NULL %d\n", stmt->n_type);
             Error(tokens[ind], "Unexpected token", 0);
-            break;
         }
         log_trace("stmt address %p\n", stmt);
         ast[stmt_c++] = stmt;

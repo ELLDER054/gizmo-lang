@@ -454,16 +454,16 @@ void scan(char* code, Token* tokens) {
         }
     }
 
-    for (int i = 0; i < strlen(code); i++) {
+    /*for (int i = 0; i < strlen(code); i++) {
         if (tokens[i].type < 200 || tokens[i].type > 250) {
             break;
         }
-        log_trace("%d", tokens[i].type);
-        log_trace(", %s", tokens[i].value);
-        log_trace(", %s", tokens[i].line);
-        log_trace(", %d", tokens[i].lineno);
-        log_trace(", %d\n", tokens[i].col);
-    }
+        printf("%d", tokens[i].type);
+        printf(", %s", tokens[i].value);
+        printf(", %s", tokens[i].line);
+        printf(", %d", tokens[i].lineno);
+        printf(", %d\n", tokens[i].col);
+    }*/
     for (i = 0; i < count; i++) free (lines[i]);
     free(lines);
 }
