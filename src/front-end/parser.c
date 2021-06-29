@@ -456,7 +456,14 @@ Node* primary(int start) {
         Node* list[1024];
         memset(list, 0, 1024);
         int len = 0;
+        int save = ind - 1;
         func_expr_args(ind, list, &len);
+        char* should_be_type = type(list[0]);
+        for (int i = 1; i < len; i++) {
+            if (strcmp(type(list[i]), should_be_type) != 0) {
+                Error(tokens[save], "Expected all list elements to be the same type", 0);
+            }
+        }
 		char b[100];
         consume(T_RIGHT_BRACKET, "Expect ']' after array elements.", b);
         char list_type[MAX_TYPE_LEN];
