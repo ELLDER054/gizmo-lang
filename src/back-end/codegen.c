@@ -323,6 +323,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         return extra_name;
     } else if (n->n_type == INDEX_NODE) {
         Index_node* index = (Index_node*) n;
+        char buf[100];
+        char* index_value_name = generate_expression_asm(index->expr, type(index->expr), c, buf);
         char* index_name = heap_alloc(100);
         snprintf(index_name, 100, "%%%d", var_c++);
         strcat(c, "\t");
@@ -334,8 +336,6 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, "* %");
         strcat(c, index->cgid);
         strcat(c, ", i32 0, i32 ");
-        char buf[100];
-        char* index_value_name = generate_expression_asm(index->expr, type(index->expr), c, buf);
         strcat(c, index_value_name);
         strcat(c, "\n\t");
         char* extra_name = heap_alloc(100);

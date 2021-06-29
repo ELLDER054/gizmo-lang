@@ -676,10 +676,11 @@ Node* function_call(int start) { /* A function call with a semi-colon */
 Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
     ind = start;
     char var_type[MAX_TYPE_LEN];
+    memset(var_type, 0, MAX_TYPE_LEN);
     char* malloc_var_type = malloc(100);
     memset(malloc_var_type, 0, 100);
     gizmo_type(ind, malloc_var_type);
-    if (malloc_var_type == NULL) {
+    if (malloc_var_type == NULL || strcmp(malloc_var_type, "") == 0) {
         ind = start;
         return NULL;
     }
