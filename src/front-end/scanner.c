@@ -147,7 +147,7 @@ void parse_string(char* str, char* endstr, int is_in_str) {
         if (c == '\\') {
             switch (str[pos + 1]) {
                 case '\\':
-                    strcat(endstr, "\\");
+                    strcat(endstr, "\\\\");
                     break;
                 case 'n':
                     if (is_in_str) {
@@ -178,7 +178,7 @@ void parse_string(char* str, char* endstr, int is_in_str) {
                     }
                     break;
                 default:
-                    strcat(endstr, "\\");
+                    strcat(endstr, "\\\\");
                     strncat(endstr, &(str[pos + 1]), 1);
             }
             pos++;

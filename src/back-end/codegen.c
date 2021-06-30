@@ -245,19 +245,24 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
     return op_name;
 }
 
+int in_possible_escapes(char c) {
+    return c == 'n' || c == 'r' || c == 't' || c == 'b' || c == '\\';
+}
+
 int gizmo_strlen(char* str) {
     int pos = 0;
     int len = 0;
-    while (pos < strlen(str)) {
+    while (pos < strlen(str) - 3) {
         char c = str[pos];
         if (c == '\\') {
             len++;
-            pos += 3;
+            pos += in_possible_escapes(str[pos + 1]) ? 2 : 1;
         } else {
             len++;
             pos++;
         }
     }
+    len++;
     return len;
 }
 
