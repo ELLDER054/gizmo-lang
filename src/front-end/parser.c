@@ -51,12 +51,12 @@ int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     return len;
 }
 
-void consume(TokenType type, char* err, char* buffer) { /* Consumes a token and gives error if not right token */
+void consume(TokenType type, char* err) { /* Consumes a token and gives error if not right token */
     if (ind >= tokslen(tokens)) {
         Error(tokens[ind - 1], err, 1);
     }
     if (tokens[ind].type == type) {
-        strncpy(buffer, tokens[ind++].value, MAX_NAME_LEN);
+        ind++;
         return;
     }
     Error(tokens[ind], err, 0);
@@ -420,8 +420,7 @@ Node* primary(int start) {
             if (index == NULL) {
                 Error(tokens[save], "Expected expression after left bracket", 1);
             }
-            char b[100];
-            consume(T_RIGHT_BRACKET, "Expected right bracket after expression", b);
+            consume(T_RIGHT_BRACKET, "Expected right bracket after expression");
             if (symtab_find_global(tokens[begin].value, "var") == NULL) {
                 Error(tokens[begin], "Use of undefined variable", 0);
             }
@@ -448,8 +447,7 @@ Node* primary(int start) {
 
     if (expect_type(T_LEFT_PAREN) != NULL) {
         Node* expr = expression(ind);
-		char b[100];
-        consume(T_RIGHT_PAREN, "Expect ')' after expression.", b);
+        consume(T_RIGHT_PAREN, "Expect ')' after expression");
         return expr;
     }
 
@@ -465,8 +463,7 @@ Node* primary(int start) {
                 Error(tokens[save], "Expected all list elements to be the same type", 0);
             }
         }
-		char b[100];
-        consume(T_RIGHT_BRACKET, "Expect ']' after array elements.", b);
+        consume(T_RIGHT_BRACKET, "Expect ']' after array elements");
         char list_type[MAX_TYPE_LEN];
         strcpy(list_type, type(list[0]));
         strcat(list_type, "[]");
@@ -559,8 +556,7 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
     memset(args, 0, 1024);
     int args_len;
     func_expr_args(ind, args, &args_len);
-    char b[MAX_NAME_LEN];
-    consume(T_RIGHT_PAREN, "Expected closing parenthesis\n", b);
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis\n");
     if (!symtab_find_global(id, "func")) {
         char* error = malloc(100);
         memset(error, 0, 100);
@@ -654,10 +650,8 @@ Node* function_call(int start) { /* A function call with a semi-colon */
     /*for (int i = 0; i < args_len; i++) {
         print_node(stdout, args[i]);
     }*/
-    char b2[MAX_NAME_LEN];
-    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n", b2);
-    char b3[MAX_NAME_LEN];
-    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b3);
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n");
+    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n");
     if (symtab_find_global(id, "func") == NULL) {
         char* error = malloc(100);
         memset(error, 0, 100);
@@ -676,9 +670,8 @@ Node* function_call(int start) { /* A function call with a semi-colon */
 Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
     ind = start;
     char var_type[MAX_TYPE_LEN];
-    memset(var_type, 0, MAX_TYPE_LEN);
-    char* malloc_var_type = malloc(100);
-    memset(malloc_var_type, 0, 100);
+    char* malloc_var_type = malloc(MAX_TYPE_LEN);
+    memset(malloc_var_type, 0, MAX_TYPE_LEN);
     gizmo_type(ind, malloc_var_type);
     if (malloc_var_type == NULL || strcmp(malloc_var_type, "") == 0) {
         ind = start;
@@ -686,6 +679,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     }
     strcpy(var_type, malloc_var_type);
     free(malloc_var_type);
+    printf("%s\n", var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
         ind = start;
@@ -700,8 +694,9 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     if (expr == NULL) {
         Error(tokens[start + 2], "Expected expression after assignment operator", 1);
     }
-    char b[MAX_NAME_LEN];
-    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n", b);
+    printf("%s\n", var_type);
+    consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n");
+    printf("%s\n", var_type);
     if (symtab_find_local(id, "var") != NULL) {
         char* error = malloc(100);
         memset(error, 0, 100);
@@ -709,9 +704,11 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
         free_node(expr);
         Error(tokens[start + 1], error, 0);
     }
+    printf("%s\n", var_type);
     if (strcmp(var_type, "none") == 0) {
         Error(tokens[start], "Cannot use `none` like a type", 0);
     }
+    printf("%s\n", var_type);
     if (strcmp(var_type, "auto") != 0) {
         if (strcmp(type(expr), var_type) != 0) {
             char* error = malloc(100);
@@ -743,8 +740,7 @@ Node* var_assignment(int start) {
     if (expr == NULL) {
         Error(tokens[ind - 1], "Expected expression", 1);
     }
-    char b[100];
-    consume(T_SEMI_COLON, "Expected semi-colon to complete statement", b);
+    consume(T_SEMI_COLON, "Expected semi-colon to complete statement");
     if (symtab_find_global(id, "var") == NULL) {
         char error[100] = {0};
         snprintf(error, 100, "Variable '%s' not created", id);
@@ -799,8 +795,7 @@ Node* skip_statement(int start) {
         ind = start;
         return NULL;
     }
-    char b[100];
-    consume(T_SEMI_COLON, "Expected semi-colon after 'break' or 'continue'", b);
+    consume(T_SEMI_COLON, "Expected semi-colon after 'break' or 'continue'");
     char code[100];
     if (nested_loops == 0) {
         Error(tokens[start], "'break' or 'continue' statements must only be in loops", 0);
@@ -920,8 +915,7 @@ Node* return_statement(int start) {
     if (strcmp(function_type, type(expr)) != 0) {
         Error(tokens[start + 1], "Return type of function is different from the return expression", 0);
     }
-    char b[100];
-    consume(T_SEMI_COLON, "Expected semi-colon to terminate return statement", b);
+    consume(T_SEMI_COLON, "Expected semi-colon to terminate return statement");
     return (Node*) new_Return_node(expr);
 }
 
@@ -939,14 +933,12 @@ Node* function_declaration(int start) {
     if (id == NULL) {
         Error(tokens[ind], "Expected identifier after type", 1);
     }
-    char b[100];
-    consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id", b);
+    consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id");
     Node* args[1024];
     memset(args, 0, 1024);
     int args_len = 0;
     func_decl_args(ind, args, &args_len);
-    char b2[100];
-    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments", b2);
+    consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments");
     if (in_function) {
         Error(tokens[start], "Cannot have nested functions", 0);
     }
