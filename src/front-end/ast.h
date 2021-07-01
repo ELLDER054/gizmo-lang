@@ -5,7 +5,7 @@
 #include "symbols.h"
 
 #define MAX_NAME_LEN  100
-#define MAX_TYPE_LEN  8
+#define MAX_TYPE_LEN  1024
 #define MAX_OPER_LEN 3
 
 struct Node;
@@ -64,7 +64,7 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
-    char id[MAX_NAME_LEN];
+    Node* id;
     Node* expr;
     char type[MAX_TYPE_LEN];
     char cgid[MAX_NAME_LEN + 4];
@@ -171,7 +171,7 @@ If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, 
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
 List_node* new_List_node(char* type, Node** elements);
-Index_node* new_Index_node(char* id, Node* expr, char* type, char* cgid);
+Index_node* new_Index_node(Node* id, Node* expr, char* type, char* cgid);
 Boolean_node* new_Boolean_node(int val);
 String_node* new_String_node(char* val);
 Char_node* new_Char_node(char val);

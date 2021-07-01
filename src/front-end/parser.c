@@ -98,6 +98,7 @@ Node* equality(int start);
 Node* comparison(int start);
 Node* factor(int start);
 Node* primary(int start);
+Node* indexed(int start);
 Node* unary(int start);
 
 // begin expressions parsing
@@ -143,7 +144,11 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case INDEX_NODE:
             str = malloc(100);
             memset(str, 0, 100);
-            get_type_from_str(symtab_find_global(((Index_node*) n)->id, "var")->type, str);
+            if (strcmp(type(((Index_node*) n)->id), "string") == 0) {
+                strcpy(str, "char");
+            } else {
+                get_type_from_str(type(((Index_node*) n)->id), str);
+            }
             return str;
         case BOOL_NODE:
             return "bool";
@@ -387,7 +392,25 @@ Node* unary(int start) {
         return (Node*) new_Operator_node(tokens[save].type == T_MINUS ? "*" : "!=", (Node*) new_Integer_node(tokens[save].type == T_MINUS ? -1 : 1), right);
     }
 
-    return primary(ind);
+    return indexed(ind);
+}
+
+Node* indexed(int start) {
+    ind = start;
+
+    Node* expr = primary(ind);
+
+    while (expect_type(T_LEFT_BRACKET) != NULL) {
+        int save = ind - 1;
+        Node* value = expression(ind);
+        if (value == NULL) {
+            Error(tokens[save], "Expected expression after left bracket", 1);
+        }
+        expect_type(T_RIGHT_BRACKET);
+        expr = (Node*) new_Index_node(expr, value, type(expr), "");
+    }
+
+    return expr;
 }
 
 void func_expr_args(int start, Node** args, int* len);
@@ -414,23 +437,10 @@ Node* primary(int start) {
 
     if (expect_type(T_ID) != NULL) {
         int begin = ind - 1;
-        if (expect_type(T_LEFT_BRACKET) != NULL) {
-            int save = ind;
-            Node* index = expression(ind);
-            if (index == NULL) {
-                Error(tokens[save], "Expected expression after left bracket", 1);
-            }
-            consume(T_RIGHT_BRACKET, "Expected right bracket after expression");
-            if (symtab_find_global(tokens[begin].value, "var") == NULL) {
-                Error(tokens[begin], "Use of undefined variable", 0);
-            }
-            return (Node*) new_Index_node(tokens[begin].value, index, symtab_find_global(tokens[begin].value, "var")->type, symtab_find_global(tokens[begin].value, "var")->cgid);
-        } else {
-            if (symtab_find_global(tokens[ind - 1].value, "var") == NULL) {
-                Error(tokens[begin], "Use of undefined variable", 0);
-            }
-            return (Node*) new_Identifier_node(tokens[begin].value, symtab_find_global(tokens[begin].value, "var")->cgid, symtab_find_global(tokens[begin].value, "var")->type);
+        if (symtab_find_global(tokens[ind - 1].value, "var") == NULL) {
+            Error(tokens[begin], "Use of undefined variable", 0);
         }
+        return (Node*) new_Identifier_node(tokens[begin].value, symtab_find_global(tokens[begin].value, "var")->cgid, symtab_find_global(tokens[begin].value, "var")->type);
     }
 
     if (expect_type(T_REAL) != NULL) {
@@ -460,7 +470,7 @@ Node* primary(int start) {
         char* should_be_type = type(list[0]);
         for (int i = 1; i < len; i++) {
             if (strcmp(type(list[i]), should_be_type) != 0) {
-                Error(tokens[save], "Expected all list elements to be the same type", 0);
+                Error(tokens[save], "Expected all array elements to be the same type", 0);
             }
         }
         consume(T_RIGHT_BRACKET, "Expect ']' after array elements");
@@ -484,7 +494,6 @@ void func_expr_args(int start, Node** args, int* len) { /* Puts caller arguments
     while (1) {
         int save = ind;
         Node* expr = expression(ind);
-        log_trace("typeofexpr: |%s|\n", type(expr));
         if (expr == NULL) {
             if (should_find) {
                 Error(tokens[ind - 1], "Expected argument after comma", 1);
@@ -512,7 +521,7 @@ void func_decl_args(int start, Node** args, int* len) {
         char* arg_type = malloc(100);
         memset(arg_type, 0, 100);
         gizmo_type(ind, arg_type);
-        if (arg_type == NULL) {
+        if (arg_type == NULL || strcmp(arg_type, "") == 0) {
             if (should_find) {
                 Error(tokens[ind - 1], "Expected type after comma", 1);
             } else {
@@ -591,7 +600,7 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
     char* malloc_var_type = malloc(100);
     memset(malloc_var_type, 0, 100);
     gizmo_type(ind, malloc_var_type);
-    if (malloc_var_type == NULL) {
+    if (malloc_var_type == NULL || strcmp(malloc_var_type, "") == 0) {
         ind = start;
         return NULL;
     }
@@ -604,14 +613,8 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
     }
     char* end = expect_type(T_SEMI_COLON);
     if (end == NULL) {
-        end = expect_type(T_ASSIGN);
-        if (end == NULL) {
-            ind = start;
-            return NULL;
-        } else {
-            ind = start;
-            return NULL;
-        }
+        ind = start;
+        return NULL;
     }
     if (symtab_find_local(id, "var") != NULL) {
         char* error = malloc(100);
@@ -679,7 +682,6 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     }
     strcpy(var_type, malloc_var_type);
     free(malloc_var_type);
-    printf("%s\n", var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
         ind = start;
@@ -694,9 +696,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     if (expr == NULL) {
         Error(tokens[start + 2], "Expected expression after assignment operator", 1);
     }
-    printf("%s\n", var_type);
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n");
-    printf("%s\n", var_type);
     if (symtab_find_local(id, "var") != NULL) {
         char* error = malloc(100);
         memset(error, 0, 100);
@@ -704,11 +704,9 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
         free_node(expr);
         Error(tokens[start + 1], error, 0);
     }
-    printf("%s\n", var_type);
     if (strcmp(var_type, "none") == 0) {
         Error(tokens[start], "Cannot use `none` like a type", 0);
     }
-    printf("%s\n", var_type);
     if (strcmp(var_type, "auto") != 0) {
         if (strcmp(type(expr), var_type) != 0) {
             char* error = malloc(100);
@@ -921,8 +919,9 @@ Node* return_statement(int start) {
 
 Node* function_declaration(int start) {
     ind = start;
-    char* func_type = expect_type(T_TYPE);
-    if (func_type == NULL) {
+    char func_type[MAX_TYPE_LEN];
+    gizmo_type(ind, func_type);
+    if (func_type == NULL || strcmp(func_type, "") == 0) {
         ind = start;
         return NULL;
     }

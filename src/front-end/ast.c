@@ -322,12 +322,12 @@ void free_List_node(List_node* list) {
     free(list);
 }
 
-Index_node* new_Index_node(char* id, Node* expr, char* type, char* cgid) {
+Index_node* new_Index_node(Node* id, Node* expr, char* type, char* cgid) {
     Index_node* index = malloc(sizeof(Index_node));
     memset(index, 0, sizeof(Index_node));
 
     index->n_type = INDEX_NODE;
-    strcpy(index->id, id);
+    index->id = id;
     strcpy(index->type, type);
     strcpy(index->cgid, cgid);
     index->expr = expr;
