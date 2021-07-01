@@ -5,7 +5,7 @@
 #include "symbols.h"
 
 #define MAX_NAME_LEN  100
-#define MAX_TYPE_LEN  1024
+#define MAX_TYPE_LEN  100
 #define MAX_OPER_LEN 3
 
 struct Node;

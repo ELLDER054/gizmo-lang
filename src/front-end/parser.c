@@ -78,7 +78,7 @@ void gizmo_type(int start, char* end_type) {
     char* reg_type = expect_type(T_TYPE);
     if (reg_type == NULL) {
         ind = start;
-        end_type = NULL;
+        strcpy(end_type, "!");
         return;
     }
     strcpy(end_type, reg_type);
@@ -518,10 +518,9 @@ void func_decl_args(int start, Node** args, int* len) {
     int should_find = 0;
     while (1) {
         int save = ind;
-        char* arg_type = malloc(100);
-        memset(arg_type, 0, 100);
+        char arg_type[MAX_TYPE_LEN];
         gizmo_type(ind, arg_type);
-        if (arg_type == NULL || strcmp(arg_type, "") == 0) {
+        if (strcmp(arg_type, "!") == 0) {
             if (should_find) {
                 Error(tokens[ind - 1], "Expected type after comma", 1);
             } else {
@@ -540,7 +539,6 @@ void func_decl_args(int start, Node** args, int* len) {
         char cgid[MAX_NAME_LEN + 4] = {0};
         snprintf(cgid, MAX_NAME_LEN + 4, ".%d", id_c++);
         args[arg_c++] = (Node*) new_Var_declaration_node(arg_type, cgid, arg_id, NULL);
-        free(arg_type);
         if (comma == NULL) {
             break;
         }
@@ -596,16 +594,12 @@ Node* incomplete_initializers(char* t) { /* Returns the most low-level value for
 
 Node* incomplete_var_declaration(int start) { /* A variable declaration with no semi-colon */
     ind = start;
-    char var_type[100];
-    char* malloc_var_type = malloc(100);
-    memset(malloc_var_type, 0, 100);
-    gizmo_type(ind, malloc_var_type);
-    if (malloc_var_type == NULL || strcmp(malloc_var_type, "") == 0) {
+    char var_type[MAX_TYPE_LEN];
+    gizmo_type(ind, var_type);
+    if (strcmp(var_type, "!") == 0) {
         ind = start;
         return NULL;
     }
-    strcpy(var_type, malloc_var_type);
-    free(malloc_var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
         ind = start;
@@ -673,15 +667,11 @@ Node* function_call(int start) { /* A function call with a semi-colon */
 Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
     ind = start;
     char var_type[MAX_TYPE_LEN];
-    char* malloc_var_type = malloc(MAX_TYPE_LEN);
-    memset(malloc_var_type, 0, MAX_TYPE_LEN);
-    gizmo_type(ind, malloc_var_type);
-    if (malloc_var_type == NULL || strcmp(malloc_var_type, "") == 0) {
+    gizmo_type(ind, var_type);
+    if (strcmp(var_type, "!") == 0) {
         ind = start;
         return NULL;
     }
-    strcpy(var_type, malloc_var_type);
-    free(malloc_var_type);
     char* id = expect_type(T_ID);
     if (id == NULL) {
         ind = start;
@@ -709,9 +699,9 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     }
     if (strcmp(var_type, "auto") != 0) {
         if (strcmp(type(expr), var_type) != 0) {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "For variable `%s`\nCannot assign `%s` to variable of type `%s`", id, type(expr), var_type);
+            char* error = malloc(500);
+            memset(error, 0, 500);
+            snprintf(error, 500, "For variable `%s`\nCannot assign `%s` to variable of type `%s`", id, type(expr), var_type);
             Error(tokens[start], error, 0);
         }
     } else {
@@ -921,7 +911,7 @@ Node* function_declaration(int start) {
     ind = start;
     char func_type[MAX_TYPE_LEN];
     gizmo_type(ind, func_type);
-    if (func_type == NULL || strcmp(func_type, "") == 0) {
+    if (strcmp(func_type, "!") == 0) {
         ind = start;
         return NULL;
     }
