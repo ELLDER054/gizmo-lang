@@ -283,6 +283,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         strcat(c, types(list->type));
         strcat(c, " \n");
         for (int i = 0; i < list->len; i++) {
+            char buf[100];
+            char* element_name = generate_expression_asm(list->elements[i], type(list->elements[i]), c, buf);
             char* name = malloc(100);
             memset(name, 0, 100);
             snprintf(name, 100, "%%%d", var_c++);
@@ -301,8 +303,6 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             strcat(c, current_number);
             strcat(c, "\n\tstore ");
             strcat(c, types(type(list->elements[i])));
-            char buf[100];
-            char* element_name = generate_expression_asm(list->elements[i], type(list->elements[i]), c, buf);
             strcat(c, " ");
             strcat(c, element_name);
             strcat(c, ", ");
@@ -445,8 +445,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* arg_code = malloc(100);
         memset(arg_code, 0, 100);
         for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
-            char* arg_buf = malloc(100);
-            memset(arg_buf, 0, 100);
+            char arg_buf[100];
             char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), c, arg_buf);
             strcat(c, "\t");
             char* extra_name = malloc(100);
@@ -460,6 +459,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             strcat(c, " ");
             strcat(c, arg);
             strcat(c, ", ");
+            strcat(c, types(type(((Func_call_node*) n)->args[i])));
+            strcat(c, "* ");
+            strcat(c, extra_name);
             strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
             strcat(arg_code, "* ");
             strcat(arg_code, extra_name);
@@ -467,7 +469,6 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             if (i + 1 < ((Func_call_node*) n)->args_len) {
                 strcat(arg_code, ", ");
             }
-            free(arg_buf);
         }
         char* func_call_name = heap_alloc(100);
         snprintf(func_call_name, 100, "%%%d", var_c++);
@@ -683,8 +684,6 @@ void generate_statement(Node* n, char* code) {
                 generate_statement(((Block_node*) n)->statements[i], code);
             }
         } else if (n->n_type == FUNC_CALL_NODE) {
-            char* call = malloc(195);
-            memset(call, 0, 195);
             char* arg_code = malloc(100);
             memset(arg_code, 0, 100);
             for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
@@ -715,9 +714,13 @@ void generate_statement(Node* n, char* code) {
                 }
                 free(arg_buf);
             }
-            snprintf(call, 195, "\tcall %s @%s(%s)\n", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code);
-            strcat(code, call);
-            free(call);
+            strcat(code, "\tcall ");
+            strcat(code, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type));
+            strcat(code, " @");
+            strcat(code, ((Func_call_node*) n)->name);
+            strcat(code, "(");
+            strcat(code, arg_code);
+            strcat(code, ")");
             free(arg_code);
         } else if (n->n_type == FUNC_DECL_NODE) {
             char* mini_code = malloc(1024);

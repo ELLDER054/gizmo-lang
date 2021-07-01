@@ -956,6 +956,7 @@ Node* function_declaration(int start) {
         sym->args_len = 0;
         predeclared[i] = sym;
     }
+    symtab_add_symbol(func_type, "func", id, args_len, id);
     Node* body = block_statement(ind, predeclared, args_len);
     in_function = 0;
     if (body == NULL) {
@@ -963,7 +964,6 @@ Node* function_declaration(int start) {
         fprintf(stderr, "Expected body");
         return NULL;
     }
-    symtab_add_symbol(func_type, "func", id, args_len, id);
     return (Node*) new_Func_decl_node(id, func_type, args, args_len, body);
 }
 
