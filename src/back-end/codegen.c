@@ -713,6 +713,7 @@ void generate_statement(Node* n, char* code) {
             char* end_len = malloc(100);
             char* ret_name = generate_expression_asm(((Return_node*) n)->expr, current_function_return_type, code, end_len);
             strcat(code, "\tret ");
+            var_c++;
             strcat(code, types(current_function_return_type));
             strcat(code, " ");
             strcat(code, ret_name);
