@@ -300,6 +300,9 @@ Node* logical(int start) {
     Node* expr = equality(ind);
 
     while (expect_type(T_AND) != NULL || expect_type(T_OR) != NULL) {
+        if (expr == NULL) {
+            Error(tokens[ind - 1], "Unexpected token", 0);
+        }
         int save = ind - 1;
         Node* right = equality(ind);
         if (right == NULL) {
@@ -317,6 +320,9 @@ Node* equality(int start) {
     Node* expr = comparison(ind);
 
     while (expect_type(T_NOT_EQUALS) != NULL || expect_type(T_EQUALS_EQUALS) != NULL) {
+        if (expr == NULL) {
+            Error(tokens[ind - 1], "Unexpected token", 0);
+        }
         int save = ind - 1;
         Node* right = comparison(ind);
         if (right == NULL) {
@@ -334,6 +340,9 @@ Node* comparison(int start) {
     Node* expr = term(ind);
 
     while (expect_type(T_GREATER_THAN) != NULL || expect_type(T_LESS_THAN) != NULL || expect_type(T_GREATER_THAN_EQUALS) != NULL || expect_type(T_LESS_THAN_EQUALS) != NULL) {
+        if (expr == NULL) {
+            Error(tokens[ind - 1], "Unexpected token", 0);
+        }
         int save = ind - 1;
         Node* right = term(ind);
         if (right == NULL) {
@@ -351,6 +360,9 @@ Node* term(int start) {
     Node* expr = factor(ind);
 
     while (expect_type(T_PLUS) != NULL || expect_type(T_MINUS) != NULL) {
+        if (expr == NULL) {
+            Error(tokens[ind - 1], "Unexpected token", 0);
+        }
         int save = ind - 1;
         Node* right = factor(ind);
         if (right == NULL) {
@@ -368,6 +380,9 @@ Node* factor(int start) {
     Node* expr = unary(ind);
 
     while (expect_type(T_TIMES) != NULL || expect_type(T_DIVIDE) != NULL || expect_type(T_MOD) != NULL) {
+        if (expr == NULL) {
+            Error(tokens[ind - 1], "Unexpected token", 0);
+        }
         int save = ind - 1;
         Node* right = unary(ind);
         if (right == NULL) {
@@ -401,6 +416,9 @@ Node* indexed(int start) {
     Node* expr = primary(ind);
 
     while (expect_type(T_LEFT_BRACKET) != NULL) {
+        if (expr == NULL) {
+            Error(tokens[ind - 1], "Unexpected token", 0);
+        }
         int save = ind - 1;
         Node* value = expression(ind);
         if (value == NULL) {
@@ -479,8 +497,8 @@ Node* primary(int start) {
         strcat(list_type, "[]");
         return (Node*) new_List_node(list_type, list);
     }
-
-    Error(tokens[start], "Unexpected token", 0);
+    
+    ind = start;
     return NULL;
 }
 
