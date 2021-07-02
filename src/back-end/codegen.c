@@ -273,63 +273,26 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(number, 100, "%d", ((Integer_node*) n)->value);
         return number;
     } else if (n->n_type == LIST_NODE) {
-        char* list_name = malloc(100);
-        memset(list_name, 0, 100);
+        char* list_with_elements = heap_alloc(1024);
         List_node* list = (List_node*) n;
-        snprintf(list_name, 100, "%%%d", var_c++);
-        strcat(c, "\t");
-        strcat(c, list_name);
-        strcat(c, " = alloca ");
-        strcat(c, types(list->type));
-        strcat(c, " \n");
+        strcat(list_with_elements, "[");
         for (int i = 0; i < list->len; i++) {
             char buf[100];
             char* element_name = generate_expression_asm(list->elements[i], type(list->elements[i]), c, buf);
-            char* name = malloc(100);
-            memset(name, 0, 100);
-            snprintf(name, 100, "%%%d", var_c++);
-            char* current_number = malloc(100);
-            memset(current_number, 0, 100);
-            snprintf(current_number, 100, "%d", i);
-            strcat(c, "\t");
-            strcat(c, name);
-            strcat(c, " = getelementptr inbounds ");
-            strcat(c, types(list->type));
-            strcat(c, ", ");
-            strcat(c, types(list->type));
-            strcat(c, "* ");
-            strcat(c, list_name);
-            strcat(c, ", i32 0, i32 ");
-            strcat(c, current_number);
-            strcat(c, "\n\tstore ");
-            strcat(c, types(type(list->elements[i])));
-            strcat(c, " ");
-            strcat(c, element_name);
-            strcat(c, ", ");
-            strcat(c, types(type(list->elements[i])));
-            strcat(c, "* ");
-            strcat(c, name);
-            strcat(c, "\n");
-            free(name);
-            free(current_number);
+            strcat(list_with_elements, types(type(list->elements[i])));
+            strcat(list_with_elements, " ");
+            strcat(list_with_elements, element_name);
+            if (i < list->len - 1) {
+                strcat(list_with_elements, ", ");
+            }
         }
-        char* extra_name = heap_alloc(100);
-        snprintf(extra_name, 100, "%%%d", var_c++);
-        strcat(c, "\t");
-        strcat(c, extra_name);
-        strcat(c, " = load ");
-        strcat(c, types(list->type));
-        strcat(c, ", ");
-        strcat(c, types(list->type));
-        strcat(c, "*");
-        strcat(c, list_name);
-        strcat(c, "\n");
-        free(list_name);
-        return extra_name;
+        strcat(list_with_elements, "]");
+        return list_with_elements;
     } else if (n->n_type == INDEX_NODE) {
         Index_node* index = (Index_node*) n;
         char buf[100];
         char* index_value_name = generate_expression_asm(index->expr, type(index->expr), c, buf);
+        char* index_id = generate_expression_asm(index->id, type(index->id), c, buf);
         char* index_name = heap_alloc(100);
         snprintf(index_name, 100, "%%%d", var_c++);
         strcat(c, "\t");
@@ -340,7 +303,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             snprintf(extra_extra_name, 100, "%%%d", var_c++);
             snprintf(extra_name, 100, "%%%d", var_c++);
             strcat(c, " = load i8*, i8** ");
-            strcat(c, index->cgid);
+            strcat(c, index_id);
             strcat(c, "\n\t");
             strcat(c, extra_extra_name);
             strcat(c, " = getelementptr inbounds i8, i8* ");
@@ -358,8 +321,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
             strcat(c, types(index->type));
             strcat(c, ", ");
             strcat(c, types(index->type));
-            strcat(c, "* %");
-            strcat(c, index->cgid);
+            strcat(c, "* ");
+            strcat(c, index_id);
             strcat(c, ", i32 0, i32 ");
             strcat(c, index_value_name);
             strcat(c, "\n\t");
@@ -414,42 +377,18 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         snprintf(digit_char, 100, "%d", (int)(((Char_node*) n)->value));
         return digit_char;
     } else if (n->n_type == STRING_NODE) {
-        char str[100];
-        snprintf(str, 100, "%s", ((String_node*) n)->value);
         char str_llvm_name[106];
         snprintf(str_llvm_name, 100, "@.str.%d", str_c++);
-        char* str_name = malloc(100);
-        memset(str_name, 0, 100);
-        snprintf(str_name, 100, "%%%d", var_c++);
-        char* str_assignment = malloc(100);
-        memset(str_assignment, 0, 100);
-        snprintf(str_assignment, 400, "%s = private unnamed_addr constant [%d x i8] c\"%s\"\n", str_llvm_name, gizmo_strlen(str), str);
+        char* string = heap_alloc(100);
+        char str[100];
+        snprintf(str, 100, "%s", ((String_node*) n)->value);
+        char* str_assignment = malloc(400);
+        memset(str_assignment, 0, 400);
+        snprintf(str_assignment, 400, "%s = constant [%d x i8] c\"%s\"\n", str_llvm_name, gizmo_strlen(str), str);
         insert(c, 0, strlen(c), str_assignment);
         free(str_assignment);
-        char* len = malloc(100);
-        memset(len, 0, 100);
-        snprintf(len, 100, "%d", gizmo_strlen(str));
-        strcat(c, "\t");
-        strcat(c, str_name);
-        strcat(c, " = getelementptr inbounds [");
-        previous_str_is_ptr = 1;
-        strcat(c, len);
-        strcat(c, " x i8], [");
-        strcat(c, len);
-        strcat(c, " x i8]* ");
-        strcat(c, str_llvm_name);
-        strcat(c, "\n\t");
-        char* extra_name = heap_alloc(100);
-        snprintf(extra_name, 100, "%%%d", var_c++);
-        strcat(c, extra_name);
-        strcat(c, " = bitcast [");
-        strcat(c, len);
-        free(len);
-        strcat(c, " x i8]* ");
-        strcat(c, str_name);
-        free(str_name);
-        strcat(c, " to i8*\n");
-        return extra_name;
+        snprintf(string, 100, "bitcast ([%d x i8]* %s to i8*)", gizmo_strlen(str), str_llvm_name);
+        return string;
     } else if (n->n_type == REAL_NODE) {
         char* number = heap_alloc(100);
         snprintf(number, 100, "%f", ((Real_node*) n)->value);
@@ -742,8 +681,8 @@ void generate_statement(Node* n, char* code) {
             strcat(code, ")");
             free(arg_code);
         } else if (n->n_type == FUNC_DECL_NODE) {
-            char* mini_code = malloc(1024);
-            memset(mini_code, 0, 1024);
+            char* mini_code = malloc(5000);
+            memset(mini_code, 0, 5000);
             char* begin = malloc(195);
             memset(begin, 0, 195);
             char* arg_code = malloc(100);
@@ -797,22 +736,22 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         generate_statement(n, code);
     }
     if (needs_chr_const) {
-        insert(code, 0, strlen(code), "@.chr = private unnamed_addr constant [3 x i8] c\"%c\\00\"\n");
+        insert(code, 0, strlen(code), "@.chr = constant [3 x i8] c\"%c\\00\"\n");
     }
     if (needs_str_const) {
-        insert(code, 0, strlen(code), "@.str = private unnamed_addr constant [3 x i8] c\"%s\\00\"\n");
+        insert(code, 0, strlen(code), "@.str = constant [3 x i8] c\"%s\\00\"\n");
     }
     if (needs_real_const) {
-        insert(code, 0, strlen(code), "@.real = private unnamed_addr constant [3 x i8] c\"%f\\00\"\n");
+        insert(code, 0, strlen(code), "@.real = constant [3 x i8] c\"%f\\00\"\n");
     }
     if (needs_num_const) {
-        insert(code, 0, strlen(code), "@.num = private unnamed_addr constant [3 x i8] c\"%d\\00\"\n");
+        insert(code, 0, strlen(code), "@.num = constant [3 x i8] c\"%d\\00\"\n");
     }
     if (needs_true_const) {
-        insert(code, 0, strlen(code), "@.true = private unnamed_addr constant [6 x i8] c\"true\\0A\\00\"");
+        insert(code, 0, strlen(code), "@.true = constant [6 x i8] c\"true\\0A\\00\"");
     }
     if (needs_false_const) {
-        insert(code, 0, strlen(code), "@.false = private unnamed_addr constant [7 x i8] c\"false\\0A\\00\"");
+        insert(code, 0, strlen(code), "@.false = constant [7 x i8] c\"false\\0A\\00\"");
     }
     if (needs_constr) {
         needs_malloc = 1;
