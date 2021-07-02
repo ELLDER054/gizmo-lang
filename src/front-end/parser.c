@@ -493,6 +493,9 @@ Node* primary(int start) {
         }
         consume(T_RIGHT_BRACKET, "Expect ']' after array elements");
         char list_type[MAX_TYPE_LEN];
+        if (len == 0) {
+            Error(tokens[save], "Cannot figure out what type this array is", 0);
+        }
         strcpy(list_type, type(list[0]));
         strcat(list_type, "[]");
         return (Node*) new_List_node(list_type, list);
