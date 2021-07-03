@@ -537,7 +537,9 @@ void generate_statement(Node* n, char* code) {
             strcat(code, types(type(v->value)));
             strcat(code, " ");
             strcat(code, var_name);
-            strcat(code, ", i32* %");
+            strcat(code, ", ");
+            strcat(code, types(type(v->value)));
+            strcat(code, "* %");
             strcat(code, v->codegen_name);
             strcat(code, "\n");
         } else if (n->n_type == SKIP_NODE) {
