@@ -371,35 +371,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c, char* end_size)
         char* id_code = malloc(164);
         memset(id_code, 0, 164);
         char* id_type = ((Identifier_node*) n)->type;
-        if (strcmp(id_type, "string") == 0 || strcmp(id_type, "i8*") == 0) {
-            snprintf(id_name, 100, "%%%d", var_c++);
-            snprintf(id_code, 164, "\t%s = load i8*, i8** %%%s\n", id_name, ((Identifier_node*) n)->codegen_name);
-            strcat(c, id_code);
-            previous_str_is_ptr = 1;
-        } else if (strcmp(id_type, "int") == 0 || strcmp(id_type, "i32") == 0) {
-            snprintf(id_name, 100, "%%%d", var_c++);
-            snprintf(id_code, 164, "\t%s = load i32, i32* %%%s\n", id_name, ((Identifier_node*) n)->codegen_name);
-            strcat(c, id_code);
-            previous_str_is_ptr = 1;
-        } else if (strcmp(id_type, "real") == 0 || strcmp(id_type, "double") == 0) {
-            snprintf(id_name, 100, "%%%d", var_c++);
-            snprintf(id_code, 164, "\t%s = load double, double* %%%s\n", id_name, ((Identifier_node*) n)->codegen_name);
-            strcat(c, id_code);
-            previous_str_is_ptr = 1;
-        } else if (strcmp(id_type, "char") == 0 || strcmp(id_type, "i8") == 0) {
-            snprintf(id_name, 100, "%%%d", var_c++);
-            snprintf(id_code, 164, "\t%s = load i8, i8* %%%s\n", id_name, ((Identifier_node*) n)->codegen_name);
-            strcat(c, id_code);
-            previous_str_is_ptr = 1;
-        } else if (strcmp(id_type, "bool") == 0 || strcmp(id_type, "i1") == 0) {
-            snprintf(id_name, 100, "%%%d", var_c++);
-            char* id_code = heap_alloc(164);
-            snprintf(id_code, 164, "\t%s = load i1, i1* %%%s\n", id_name, ((Identifier_node*) n)->codegen_name);
-            strcat(c, id_code);
-            previous_str_is_ptr = 1;
-        } else {
-            snprintf(id_name, 105, "%%%s", ((Identifier_node*) n)->codegen_name);
-        }
+        snprintf(id_name, 100, "%%%d", var_c++);
+        snprintf(id_code, 164, "\t%s = load %s, %s* %%%s\n", id_name, types(((Identifier_node*) n)->type), types(((Identifier_node*) n)->type), ((Identifier_node*) n)->codegen_name);
+        strcat(c, id_code);
         free(id_code);
         return id_name;
     } else if (n->n_type == CHAR_NODE) {

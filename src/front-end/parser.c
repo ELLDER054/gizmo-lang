@@ -425,7 +425,14 @@ Node* indexed(int start) {
             Error(tokens[save], "Expected expression after left bracket", 1);
         }
         expect_type(T_RIGHT_BRACKET);
-        expr = (Node*) new_Index_node(expr, value, type(expr), "");
+        char typ[MAX_TYPE_LEN];
+        strcpy(typ, "");
+        if (strcmp(type(expr), "string") != 0) {
+            get_type_from_str(type(expr), typ);
+        } else {
+            strcpy(typ, "char");
+        }
+        expr = (Node*) new_Index_node(expr, value, typ, "");
     }
 
     return expr;
