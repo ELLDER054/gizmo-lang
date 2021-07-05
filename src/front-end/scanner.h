@@ -61,7 +61,7 @@ typedef enum {
 
 typedef struct {
     int type;
-    char value[MAX_NAME_LEN];
+    char* value;
     int col;
     char line[MAX_LINE_LEN];
     int lineno;

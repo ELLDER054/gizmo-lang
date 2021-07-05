@@ -10,11 +10,12 @@ int id_c = 0;
 int nested_loops = 0;
 char* function_type;
 char* current_loop_begin;
+char* global_code;
 char* current_loop_end;
 int in_function = 0;
 int has_returned_in_definite_scope = 0;
 int ind = 0;
-Token tokens[1024];
+Token* tokens;
 
 // begin helper functions
 
@@ -42,8 +43,8 @@ void Error(Token token, const char* error, const int after) { /* Gives errors */
 
 int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     int len = 0;
-    for (int i = 0; i < 1024; i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 250) {
+    for (int i = 0; i < strlen(global_code); i++) {
+        if (tokens[i].type <= 200 && tokens[i].type >= 260) {
             break;
         }
         len++;
@@ -766,7 +767,7 @@ Node* var_assignment(int start) {
 }
 
 void program(Node** ast, int max_len);
-void parse(Token* toks, Node** program, Symbol** sym_t);
+void parse(char* code, Token* toks, Node** program, Symbol** sym_t);
 Node* statement(int start);
 
 Node* while_statement(int start) {
@@ -1051,7 +1052,10 @@ void program(Node** ast, int max_len) { /* Continuously calls statement() */
     }
 }
 
-void parse(Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
+void parse(char* code, Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
+    global_code = malloc(strlen(code) + 1);
+    memset(global_code, 0, strlen(code) + 1);
+    strcpy(global_code, code);
     symtab_init();
     function_type = malloc(MAX_TYPE_LEN);
     memset(function_type, 0, MAX_TYPE_LEN);

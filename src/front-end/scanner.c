@@ -199,13 +199,22 @@ void scan(char* code, Token* tokens) {
     int i;
     count = split(code, '\n', &lines);
     int pos = 0;
-    int token_count = 0;
+    int token_c = 0;
     int col = 0;
     
     while (pos < strlen(code)) {
+        Token tok;
         char ch = code[pos];
         if (isAlpha(ch)) {
-            char name[1024] = {'\0'};
+            int len = 0;
+            int idpos = 0;
+            while (isAlpha(ch) || isDigit(ch)) {
+                ch = code[++idpos];
+                len++;
+            }
+
+            char* name = malloc(len);
+            memset(name, 0, len);
 
             int begin = col;
             while (isAlpha(ch) || isDigit(ch)) {
@@ -243,14 +252,24 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_ID;
             }
             tok.lineno = lineno;
+            tok.value = malloc(len);
+            memset(tok.value, 0, len);
             strcpy(tok.value, name);
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
-            tokens[token_count++] = tok;
+            tokens[token_c++] = tok;
         } else if (isDigit(ch)) {
-            char num[100] = {'\0'};
-            TokenType tok_type = T_INT;
+            int len = 0;
+            int numpos = 0;
+            while (isDigit(ch) || ch == '.') {
+                ch = code[++numpos];
+                len++;
+            }
 
+            char* num = malloc(len);
+            memset(num, 0, len);
+
+            TokenType tok_type = T_INT;
             int begin = col;
             while (isDigit(ch)) {
                 strncat(num, &ch, 1);
@@ -269,6 +288,8 @@ void scan(char* code, Token* tokens) {
                 if (ch == '.') {
                     Token fake_tok;
                     fake_tok.type = T_INT;
+                    fake_tok.value = malloc(len);
+                    memset(fake_tok.value, 0, len);
                     strcpy(fake_tok.value, " ");
                     fake_tok.lineno = lineno;
                     strcpy(fake_tok.line, lines[lineno - 1]);
@@ -278,33 +299,27 @@ void scan(char* code, Token* tokens) {
                     tok_type = T_REAL;
                 }
             }
-            if (col - begin >= 100) {
-                Token fake_tok;
-                fake_tok.type = T_INT;
-                strcpy(fake_tok.value, " ");
-                fake_tok.lineno = lineno;
-                strcpy(fake_tok.line, lines[lineno - 1]);
-                fake_tok.col = begin;
-                Error(fake_tok, "Surpassed maximum number length", 0);
-            }
 
             Token tok;
+            tok.value = malloc(len);
+            memset(tok.value, 0, len);
             tok.type = tok_type;
             strcpy(tok.value, num);
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
-            tokens[token_count++] = tok;
+            tokens[token_c++] = tok;
         } else if (is_one_char_token(ch)) {
             Token tok;
             tok.type = one_char_tokens(ch);
-            memset(tok.value, 0, sizeof(tok.value));
+            tok.value = malloc(1);
+            memset(tok.value, 0, 1);
             tok.value[0] = ch;
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = col++;
             pos++;
-            tokens[token_count++] = tok;
+            tokens[token_c++] = tok;
         } else if (ch == '\\' && next(code, pos) == '*') {
             pos += 2;
             col += 2;
@@ -313,6 +328,8 @@ void scan(char* code, Token* tokens) {
                 if (ch == '\0') {
                     Token fake_tok;
                     fake_tok.type = T_INT;
+                    fake_tok.value = malloc(2);
+                    memset(fake_tok.value, 0, 2);
                     strcpy(fake_tok.value, " ");
                     fake_tok.lineno = lineno;
                     strcpy(fake_tok.line, lines[lineno - 1]);
@@ -339,26 +356,28 @@ void scan(char* code, Token* tokens) {
             pos++;
         } else if (in_operators(ch)) {
             Token tok;
+            tok.value = malloc(MAX_OPER_LEN);
+            memset(tok.value, 0, MAX_OPER_LEN);
             tok.type = operators(ch, next(code, pos));
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = col;
             if (next(code, pos) == '=' || next(code, pos) == ch) {
-                memset(tok.value, 0, sizeof(tok.value));
                 tok.value[0] = ch;
                 char nch = next(code, pos);
                 strncat(tok.value, &nch, 1);
                 pos += 2;
                 col += 2;
             } else {
-                memset(tok.value, 0, sizeof(tok.value));
                 tok.value[0] = ch;
                 pos++;
                 col++;
             }
-            tokens[token_count++] = tok;
+            tokens[token_c++] = tok;
         } else if (ch == '=') {
             Token tok;
+            tok.value = malloc(3);
+            memset(tok.value, 0, 3);
             if (next(code, pos) == '=') {
                 strcpy(tok.value, "==");
                 tok.type = T_EQUALS_EQUALS;
@@ -372,10 +391,12 @@ void scan(char* code, Token* tokens) {
             pos++;
             strcpy(tok.line, lines[lineno - 1]);
             tok.lineno = lineno;
-            tokens[token_count++] = tok;
+            tokens[token_c++] = tok;
         } else if (ch == '!') {
             Token tok;
             if (next(code, pos) == '=') {
+                tok.value = malloc(3);
+                memset(tok.value, 0, 3);
                 strcpy(tok.value, "!=");
                 tok.type = T_NOT_EQUALS;
                 col++;
@@ -388,19 +409,28 @@ void scan(char* code, Token* tokens) {
             pos++;
             strcpy(tok.line, lines[lineno - 1]);
             tok.lineno = lineno;
-            tokens[token_count++] = tok;
+            tokens[token_c++] = tok;
         } else if (ch == '"' || ch == '\'') {
-            char string[100] = {'\0'};
-            memset(string, 0, 100);
             char delim = ch;
-            TokenType tok_type = T_STR;
+            int len = 0;
+            int strpos = 0;
+            while (ch != delim) {
+                ch = code[++strpos];
+                len++;
+            }
 
+            char* string = malloc(len);
+            memset(string, 0, len);
+            
+            TokenType tok_type = T_STR;
             int begin = col++;
             ch = code[++pos];
             while (ch != delim) {
                 if (ch == '\n' || ch == '\0') {
                     Token fake_tok;
                     fake_tok.type = T_INT;
+                    fake_tok.value = malloc(len);
+                    memset(fake_tok.value, 0, len);
                     strcpy(fake_tok.value, " ");
                     fake_tok.lineno = lineno;
                     strcpy(fake_tok.line, lines[lineno - 1]);
@@ -426,13 +456,14 @@ void scan(char* code, Token* tokens) {
             if (delim == '\'') {
                 tok_type = T_CHAR;
             }
-            memset(tok.value, 0, sizeof(tok.value));
+            tok.value = malloc(len);
+            memset(tok.value, 0, len);
             parse_string(string, tok.value, delim == '"');
             tok.type = tok_type;
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
-            tokens[token_count++] = tok;
+            tokens[token_c++] = tok;
         } else if (ch == ' ' || ch == '\t') {
             pos++;
             col++;
@@ -446,6 +477,8 @@ void scan(char* code, Token* tokens) {
             snprintf(error, 100, "Unexpected character `%c`", ch);
             Token fake_tok;
             fake_tok.type = T_INT;
+            fake_tok.value = malloc(2);
+            memset(fake_tok.value, 0, 2);
             strcpy(fake_tok.value, " ");
             fake_tok.lineno = lineno;
             strcpy(fake_tok.line, lines[lineno - 1]);

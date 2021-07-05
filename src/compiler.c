@@ -14,31 +14,30 @@ FILE* in_file = NULL;
 FILE* out_file = NULL;
 
 void compile(char* code, char* out, char* file_name) {
-    Token tokens[1024];
-    memset(tokens, 0, sizeof(tokens));
+    Token* tokens = malloc(strlen(code) * sizeof(Token));
+    memset(tokens, 0, strlen(code) * sizeof(Token));
     scan(code, tokens);
 
-    Node* program[1024];
-    memset(program, 0, sizeof(program));
-    Symbol* symbol_table[1024];
-    memset(symbol_table, 0, sizeof(symbol_table));
-    parse(tokens, program, symbol_table);
-    /*for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
-        if (program[i] == NULL) {
-            break;
+    Node** program = malloc(strlen(code) * sizeof(Node*));
+    memset(program, 0, strlen(code) * sizeof(Node*));
+    Symbol** symbol_table = malloc(strlen(code) * sizeof(Symbol*));
+    memset(symbol_table, 0, strlen(code) * sizeof(Symbol*));
+    parse(code, tokens, program, symbol_table);
+
+    generate(program, strlen(code) * sizeof(Node*), out, file_name);
+    for (int i = 0; i < strlen(code) * sizeof(Node*); i++) {
+        if (program[i] != NULL) {
+            free_node(program[i]);
         }
-        print_node(stdout, program[i]);
-    }*/
-    generate(program, sizeof(program) / sizeof(Node*), out, file_name);
-    for (int i = 0; i < sizeof(program) / sizeof(Node*); i++) {
-        free_node(program[i]);
     }
-    for (int i = 0; i < sizeof(symbol_table) / sizeof(Symbol*); i++) {
-        if (symbol_table[i] == NULL) {
-            break;
+    for (int i = 0; i < strlen(code) * sizeof(Symbol*); i++) {
+        if (symbol_table[i] != NULL) {
+            free(symbol_table[i]);
         }
-        free(symbol_table[i]);
     }
+    free(program);
+    free(symbol_table);
+    free(tokens);
 }
 
 void parse_command_line_args(int argc, char** argv) {
@@ -80,15 +79,24 @@ int main(int argc, char** argv) {
     log_set_quiet(1);
     parse_command_line_args(argc, argv);
 
-    char code[1024];
-    memset(code, 0, sizeof(code));
-
     if (in_file == NULL) {
         fprintf(stderr, "gizmo: Input file not specified\n");
         exit(-1);
     }
+    
+    char c;
+    int len = 0;
+	while ((c = fgetc(in_file)) != EOF) {
+    	len++;
+	}
+    char* code = malloc(len + 1);
+    memset(code, 0, len + 1);
+    
+    rewind(in_file);
+	while ((c = fgetc(in_file)) != EOF) {
+    	strncat(code, &c, 1);
+	}
 
-    fread(code, 1, sizeof(code), in_file);
     log_trace("Opening source file %s\n", argv[1]);
 
     if (out_file == NULL) {
@@ -98,5 +106,6 @@ int main(int argc, char** argv) {
     memset(output, 0, sizeof(output));
     compile(code, output, argv[1]);
     fprintf(out_file, "%s", output);
+    //free(code);
     return 0;
 }

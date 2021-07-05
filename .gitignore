@@ -1,3 +1,5 @@
 gizmoc
+gizmo
 *.pyc
 *.ll
+build/*
