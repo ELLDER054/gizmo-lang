@@ -1,3 +1,0 @@
-/home/runner/gizmo-lang/build/CMakeFiles/rebuild_cache.dir
-/home/runner/gizmo-lang/build/CMakeFiles/gizmo.dir
-/home/runner/gizmo-lang/build/CMakeFiles/edit_cache.dir
