@@ -25,12 +25,12 @@ void compile(char* code, char* out, char* file_name) {
     parse(code, tokens, program, symbol_table);
 
     generate(program, strlen(code) * sizeof(Node*), out, file_name);
-    for (int i = 0; i < strlen(code) * sizeof(Node*); i++) {
+    for (int i = 0; i < strlen(code); i++) {
         if (program[i] != NULL) {
             free_node(program[i]);
         }
     }
-    for (int i = 0; i < strlen(code) * sizeof(Symbol*); i++) {
+    for (int i = 0; i < strlen(code); i++) {
         if (symbol_table[i] != NULL) {
             free(symbol_table[i]);
         }
@@ -106,6 +106,6 @@ int main(int argc, char** argv) {
     memset(output, 0, sizeof(output));
     compile(code, output, argv[1]);
     fprintf(out_file, "%s", output);
-    //free(code);
+    free(code);
     return 0;
 }
