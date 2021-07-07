@@ -142,6 +142,7 @@ int split(const char *txt, char delim, char ***tokens) {
 
 void parse_string(char* str, char* endstr, int is_in_str) {
     int pos = 0;
+    strcpy(endstr, "");
     while (pos < strlen(str)) {
         char c = str[pos];
         if (c == '\\') {
@@ -207,21 +208,25 @@ void scan(char* code, Token* tokens) {
         char ch = code[pos];
         if (isAlpha(ch)) {
             int len = 0;
-            int idpos = 0;
+            int idpos = pos;
             while (isAlpha(ch) || isDigit(ch)) {
                 ch = code[++idpos];
                 len++;
             }
+            len++;
 
             char* name = malloc(len);
             memset(name, 0, len);
 
             int begin = col;
+            ch = code[pos];
+            idpos = 0;
             while (isAlpha(ch) || isDigit(ch)) {
-                strncat(name, &ch, 1);
+                name[idpos++] = ch;
                 ch = code[++pos];
                 col++;
             }
+            name[idpos] = '\0';
 
             Token tok;
             if (strcmp(name, "int") == 0 || strcmp(name, "string") == 0 || strcmp(name, "char") == 0 || strcmp(name, "real") == 0 || strcmp(name, "auto") == 0 || strcmp(name, "bool") == 0) { /* Is a type */
@@ -255,24 +260,28 @@ void scan(char* code, Token* tokens) {
             tok.value = malloc(len);
             memset(tok.value, 0, len);
             strcpy(tok.value, name);
+            free(name);
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
             tokens[token_c++] = tok;
         } else if (isDigit(ch)) {
             int len = 0;
-            int numpos = 0;
+            int numpos = pos;
             while (isDigit(ch) || ch == '.') {
                 ch = code[++numpos];
                 len++;
             }
+            len++;
 
             char* num = malloc(len);
             memset(num, 0, len);
 
             TokenType tok_type = T_INT;
             int begin = col;
+            ch = code[pos];
+            numpos = 0;
             while (isDigit(ch)) {
-                strncat(num, &ch, 1);
+                num[numpos++] = ch;
                 ch = code[++pos];
                 col++;
             }
@@ -281,7 +290,7 @@ void scan(char* code, Token* tokens) {
                 col++;
                 strcat(num, ".");
                 while (isDigit(ch)) {
-                    strncat(num, &ch, 1);
+                    num[numpos++] = ch;
                     ch = code[++pos];
                     col++;
                 }
@@ -309,12 +318,14 @@ void scan(char* code, Token* tokens) {
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = begin;
             tokens[token_c++] = tok;
+            free(num);
         } else if (is_one_char_token(ch)) {
             Token tok;
             tok.type = one_char_tokens(ch);
-            tok.value = malloc(1);
-            memset(tok.value, 0, 1);
+            tok.value = malloc(2);
+            memset(tok.value, 0, 2);
             tok.value[0] = ch;
+            tok.value[1] = '\0';
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
             tok.col = col++;
@@ -413,42 +424,54 @@ void scan(char* code, Token* tokens) {
         } else if (ch == '"' || ch == '\'') {
             char delim = ch;
             int len = 0;
-            int strpos = 0;
-            while (ch != delim) {
-                ch = code[++strpos];
-                len++;
-            }
-
-            char* string = malloc(len);
-            memset(string, 0, len);
-            
-            TokenType tok_type = T_STR;
-            int begin = col++;
-            ch = code[++pos];
+            int strpos = pos;
+            ch = code[++strpos];
             while (ch != delim) {
                 if (ch == '\n' || ch == '\0') {
                     Token fake_tok;
                     fake_tok.type = T_INT;
-                    fake_tok.value = malloc(len);
-                    memset(fake_tok.value, 0, len);
+                    fake_tok.value = malloc(2);
+                    memset(fake_tok.value, 0, 2);
                     strcpy(fake_tok.value, " ");
                     fake_tok.lineno = lineno;
                     strcpy(fake_tok.line, lines[lineno - 1]);
                     fake_tok.col = col;
                     Error(fake_tok, "Expected end of string", 0);
                 }
+                if (code[pos - 1] != '\\' && ch == '\\' && next(code, strpos) == delim) {
+                    strpos += 2;
+                    ch = code[strpos];
+                    len += 2;
+                    continue;
+                }
+                ch = code[++strpos];
+                len++;
+            }
+            len++;
+            printf("%d\n", len);
+
+            char* string = malloc(len);
+            memset(string, 0, len);
+            
+            TokenType tok_type = T_STR;
+            int begin = col;
+            ch = code[++pos];
+            strpos = 0;
+            while (ch != delim) {
                 if (code[pos - 1] != '\\' && ch == '\\' && next(code, pos) == delim) {
                     pos += 2;
                     col += 2;
                     ch = code[pos];
                     strcat(string, "\\");
-                    strncat(string, &delim, 1);
+                    string[strpos++] = ch;
                     continue;
                 }
-                strncat(string, &ch, 1);
+                printf("%c\n", ch);
+                string[strpos++] = ch;
                 ch = code[++pos];
                 col++;
             }
+            string[strpos] = '\0';
             pos++;
             col++;
 
@@ -456,9 +479,10 @@ void scan(char* code, Token* tokens) {
             if (delim == '\'') {
                 tok_type = T_CHAR;
             }
-            tok.value = malloc(len);
-            memset(tok.value, 0, len);
+            tok.value = malloc(len * 3);
+            memset(tok.value, 0, len * 3);
             parse_string(string, tok.value, delim == '"');
+            free(string);
             tok.type = tok_type;
             tok.lineno = lineno;
             strcpy(tok.line, lines[lineno - 1]);
@@ -487,8 +511,8 @@ void scan(char* code, Token* tokens) {
         }
     }
 
-    /*for (int i = 0; i < strlen(code); i++) {
-        if (tokens[i].type < 200 || tokens[i].type > 250) {
+    for (int i = 0; i < strlen(code); i++) {
+        if (tokens[i].type < 200 || tokens[i].type > 247) {
             break;
         }
         printf("%d", tokens[i].type);
@@ -496,7 +520,7 @@ void scan(char* code, Token* tokens) {
         printf(", %s", tokens[i].line);
         printf(", %d", tokens[i].lineno);
         printf(", %d\n", tokens[i].col);
-    }*/
+    }
     for (i = 0; i < count; i++) free (lines[i]);
     free(lines);
 }

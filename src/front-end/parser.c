@@ -43,8 +43,8 @@ void Error(Token token, const char* error, const int after) { /* Gives errors */
 
 int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     int len = 0;
-    for (int i = 0; i < strlen(global_code); i++) {
-        if (tokens[i].type <= 200 && tokens[i].type >= 260) {
+    for (int i = 0;; i++) {
+        if (tokens[i].type < 200 || tokens[i].type > 247) {
             break;
         }
         len++;
@@ -949,7 +949,7 @@ Node* function_declaration(int start) {
     }
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        Error(tokens[ind], "Expected identifier after type", 1);
+        Error(tokens[ind - 1], "Expected identifier after type", 1);
     }
     consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id");
     Node* args[1024];
@@ -1053,6 +1053,8 @@ void program(Node** ast, int max_len) { /* Continuously calls statement() */
 }
 
 void parse(char* code, Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
+    tokens = malloc(strlen(code) * sizeof(Token));
+    memset(tokens, 0, strlen(code) * sizeof(Token));
     global_code = malloc(strlen(code) + 1);
     memset(global_code, 0, strlen(code) + 1);
     strcpy(global_code, code);
