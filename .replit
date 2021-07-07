@@ -1,0 +1,2 @@
+language = "c"
+run = "mkdir -p build && cd build && cmake .. && make && cd .. && ./build/gizmo foo.gizmo -o foo.ll"
