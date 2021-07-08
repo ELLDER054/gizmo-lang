@@ -288,7 +288,7 @@ void scan(char* code, Token* tokens) {
             if (ch == '.') {
                 ch = code[++pos];
                 col++;
-                strcat(num, ".");
+                num[numpos++] = '.';
                 while (isDigit(ch)) {
                     num[numpos++] = ch;
                     ch = code[++pos];
@@ -331,7 +331,7 @@ void scan(char* code, Token* tokens) {
             tok.col = col++;
             pos++;
             tokens[token_c++] = tok;
-        } else if (ch == '\\' && next(code, pos) == '*') {
+        } else if (ch == '\\' && next(code, pos) == '(') {
             pos += 2;
             col += 2;
             ch = code[pos];
@@ -346,7 +346,7 @@ void scan(char* code, Token* tokens) {
                     strcpy(fake_tok.line, lines[lineno - 1]);
                     fake_tok.col = col;
                     Error(fake_tok, "Expected end of comment", 0);
-                } else if (ch == '*' && next(code, pos) == '/') {
+                } else if (ch == '\\' && next(code, pos) == ')') {
                     break;
                 }
                 ch = code[++pos];

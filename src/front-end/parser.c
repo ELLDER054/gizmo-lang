@@ -428,10 +428,13 @@ Node* indexed(int start) {
         expect_type(T_RIGHT_BRACKET);
         char typ[MAX_TYPE_LEN];
         strcpy(typ, "");
-        if (strcmp(type(expr), "string") != 0) {
+        if (type(expr)[strlen(type(expr)) - 1] == ']') {
             get_type_from_str(type(expr), typ);
-        } else {
+        } else if (strcmp(type(expr), "string") == 0) {
             strcpy(typ, "char");
+        } else {
+            printf("In dev error: Cannot index a non-list value\n");
+            exit(-1);
         }
         expr = (Node*) new_Index_node(expr, value, typ, "");
     }

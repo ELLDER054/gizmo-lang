@@ -18,6 +18,16 @@ class TestSimpleBadSyntax(CompileTimeFailTest):
             "return 5;",
             "Can't have return statement outside of function")
 
+    def test_unfinished_string(self):
+        self.compile(
+            "write(\"abc",
+            "Expected end of string")
+
+    def test_unfinished_comment(self):
+        self.compile(
+            "\(abc",
+            "Expected end of comment")
+
 class TestSimpleGoodSyntax(CompileTimeSucceedTest):
 
     def test_simple_write(self):
