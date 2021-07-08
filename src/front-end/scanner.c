@@ -448,7 +448,6 @@ void scan(char* code, Token* tokens) {
                 len++;
             }
             len++;
-            printf("%d\n", len);
 
             char* string = malloc(len);
             memset(string, 0, len);
@@ -466,7 +465,6 @@ void scan(char* code, Token* tokens) {
                     string[strpos++] = ch;
                     continue;
                 }
-                printf("%c\n", ch);
                 string[strpos++] = ch;
                 ch = code[++pos];
                 col++;
@@ -511,7 +509,7 @@ void scan(char* code, Token* tokens) {
         }
     }
 
-    for (int i = 0; i < strlen(code); i++) {
+    /*for (int i = 0; i < strlen(code); i++) {
         if (tokens[i].type < 200 || tokens[i].type > 247) {
             break;
         }
@@ -520,7 +518,7 @@ void scan(char* code, Token* tokens) {
         printf(", %s", tokens[i].line);
         printf(", %d", tokens[i].lineno);
         printf(", %d\n", tokens[i].col);
-    }
+    }*/
     for (i = 0; i < count; i++) free (lines[i]);
     free(lines);
 }
