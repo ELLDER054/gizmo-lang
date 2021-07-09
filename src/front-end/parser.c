@@ -5,6 +5,7 @@
 #include "../common/include/log.h"
 #include "scanner.h"
 #include "symbols.h"
+#include "../back-end/heap.h"
 
 int id_c = 0;
 int nested_loops = 0;
@@ -143,7 +144,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case LIST_NODE:
             return ((List_node*) n)->type;
         case INDEX_NODE:
-            str = malloc(100);
+            str = heap_alloc(100);
             memset(str, 0, 100);
             if (strcmp(type(((Index_node*) n)->id), "string") == 0) {
                 strcpy(str, "char");
@@ -169,6 +170,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
+        case LEN_NODE:
            return symtab_find_global(((Func_call_node*) n)->name, "func")->type;
         case FUNC_DECL_NODE:
         case IF_NODE:
@@ -1070,6 +1072,7 @@ void parse(char* code, Token* toks, Node** ast, Symbol** sym_t) { /* Calls progr
     memset(current_loop_end, 0, MAX_NAME_LEN);
     symtab_add_symbol("none", "func", "write", 1, "write");
     symtab_add_symbol("string", "func", "read", 1, "read");
+    symtab_add_symbol("int", "func", "len", 1, "len");
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }

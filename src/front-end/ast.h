@@ -27,6 +27,7 @@ typedef enum {
     ID_NODE,
     BLOCK_NODE,
     WRITE_NODE,
+    LEN_NODE,
     READ_NODE,
     NODE_NODE,
     FUNC_CALL_NODE,

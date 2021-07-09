@@ -1,7 +1,7 @@
 #!/usr/bin/bash -e
 
 # build the gizmo compiler, gizmoc
-gcc -Werror=vla -rdynamic -o gizmoc -O1 -g -fsanitize=address -fno-omit-frame-pointer -Isrc/common/include src/*.c src/front-end/*.c src/back-end/*.c src/common/*.c
+clang -Werror=vla -rdynamic -o gizmoc -O1 -g -fsanitize=address -fno-omit-frame-pointer -Isrc/common/include src/*.c src/front-end/*.c src/back-end/*.c src/common/*.c
 
 # make sure it has exe permissions
 chmod +x gizmoc
