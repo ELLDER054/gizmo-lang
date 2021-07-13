@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <string.h>
 
-#define MAX_ALLOCATIONS   1024
+#define MAX_ALLOCATIONS   1024 // LIMIT
 
 static void* allocations[MAX_ALLOCATIONS];
 static int num_allocations;

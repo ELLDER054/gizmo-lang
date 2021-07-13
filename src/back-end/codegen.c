@@ -435,9 +435,9 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
         char* temp_var = make_formatted_statement("%%%d", var_c++);
         strcat(c, "\t");
         strcat(c, func_call_name);
-        strcat(c, " = alloca [1024 x i8], align 8\n\t");
+        strcat(c, " = alloca [1024 x i8], align 8\n\t"); // LIMIT
         strcat(c, temp_var);
-        strcat(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* ");
+        strcat(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* "); // LIMIT
         strcat(c, func_call_name);
         strcat(c, ", i32 0, i32 0\n\t");
         char* write_name = generate_expression_asm(((Func_call_node*) n)->args[0], "string", c);
