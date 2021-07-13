@@ -493,8 +493,8 @@ Node* primary(int start) {
     }
 
     if (expect_type(T_LEFT_BRACKET) != NULL) {
-        Node* list[1024];
-        memset(list, 0, 1024);
+        Node* list[1024]; // LIMIT
+        memset(list, 0, 1024); // AND HERE
         int len = 0;
         int save = ind - 1;
         func_expr_args(ind, list, &len);
@@ -593,8 +593,8 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
         ind = start;
         return NULL;
     }
-    Node* args[1024];
-    memset(args, 0, 1024);
+    Node* args[1024]; // LIMIT
+    memset(args, 0, 1024); // AND HERE
     int args_len;
     func_expr_args(ind, args, &args_len);
     consume(T_RIGHT_PAREN, "Expected closing parenthesis\n");
@@ -675,8 +675,8 @@ Node* function_call(int start) { /* A function call with a semi-colon */
         return NULL;
     }
     int args_len;
-    Node* args[1024];
-    memset(args, 0, sizeof(args));
+    Node* args[1024]; // LIMIT
+    memset(args, 0, 1024); // AND HERE
     func_expr_args(ind, args, &args_len);
     /*for (int i = 0; i < args_len; i++) {
         print_node(stdout, args[i]);
@@ -764,8 +764,8 @@ Node* var_assignment(int start) {
     }
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement");
     if (symtab_find_global(id, "var") == NULL) {
-        char error[100] = {0};
-        snprintf(error, 100, "Variable '%s' not created", id);
+        char error[27] = {0};
+        snprintf(error, 27, "Variable '%s' not created", id);
         Error(tokens[start], error, 0);
     }
     return (Node*) new_Var_assignment_node(id, expr, symtab_find_global(id, "var")->cgid);
@@ -790,7 +790,7 @@ Node* while_statement(int start) {
         Error(tokens[start + 1], "Expected condition, not expression, after while keyword", 0);
     }
     nested_loops++;
-    char bcgid[100];
+    char bcgid[100]; // LIMITS
     snprintf(bcgid, 100, ".%d", id_c++);
     char ecgid[100];
     snprintf(ecgid, 100, ".%d", id_c++);
@@ -818,7 +818,7 @@ Node* skip_statement(int start) {
         return NULL;
     }
     consume(T_SEMI_COLON, "Expected semi-colon after 'break' or 'continue'");
-    char code[100];
+    char code[100]; // LIMIT
     if (nested_loops == 0) {
         Error(tokens[start], "'break' or 'continue' statements must only be in loops", 0);
     }
@@ -851,7 +851,7 @@ Node* if_statement(int start) {
             Error(tokens[ind - 1], "Expected body after else", 1);
         }
     }
-    char bcgid[100];
+    char bcgid[100]; // LIMITS
     snprintf(bcgid, 100, ".%d", id_c++);
     char elcgid[100];
     snprintf(elcgid, 100, ".%d", id_c++);
@@ -868,10 +868,10 @@ Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /*
         return NULL;
     }
     int found_end = 0;
-    Node* statements[1024];
-    memset(statements, 0, sizeof(statements));
-    Token block_tokens[1024];
-    memset(block_tokens, 0, sizeof(block_tokens));
+    Node* statements[1024]; // LIMIT
+    memset(statements, 0, 1024); // AND HERE
+    Token block_tokens[1024]; // LIMIT
+    memset(block_tokens, 0, 1024); // AND HERE
     int count = 0;
     int i = 0;
     log_trace("ind %d tokslen %d\n", ind, tokslen(tokens));
@@ -957,8 +957,8 @@ Node* function_declaration(int start) {
         Error(tokens[ind - 1], "Expected identifier after type", 1);
     }
     consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id");
-    Node* args[1024];
-    memset(args, 0, 1024);
+    Node* args[1024]; // LIMIT
+    memset(args, 0, 1024); // AND HERE
     int args_len = 0;
     func_decl_args(ind, args, &args_len);
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments");
@@ -967,8 +967,8 @@ Node* function_declaration(int start) {
     }
     in_function = 1;
     strcpy(function_type, func_type);
-    Symbol* predeclared[1024];
-    memset(predeclared, 0, sizeof(args));
+    Symbol* predeclared[1024]; // LIMIT
+    memset(predeclared, 0, 1024); // AND HERE
     for (int i = 0; i < args_len; i++) {
         Symbol* sym = malloc(sizeof(Symbol));
         Var_declaration_node* arg = (Var_declaration_node*) args[i];

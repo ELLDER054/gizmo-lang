@@ -130,9 +130,9 @@ Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, c
     memset(var, 0, sizeof(Var_declaration_node));
 
     var->n_type = VAR_DECLARATION_NODE;
-    strncpy(var->name, name, MAX_NAME_LEN);
-    strncpy(var->codegen_name, codegen_name, MAX_NAME_LEN + 4);
-    strncpy(var->type, type, MAX_TYPE_LEN);
+    var->name = strdup(name);
+    var->codegen_name = strdup(codegen_name);
+    var->type = strdup(type);
     var->value = value;
     return var;
 }
@@ -151,8 +151,8 @@ Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid
     memset(var, 0, sizeof(Var_assignment_node));
 
     var->n_type = VAR_ASSIGN_NODE;
-    strncpy(var->name, name, MAX_NAME_LEN);
-    strncpy(var->codegen_name, cgid, MAX_NAME_LEN + 4);
+    var->name = strdup(name);
+    var->codegen_name = strdup(cgid);
     var->value = value;
     return var;
 }
@@ -169,8 +169,8 @@ While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, c
     w->n_type = WHILE_NODE;
     w->condition = condition;
     w->body = body;
-    strncpy(w->begin_cgid, bcgid, MAX_NAME_LEN + 4);
-    strncpy(w->end_cgid, ecgid, MAX_NAME_LEN + 4);
+    w->begin_cgid = strdup(bcgid);
+    w->end_cgid = strdup(ecgid);
     return w;
 }
 
@@ -186,7 +186,7 @@ Skip_node* new_Skip_node(int kind, char* code) {
 
     skip->n_type = SKIP_NODE;
     skip->skip_kind = kind;
-    strncpy(skip->code, code, MAX_NAME_LEN);
+    skip->code = strdup(code);
     return skip;
 }
 
@@ -202,9 +202,9 @@ If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, 
     i->condition = condition;
     i->body = body;
     i->else_body = else_body;
-    strncpy(i->begin_cgid, bcgid, MAX_NAME_LEN + 4);
-    strncpy(i->else_cgid, elcgid, MAX_NAME_LEN + 4);
-    strncpy(i->end_cgid, ecgid, MAX_NAME_LEN + 4);
+    i->begin_cgid = strdup(bcgid);
+    i->else_cgid = strdup(elcgid);
+    i->end_cgid = strdup(ecgid);
     return i;
 }
 
@@ -238,7 +238,7 @@ Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a f
     for (int i = 0; i < len; i++) {
         func->args[i] = args[i];
     }
-    strncpy(func->name, name, MAX_NAME_LEN);
+    func->name = strdup(name);
     return func;
 }
 
@@ -257,7 +257,7 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right) { /* Initi
     memset(op, 0, sizeof(Operator_node));
 
     op->n_type = OPERATOR_NODE;
-    strncpy(op->oper, oper, MAX_OPER_LEN);
+    op->oper = strdup(oper);
     op->left = left;
     op->right = right;
     return op;
@@ -274,9 +274,9 @@ Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type)
     memset(i, 0, sizeof(Identifier_node));
     
     i->n_type = ID_NODE;
-    strncpy(i->type, type, MAX_TYPE_LEN);
-    strncpy(i->name, name, MAX_NAME_LEN);
-    strncpy(i->codegen_name, codegen_name, MAX_NAME_LEN + 4);
+    i->type = strdup(type);
+    i->name = strdup(name);
+    i->codegen_name = strdup(codegen_name);
     return i;
 }
 
@@ -302,7 +302,7 @@ List_node* new_List_node(char* type, Node** elements) {
     memset(list, 0, sizeof(List_node));
 
     list->n_type = LIST_NODE;
-    strcpy(list->type, type);
+    list->type = strdup(type);
     int len;
     for (len = 0;; len++) {
         if (elements[len] == NULL) {
@@ -331,8 +331,8 @@ Index_node* new_Index_node(Node* id, Node* expr, char* type, char* cgid) {
 
     index->n_type = INDEX_NODE;
     index->id = id;
-    strcpy(index->type, type);
-    strcpy(index->cgid, cgid);
+    index->type = strdup(type);
+    index->cgid = strdup(cgid);
     index->expr = expr;
     return index;
 }
@@ -414,8 +414,8 @@ Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args
 
     func->n_type = FUNC_DECL_NODE;
     func->body = body;
-    strcpy(func->name, name);
-    strcpy(func->type, type);
+    func->name = strdup(name);
+    func->type = strdup(type);
     func->args_len = args_len;
     func->args = malloc(sizeof(Node) * args_len);
     for (int i = 0; i < args_len; i++) {

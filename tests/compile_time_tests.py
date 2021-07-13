@@ -28,6 +28,16 @@ class TestSimpleBadSyntax(CompileTimeFailTest):
             "\(abc",
             "Expected end of comment")
 
+    def test_no_end_array(self):
+        self.compile(
+            "int[] a = [1, 2",
+            "Expect ']' after array elements")
+
+    def test_wrong_types_array(self):
+        self.compile(
+            "string[] a = [1, \"abc\"];",
+            "Expected all array elements to be the same type");
+
 class TestSimpleGoodSyntax(CompileTimeSucceedTest):
 
     def test_simple_write(self):

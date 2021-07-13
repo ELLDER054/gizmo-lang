@@ -42,23 +42,22 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
-    char type[MAX_TYPE_LEN];
-    char name[MAX_NAME_LEN];
-    char codegen_name[MAX_NAME_LEN + 4];
+    char* type;
+    char* name;
+    char* codegen_name;
     Node* value;
 } Var_declaration_node;
 
 typedef struct {
     NodeType n_type;
-    char name[MAX_NAME_LEN];
+    char* name;
     Node* value;
-    SymbolTable* currentScope;
-    char codegen_name[MAX_NAME_LEN + 4];
+    char* codegen_name;
 } Var_assignment_node;
 
 typedef struct {
     NodeType n_type;
-    char type[MAX_TYPE_LEN];
+    char* type;
     Node** elements;
     int len;
 } List_node;
@@ -67,16 +66,16 @@ typedef struct {
     NodeType n_type;
     Node* id;
     Node* expr;
-    char type[MAX_TYPE_LEN];
-    char cgid[MAX_NAME_LEN + 4];
+    char* type;
+    char* cgid;
 } Index_node;
 
 typedef struct {
     NodeType n_type;
     Node* condition;
     Node* body;
-    char begin_cgid[MAX_NAME_LEN + 4];
-    char end_cgid[MAX_NAME_LEN + 4];
+    char* begin_cgid;
+    char* end_cgid;
 } While_loop_node;
 
 typedef struct {
@@ -84,24 +83,23 @@ typedef struct {
     Node* condition;
     Node* body;
     Node* else_body;
-    char begin_cgid[MAX_NAME_LEN + 4];
-    char else_cgid[MAX_NAME_LEN + 4];
-    char end_cgid[MAX_NAME_LEN + 4];
+    char* begin_cgid;
+    char* else_cgid;
+    char* end_cgid;
 } If_node;
 
 typedef struct {
     NodeType n_type;
-    char name[MAX_NAME_LEN];
+    char* name;
     Node** args;
     int args_len;
 } Func_call_node;
 
 typedef struct {
     NodeType n_type;
-    char name[MAX_NAME_LEN];
-    char codegen_name[MAX_NAME_LEN + 4];
-    char type[MAX_TYPE_LEN];
-    SymbolTable* currentScope;
+    char* name;
+    char* codegen_name;
+    char* type;
 } Identifier_node;
 
 typedef struct {
@@ -112,7 +110,7 @@ typedef struct {
 typedef struct {
     NodeType n_type;
     int skip_kind; // zero or one (break or continue)
-    char code[MAX_NAME_LEN];
+    char* code;
 } Skip_node;
 
 typedef struct {
@@ -139,7 +137,7 @@ typedef struct {
     NodeType n_type;
     Node* left;
     Node* right;
-    char oper[MAX_OPER_LEN];
+    char* oper;
 } Operator_node;
 
 typedef struct {
@@ -153,8 +151,8 @@ typedef struct {
     Node** args;
     Node* body;
     int args_len;
-    char type[MAX_TYPE_LEN];
-    char name[MAX_NAME_LEN];
+    char* type;
+    char* name;
 } Func_decl_node;
 
 typedef struct {
