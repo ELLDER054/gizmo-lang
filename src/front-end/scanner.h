@@ -63,7 +63,7 @@ typedef struct {
     int type;
     char* value;
     int col;
-    char line[MAX_LINE_LEN];
+    char* line;
     int lineno;
 } Token;
 

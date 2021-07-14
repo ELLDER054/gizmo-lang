@@ -140,59 +140,6 @@ int split(const char *txt, char delim, char ***tokens) {
     return count;
 }
 
-void parse_string(char* str, char* endstr, int is_in_str) {
-    int pos = 0;
-    strcpy(endstr, "");
-    while (pos < strlen(str)) {
-        char c = str[pos];
-        if (c == '\\') {
-            switch (str[pos + 1]) {
-                case '\\':
-                    strcat(endstr, "\\\\");
-                    break;
-                case 'n':
-                    if (is_in_str) {
-                        strcat(endstr, "\\0A");
-                    } else {
-                        strcat(endstr, "\n");
-                    }
-                    break;
-                case 't':
-                    if (is_in_str) {
-                        strcat(endstr, "\\09");
-                    } else {
-                        strcat(endstr, "\t");
-                    }
-                    break;
-                case '"':
-                    if (is_in_str) {
-                        strcat(endstr, "\\22");
-                    } else {
-                        strcat(endstr, "\"");
-                    }
-                    break;
-                case '\'':
-                    if (is_in_str) {
-                        strcat(endstr, "\\27");
-                    } else {
-                        strcat(endstr, "'");
-                    }
-                    break;
-                default:
-                    strcat(endstr, "\\\\");
-                    strncat(endstr, &(str[pos + 1]), 1);
-            }
-            pos++;
-        } else {
-            strncat(endstr, &c, 1);
-        }
-        pos++;
-    }
-    if (is_in_str) {
-        strcat(endstr, "\\00");
-    }
-}
-
 void scan(char* code, Token* tokens) {
     int lineno = 1;
     char** lines;
@@ -207,7 +154,7 @@ void scan(char* code, Token* tokens) {
         Token tok;
         char ch = code[pos];
         if (isAlpha(ch)) {
-            int len = 0;
+            long long int len = 0;
             int idpos = pos;
             while (isAlpha(ch) || isDigit(ch)) {
                 ch = code[++idpos];
@@ -261,11 +208,11 @@ void scan(char* code, Token* tokens) {
             memset(tok.value, 0, len);
             strcpy(tok.value, name);
             free(name);
-            strcpy(tok.line, lines[lineno - 1]);
+            tok.line = strdup(lines[lineno - 1]);
             tok.col = begin;
             tokens[token_c++] = tok;
         } else if (isDigit(ch)) {
-            int len = 0;
+            long long int len = 0;
             int numpos = pos;
             while (isDigit(ch) || ch == '.') {
                 ch = code[++numpos];
@@ -301,7 +248,7 @@ void scan(char* code, Token* tokens) {
                     memset(fake_tok.value, 0, len);
                     strcpy(fake_tok.value, " ");
                     fake_tok.lineno = lineno;
-                    strcpy(fake_tok.line, lines[lineno - 1]);
+                    fake_tok.line = strdup(lines[lineno - 1]);
                     fake_tok.col = col;
                     Error(fake_tok, "Too many dots in floating point number", 0);
                 } else {
@@ -315,7 +262,7 @@ void scan(char* code, Token* tokens) {
             tok.type = tok_type;
             strcpy(tok.value, num);
             tok.lineno = lineno;
-            strcpy(tok.line, lines[lineno - 1]);
+            tok.line = strdup(lines[lineno - 1]);
             tok.col = begin;
             tokens[token_c++] = tok;
             free(num);
@@ -327,7 +274,7 @@ void scan(char* code, Token* tokens) {
             tok.value[0] = ch;
             tok.value[1] = '\0';
             tok.lineno = lineno;
-            strcpy(tok.line, lines[lineno - 1]);
+            tok.line = strdup(lines[lineno - 1]);
             tok.col = col++;
             pos++;
             tokens[token_c++] = tok;
@@ -343,7 +290,7 @@ void scan(char* code, Token* tokens) {
                     memset(fake_tok.value, 0, 2);
                     strcpy(fake_tok.value, " ");
                     fake_tok.lineno = lineno;
-                    strcpy(fake_tok.line, lines[lineno - 1]);
+                    fake_tok.line = strdup(lines[lineno - 1]);
                     fake_tok.col = col;
                     Error(fake_tok, "Expected end of comment", 0);
                 } else if (ch == '\\' && next(code, pos) == ')') {
@@ -371,7 +318,7 @@ void scan(char* code, Token* tokens) {
             memset(tok.value, 0, MAX_OPER_LEN);
             tok.type = operators(ch, next(code, pos));
             tok.lineno = lineno;
-            strcpy(tok.line, lines[lineno - 1]);
+            tok.line = strdup(lines[lineno - 1]);
             tok.col = col;
             if (next(code, pos) == '=' || next(code, pos) == ch) {
                 tok.value[0] = ch;
@@ -400,7 +347,7 @@ void scan(char* code, Token* tokens) {
             }
             tok.col = col++;
             pos++;
-            strcpy(tok.line, lines[lineno - 1]);
+            tok.line = strdup(lines[lineno - 1]);
             tok.lineno = lineno;
             tokens[token_c++] = tok;
         } else if (ch == '!') {
@@ -418,12 +365,12 @@ void scan(char* code, Token* tokens) {
             }
             tok.col = col++;
             pos++;
-            strcpy(tok.line, lines[lineno - 1]);
+            tok.line = strdup(lines[lineno - 1]);
             tok.lineno = lineno;
             tokens[token_c++] = tok;
         } else if (ch == '"' || ch == '\'') {
             char delim = ch;
-            int len = 0;
+            long long int len = 0;
             int strpos = pos;
             ch = code[++strpos];
             while (ch != delim) {
@@ -434,15 +381,9 @@ void scan(char* code, Token* tokens) {
                     memset(fake_tok.value, 0, 2);
                     strcpy(fake_tok.value, " ");
                     fake_tok.lineno = lineno;
-                    strcpy(fake_tok.line, lines[lineno - 1]);
+                    fake_tok.line = strdup(lines[lineno - 1]);
                     fake_tok.col = col;
                     Error(fake_tok, "Expected end of string", 0);
-                }
-                if (code[pos - 1] != '\\' && ch == '\\' && next(code, strpos) == delim) {
-                    strpos += 2;
-                    ch = code[strpos];
-                    len += 2;
-                    continue;
                 }
                 ch = code[++strpos];
                 len++;
@@ -457,14 +398,6 @@ void scan(char* code, Token* tokens) {
             ch = code[++pos];
             strpos = 0;
             while (ch != delim) {
-                if (code[pos - 1] != '\\' && ch == '\\' && next(code, pos) == delim) {
-                    pos += 2;
-                    col += 2;
-                    ch = code[pos];
-                    strcat(string, "\\");
-                    string[strpos++] = ch;
-                    continue;
-                }
                 string[strpos++] = ch;
                 ch = code[++pos];
                 col++;
@@ -477,13 +410,13 @@ void scan(char* code, Token* tokens) {
             if (delim == '\'') {
                 tok_type = T_CHAR;
             }
-            tok.value = malloc(len * 4);
-            memset(tok.value, 0, len * 4);
-            parse_string(string, tok.value, delim == '"');
+            tok.value = malloc(len);
+            memset(tok.value, 0, len);
+            strcpy(tok.value, string);
             free(string);
             tok.type = tok_type;
             tok.lineno = lineno;
-            strcpy(tok.line, lines[lineno - 1]);
+            tok.line = strdup(lines[lineno - 1]);
             tok.col = begin;
             tokens[token_c++] = tok;
         } else if (ch == ' ' || ch == '\t') {
@@ -503,7 +436,7 @@ void scan(char* code, Token* tokens) {
             memset(fake_tok.value, 0, 2);
             strcpy(fake_tok.value, " ");
             fake_tok.lineno = lineno;
-            strcpy(fake_tok.line, lines[lineno - 1]);
+            fake_tok.line = strdup(lines[lineno - 1]);
             fake_tok.col = col;
             Error(fake_tok, error, 0);
         }

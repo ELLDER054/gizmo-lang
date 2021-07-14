@@ -6,6 +6,7 @@
 #include "scanner.h"
 #include "symbols.h"
 #include "../back-end/heap.h"
+#include "../back-end/codegen.h"
 
 int id_c = 0;
 int nested_loops = 0;
@@ -200,10 +201,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start + 2], "Expected real on right side of expression", 0);
             }
         } else {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Invalid operand type `%s` for operator `+`", type(left));
-            Error(tokens[start], error, 0);
+            Error(tokens[start], str_format("Invalid operand type '%s' for operator '+'", type(left)), 0);
         }
     } else if (strcmp(oper, "and") == 0 || strcmp(oper, "or") == 0) {
         if (strcmp(type(left), "bool") == 0) {
@@ -211,10 +209,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start + 2], "Expected boolean on right side of expression", 0);
             }
         } else {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Invalid operand type `%s` for logical operator `%s`", type(left), oper);
-            Error(tokens[start], error, 0);
+            Error(tokens[start], str_format("Invalid operand type '%s' for logical operator '%s'", type(left), oper), 0);
         }
     } else if (strcmp(oper, "%") == 0) {
         if (strcmp(type(left), "int") == 0) {
@@ -222,10 +217,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start + 2], "Expected integer on right side of expression", 0);
             }
         } else {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Invalid operand type `%s` for operator `%%`", type(left));
-            Error(tokens[start], error, 0);
+            Error(tokens[start], str_format("Invalid operand type '%s' for operator `%s`", type(left)), 0);
         }
     } else if (strcmp(oper, "==") == 0 || strcmp(oper, "!=") == 0) {
         if (!strcmp(type(left), "int")) {
@@ -251,10 +243,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start + 2], "Expected character on right side of expression", 0);
             }
         } else {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Invalid operand type `%s` for operator `%s`", type(left), oper);
-            Error(tokens[start], error, 0);
+            Error(tokens[start], str_format("Invalid operand type '%s' for operator '%s'", type(left), oper), 0);
         }
     } else if (is_logical_operator(oper)) {
         if (!strcmp(type(left), "int")) {
@@ -270,10 +259,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start + 2], "Expected character on right side of expression", 0);
             }
         } else {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Invalid operand type `%s` for operator `%s`", type(left), oper);
-            Error(tokens[start], error, 0);
+            Error(tokens[start], str_format("Invalid operand type '%s' for operator '%s'", type(left), oper), 0);
         }
     } else {
         if (!strcmp(type(left), "int")) {
@@ -286,10 +272,7 @@ void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if e
                 Error(tokens[start + 2], "Expected real on right side of expression", 0);
             }
         } else {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Invalid operand type `%s` for operator `%s`", type(left), oper);
-            Error(tokens[start], error, 0);
+            Error(tokens[start], str_format("Invalid operand type '%s' for operator '%s'", type(left), oper), 0);
         }
     }
 }
@@ -570,9 +553,7 @@ void func_decl_args(int start, Node** args, int* len) {
             Error(tokens[ind - 1], "Expected identifier after type", 1);
         }
         char* comma = expect_type(T_COMMA);
-        char cgid[MAX_NAME_LEN + 4] = {0};
-        snprintf(cgid, MAX_NAME_LEN + 4, ".%d", id_c++);
-        args[arg_c++] = (Node*) new_Var_declaration_node(arg_type, cgid, arg_id, NULL);
+        args[arg_c++] = (Node*) new_Var_declaration_node(arg_type, str_format(".%d", id_c++), arg_id, NULL);
         if (comma == NULL) {
             break;
         }
@@ -599,16 +580,10 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
     func_expr_args(ind, args, &args_len);
     consume(T_RIGHT_PAREN, "Expected closing parenthesis\n");
     if (!symtab_find_global(id, "func")) {
-        char* error = malloc(100);
-        memset(error, 0, 100);
-        snprintf(error, 100, "Use of undefined function `%s`", id);
-        Error(tokens[start], error, 0);
+        Error(tokens[start], str_format("Use of undefined function '%s'", id), 0);
     }
     if (args_len != symtab_find_global(id, "func")->args_len) {
-        char* error = malloc(100);
-        memset(error, 0, 100);
-        snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
-        Error(tokens[start], error, 0);
+        Error(tokens[start], str_format("Wrong amount of arguments for function '%s'\nExpected %d, found %d", id, symtab_find_global(id, "func")->args_len, args_len), 0);
     }
     return (Node*) new_Func_call_node(id, args);
 }
@@ -645,10 +620,7 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
         return NULL;
     }
     if (symtab_find_local(id, "var") != NULL) {
-        char* error = malloc(100);
-        memset(error, 0, 100);
-        snprintf(error, 100, "Redefinition of variable `%s`", id);
-        Error(tokens[start + 1], error, 0);
+        Error(tokens[start + 1], str_format("Redefinition of variable '%s'", id), 0);
     }
     if (strcmp(var_type, "none") == 0) {
         Error(tokens[start], "Cannot use `none` like a type", 0);
@@ -656,10 +628,8 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
     if (strcmp(var_type, "auto") == 0) {
         Error(tokens[start], "Cannot use auto type for an incomplete variable declaration", 0);
     }
-    char cgid[MAX_NAME_LEN + 4] = {0};
-    snprintf(cgid, MAX_NAME_LEN + 4, ".%d", id_c++);
-    symtab_add_symbol(var_type, "var", id, 0, cgid);
-    return (Node*) new_Var_declaration_node(var_type, cgid, id, incomplete_initializers(var_type));
+    symtab_add_symbol(var_type, "var", id, 0, str_format(".%d", id_c));
+    return (Node*) new_Var_declaration_node(var_type, str_format(".%d", id_c++), id, incomplete_initializers(var_type));
 }
 
 Node* function_call(int start) { /* A function call with a semi-colon */
@@ -741,10 +711,8 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     } else {
         strcpy(var_type, type(expr));
     }
-    char cgid[MAX_NAME_LEN + 4] = {0};
-    snprintf(cgid, MAX_NAME_LEN + 4, ".%d", id_c++);
-    symtab_add_symbol(var_type, "var", id, 0, cgid);
-    return (Node*) new_Var_declaration_node(var_type, cgid, id, expr);
+    symtab_add_symbol(var_type, "var", id, 0, str_format(".%d", id_c));
+    return (Node*) new_Var_declaration_node(var_type, str_format(".%d", id_c++), id, expr);
 }
 
 Node* var_assignment(int start) {
@@ -790,12 +758,10 @@ Node* while_statement(int start) {
         Error(tokens[start + 1], "Expected condition, not expression, after while keyword", 0);
     }
     nested_loops++;
-    char bcgid[100]; // LIMITS
-    snprintf(bcgid, 100, ".%d", id_c++);
-    char ecgid[100];
-    snprintf(ecgid, 100, ".%d", id_c++);
-    char save_b[100];
-    char save_e[100];
+    char* bcgid = str_format(".%d", id_c++);
+    char* ecgid = str_format(".%d", id_c++);
+    char* save_b = malloc(strlen(current_loop_begin) + 1);
+    char* save_e = malloc(strlen(current_loop_end) + 1);
     strcpy(save_b, current_loop_begin);
     strcpy(save_e, current_loop_end);
     strcpy(current_loop_end, ecgid);
@@ -804,8 +770,8 @@ Node* while_statement(int start) {
     if (body == NULL) {
         Error(tokens[ind - 1], "Expected body", 1);
     }
-    strcpy(current_loop_end, save_e);
     strcpy(current_loop_begin, save_b);
+    strcpy(current_loop_end, save_e);
     nested_loops--;
     return (Node*) new_While_loop_node(condition, body, bcgid, ecgid);
 }

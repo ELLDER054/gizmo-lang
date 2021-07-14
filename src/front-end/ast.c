@@ -138,12 +138,13 @@ Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, c
 }
 
 void free_Var_declaration_node(Var_declaration_node* n) { /* Frees a variable declaration node */
-    if (n != NULL) {
-        if (n->value != NULL) {
-            free_node(n->value);
-        }
-        free(n);
+    if (n->value != NULL) {
+        free_node(n->value);
     }
+    free(n->codegen_name);
+    free(n->name);
+    free(n->type);
+    free(n);
 }
 
 Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid) {
@@ -159,6 +160,8 @@ Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid
 
 void free_Var_assignment_node(Var_assignment_node* v) {
     free_node(v->value);
+    free(v->name);
+    free(v->codegen_name);
     free(v);
 }
 
@@ -177,6 +180,8 @@ While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, c
 void free_While_loop_node(While_loop_node* w) {
     free_node(w->condition);
     free_node(w->body);
+    free(w->begin_cgid);
+    free(w->end_cgid);
     free(w);
 }
 
@@ -191,6 +196,7 @@ Skip_node* new_Skip_node(int kind, char* code) {
 }
 
 void free_Skip_node(Skip_node* s) {
+    free(s->code);
     free(s);
 }
 
@@ -211,6 +217,9 @@ If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, 
 void free_If_node(If_node* i) {
     free_node(i->condition);
     free_node(i->body);
+    free(i->begin_cgid);
+    free(i->else_cgid);
+    free(i->end_cgid);
     free(i);
 }
 
@@ -243,13 +252,12 @@ Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a f
 }
 
 void free_Func_call_node(Func_call_node* f) { /* Frees a variable declaration node */
-    if (f != NULL) {
-        for (int i = 0; i < f->args_len; i++) {
-            free_node(f->args[i]);
-        }
-        free(f->args);
-        free(f);
+    for (int i = 0; i < f->args_len; i++) {
+        free_node(f->args[i]);
     }
+    free(f->name);
+    free(f->args);
+    free(f);
 }
 
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right) { /* Initializes an operator node */
@@ -266,6 +274,7 @@ Operator_node* new_Operator_node(char* oper, Node* left, Node* right) { /* Initi
 void free_Operator_node(Operator_node* n) { /* Frees an operator node */
     free_node(n->left);
     free_node(n->right);
+    free(n->oper);
     free(n);
 }
 
@@ -281,6 +290,9 @@ Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type)
 }
 
 void free_Identifier_node(Identifier_node* i) { /* Frees an identifier node */
+    free(i->name);
+    free(i->type);
+    free(i->codegen_name);
     free(i);
 }
 
@@ -318,10 +330,10 @@ List_node* new_List_node(char* type, Node** elements) {
 }
 
 void free_List_node(List_node* list) {
-    int element_c = 0;
-    while (element_c < list->len) {
-        free_node(list->elements[element_c++]);
+    for (int element_c = 0; element_c < list->len; element_c++) {
+        free_node(list->elements[element_c]);
     }
+    free(list->type);
     free(list);
 }
 
@@ -339,6 +351,8 @@ Index_node* new_Index_node(Node* id, Node* expr, char* type, char* cgid) {
 
 void free_Index_node(Index_node* index) {
     free_node(index->expr);
+    free(index->type);
+    free(index->cgid);
     free(index);
 }
 
@@ -386,11 +400,12 @@ String_node* new_String_node(char* val) { /* Initializes a string node */
     memset(str, 0, sizeof(String_node));
 
     str->n_type = STRING_NODE;
-    str->value = val;
+    str->value = strdup(val);
     return str;
 }
 
 void free_String_node(String_node* n) { /* Frees a string node */
+    free(n->value);
     free(n);
 }
 
@@ -430,6 +445,8 @@ void free_Func_decl_node(Func_decl_node* f) {
     }
     free(f->args);
     free_node(f->body);
+    free(f->name);
+    free(f->type);
     free(f);
 }
 

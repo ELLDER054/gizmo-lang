@@ -92,8 +92,8 @@ char* types(char* t) {
 }
 
 void insert(char* buf, int pos, int size, char* str) {
-    char* temp = malloc(MAX_BUF_LEN * size);
-    memset(temp, 0, MAX_BUF_LEN * size);
+    char* temp = malloc(strlen(buf) + strlen(str) + 1);
+    memset(temp, 0, strlen(buf) + strlen(str) + 1);
     for (int i = 0; i < pos; i++) {
         char c = buf[i];
         strncat(temp, &c, 1);
@@ -228,38 +228,20 @@ char* find_operation_asm(char* oper, char* t) {
 char* generate_expression_asm(Node* n, char* expr_type, char* c);
 
 char* generate_operation_asm(Node* n, char* expr_type, char* c) {
-    char* l = generate_expression_asm(((Operator_node*) n)->left, expr_type, c);
-    char* r = generate_expression_asm(((Operator_node*) n)->right, expr_type, c);
+    Operator_node* oper_n = ((Operator_node*) n);
+    char* l = generate_expression_asm(oper_n->left, expr_type, c);
+    char* r = generate_expression_asm(oper_n->right, expr_type, c);
     char* op_name = str_format("%%%d", var_c++);
-    strcat(c, "\t");
-    strcat(c, op_name);
-    strcat(c, " = ");
-    char* oper = ((Operator_node*) n)->oper;
-    char* oper_asm = find_operation_asm(oper, types(type(((Operator_node*) n)->left)));
-    strcat(c, oper_asm);
-    strcat(c, " ");
-    strcat(c, types(type(((Operator_node*) n)->left)));
-    strcat(c, " ");
-    strcat(c, l);
-    strcat(c, ", ");
+    char* oper_asm = find_operation_asm(oper_n->oper, types(type(oper_n->left)));
+    strcat(c, str_format("\t%s = %s %s %s, ", op_name, oper_asm, types(type(oper_n->left)), l));
     if (oper_asm[strlen(oper_asm) - 1] == '(') {
-        strcat(c, types(type(((Operator_node*) n)->left)));
+        strcat(c, types(type((oper_n->left))));
         strcat(c, " ");
     }
     strcat(c, r);
-    if (strcmp(oper_asm, "call i8* @constr(") == 0 || strcmp(oper_asm, "call i1 @cmpstr(") == 0 || strcmp(oper_asm, "call i1 @cmpnstr(") == 0) {
+    if (oper_asm[strlen(oper_asm) - 1] == '(') {
         strcat(c, ")");
     }
-    /*if (strlen(oper_asm) > 0 && oper_asm[1] == 'c') {
-        char* op_name_new = heap_alloc(100);
-        snprintf(op_name_new, 100, "%%%d", var_c++);
-        strcat(c, "\n\t");
-        strcat(c, op_name_new);
-        strcat(c, " = zext i1 ");
-        strcat(c, op_name);
-        strcat(c, " to i32\n");
-        return op_name_new;
-    }*/
     strcat(c, "\n");
     return op_name;
 }
@@ -268,21 +250,15 @@ int in_possible_escapes(char c) {
     return c == 'n' || c == 'r' || c == 't' || c == 'b' || c == '\\';
 }
 
-int gizmo_strlen(char* str) {
+char* gizmo_str(char* str) {
     int pos = 0;
-    int len = 0;
-    while (pos < strlen(str) - 3) {
+    char* end_str = heap_alloc(strlen(str) * 3);
+    while (pos < strlen(str)) {
         char c = str[pos];
-        if (c == '\\') {
-            len++;
-            pos += in_possible_escapes(str[pos + 1]) ? 2 : 1;
-        } else {
-            len++;
-            pos++;
-        }
+        end_str[pos++] = c;
     }
-    len++;
-    return len;
+    strcat(end_str, "\\00");
+    return end_str;
 }
 
 char* generate_expression_asm(Node* n, char* expr_type, char* c) {
@@ -301,21 +277,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
             char* element_name = generate_expression_asm(list->elements[i], type(list->elements[i]), c);
             char* name = str_format("%%%d", var_c++);
             char* current_number = str_format("%d", i);
-            strcat(c, "\t");
-            strcat(c, name);
-            strcat(c, str_format(" = getelementptr inbounds [%s x %s], [%s x %s]* ", len, types(get_type_from(list->type)), len, types(get_type_from(list->type))));
-            strcat(c, allarr_name);
-            strcat(c, ", i32 0, i32 ");
-            strcat(c, current_number);
-            strcat(c, "\n\tstore ");
-            strcat(c, types(get_type_from(list->type)));
-            strcat(c, " ");
-            strcat(c, element_name);
-            strcat(c, ", ");
-            strcat(c, types(get_type_from(list->type)));
-            strcat(c, "* ");
-            strcat(c, name);
-            strcat(c, "\n");
+            strcat(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 %s\n", name, len, types(get_type_from(list->type)), len, types(get_type_from(list->type)), allarr_name, current_number));
+            strcat(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(list->type)), element_name, types(get_type_from(list->type)), name));
         }
         char* end_getel_name = str_format("%%%d", var_c++);
         char* bitcast_name = str_format("%%%d", var_c++);
@@ -331,34 +294,17 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
             char* bitcast_arr_name = str_format("%%%d", var_c++);
             char* extra_extra_name = str_format("%%%d", var_c++);
             char* extra_name = str_format("%%%d", var_c++);
-            strcat(c, "\t");
-            strcat(c, arr_name);
-            strcat(c, str_format(" = getelementptr inbounds %%.arr, %%.arr* %s", index_id));
-            strcat(c, ", i32 0, i32 1\n\t");
-            strcat(c, str_format("%s = load i8*, i8** %s\n\t", loadi8_name, arr_name));
-            strcat(c, bitcast_arr_name);
-            strcat(c, str_format(" = bitcast i8* %s to %s*\n\t", loadi8_name, types(index->type)));
-            strcat(c, extra_extra_name);
-            strcat(c, str_format(" = getelementptr inbounds %s, %s* ", types(index->type), types(index->type)));
-            strcat(c, bitcast_arr_name);
-            strcat(c, ", i32 ");
-            strcat(c, index_value_name);
-            strcat(c, "\n\t");
-            strcat(c, extra_name);
-            strcat(c, " = load ");
-            strcat(c, types(index->type));
-            strcat(c, ", ");
-            strcat(c, types(index->type));
-            strcat(c, "* ");
-            strcat(c, extra_extra_name);
-            strcat(c, "\n");
+            strcat(c, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n", arr_name, index_id));
+            strcat(c, str_format("\t%s = load i8*, i8** %s\n", loadi8_name, arr_name));
+            strcat(c, str_format("\t%s = bitcast i8* %s to %s*\n", bitcast_arr_name, loadi8_name, types(index->type)));
+            strcat(c, str_format("\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", extra_extra_name, types(index->type), types(index->type), bitcast_arr_name, index_value_name));
+            strcat(c, str_format("\t%s = load %s, %s* %s\n", extra_name, types(index->type), types(index->type), extra_extra_name));
             return extra_name;
         } else {
             char* arr_name = str_format("%%%d", var_c++);
             char* loadi8_name = str_format("%%%d", var_c++);
-            strcat(c, arr_name);
-            strcat(c, str_format(" = getelementptr inbounds %s, %s* %s", types(index->type), types(index->type), index_id));
-            strcat(c, str_format(", i32 %s\n\t%s = load i8, i8* %s\n", index_value_name, loadi8_name, arr_name));
+            strcat(c, str_format("\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", arr_name, types(index->type), types(index->type), index_id, index_value_name));
+            strcat(c, str_format("\t%s = load i8, i8* %s\n", loadi8_name, arr_name));
             return loadi8_name;
         }
     } if (n->n_type == ID_NODE) {
@@ -373,8 +319,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
     } else if (n->n_type == CHAR_NODE) {
         return str_format("%d", (int)(((Char_node*) n)->value));
     } else if (n->n_type == STRING_NODE) {
-        insert(c, 0, strlen(c), str_format("@.str.%d = constant [%d x i8] c\"%s\"\n", str_c, gizmo_strlen(((String_node*) n)->value), ((String_node*) n)->value));
-        return str_format("bitcast ([%d x i8]* @.str.%d to i8*)", gizmo_strlen(((String_node*) n)->value), str_c++);
+        insert(c, 0, strlen(c), str_format("@.str.%d = constant [%d x i8] c\"%s\"\n", str_c, strlen(((String_node*) n)->value) + 11, gizmo_str(((String_node*) n)->value)));
+        return str_format("bitcast ([%d x i8]* @.str.%d to i8*)", strlen(((String_node*) n)->value) + 1, str_c++);
     } else if (n->n_type == REAL_NODE) {
         return str_format("%f", ((Real_node*) n)->value);
     } else if (n->n_type == BOOL_NODE) {
@@ -386,7 +332,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
         memset(arg_code, 0, 100);
         for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
             char* arg = generate_expression_asm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), c);
-            strcat(c, "\t");
+            strcat(c, "\t"); //  STRFORMAT
             char* extra_name = str_format("%%%d", var_c++);
             strcat(c, extra_name);
             strcat(c, " = alloca ");
@@ -406,7 +352,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
                 strcat(arg_code, ", ");
             }
         }
-        char* func_call_name = str_format("%%%d", var_c++);
+        char* func_call_name = str_format("%%%d", var_c++); //  STRFORMAT
         snprintf(call, 1024, "\t%s = call %s @%s(%s)\n", func_call_name, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code);
         strcat(c, call);
         free(arg_code);
@@ -433,7 +379,7 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
         needs_str_const = 1;
         char* func_call_name = str_format("%%%d", var_c++);
         char* temp_var = str_format("%%%d", var_c++);
-        strcat(c, "\t");
+        strcat(c, "\t"); //  STRFORMAT
         strcat(c, func_call_name);
         strcat(c, " = alloca [1024 x i8], align 8\n\t"); // LIMIT
         strcat(c, temp_var);
@@ -488,7 +434,7 @@ void generate_statement(Node* n, char* code) {
         } else if (n->n_type == WHILE_NODE) {
             While_loop_node* wh = (While_loop_node*) n;
             char* while_name = generate_expression_asm(wh->condition, type(wh->condition), code);
-            strcat(code, "\tbr i1 ");
+            strcat(code, "\tbr i1 "); //  STRFORMAT
             strcat(code, while_name);
             strcat(code, ", label %");
             strcat(code, wh->begin_cgid);
@@ -511,7 +457,7 @@ void generate_statement(Node* n, char* code) {
         } else if (n->n_type == IF_NODE) {
             If_node* i = (If_node*) n;
             char* if_name = generate_expression_asm(i->condition, type(i->condition), code);
-            strcat(code, "\tbr i1 ");
+            strcat(code, "\tbr i1 "); //  STRFORMAT
             strcat(code, if_name);
             strcat(code, ", label %");
             strcat(code, i->begin_cgid);
@@ -540,17 +486,17 @@ void generate_statement(Node* n, char* code) {
             needs_printf = 1;
             char* write_arg_name = generate_expression_asm(func->args[0], type(func->args[0]), code);
             if (strcmp(type(func->args[0]), "int") == 0) {
-                needs_num_const = 1;
+                needs_num_const = 1; //  STRFORMAT
                 strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.num, i32 0, i32 0), i32 ");
-                strcat(code, write_arg_name);
+                strcat(code, write_arg_name); //  STRFORMAT
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "string") == 0) {
                 needs_str_const = 1;
                 strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
-                strcat(code, write_arg_name);
+                strcat(code, write_arg_name); //  STRFORMAT
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "bool") == 0) {
-                needs_true_const = 1;
+                needs_true_const = 1; //  STRFORMAT
                 needs_false_const = 1;
                 char* t = str_format("true%d", bool_c);
                 char* f = str_format("false%d", bool_c++);
@@ -574,12 +520,12 @@ void generate_statement(Node* n, char* code) {
                 strcat(code, end);
                 strcat(code, ":");
             } else if (strcmp(type(func->args[0]), "char") == 0) {
-                needs_chr_const = 1;
+                needs_chr_const = 1; //  STRFORMAT
                 strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.chr, i32 0, i32 0), i8 ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
-                needs_real_const = 1;
+                needs_real_const = 1; //  STRFORMAT
                 strcat(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.real, i32 0, i32 0), double ");
                 strcat(code, write_arg_name);
                 strcat(code, ")");
@@ -614,7 +560,7 @@ void generate_statement(Node* n, char* code) {
                     strcat(arg_code, ", ");
                 }
             }
-            strcat(code, "\tcall ");
+            strcat(code, "\tcall "); //  STRFORMAT
             strcat(code, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type));
             strcat(code, " @");
             strcat(code, ((Func_call_node*) n)->name);
@@ -639,7 +585,7 @@ void generate_statement(Node* n, char* code) {
                     strcat(arg_code, ", ");
                 }
             }
-            log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type));
+            log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type)); //  STRFORMAT
             snprintf(begin, 195, "define %s @%s(%s) {\nentry:\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name, arg_code);
             strcat(mini_code, begin);
             strcpy(current_function_return_type, ((Func_decl_node*) n)->type);
@@ -711,7 +657,7 @@ void generate(Node** ast, int size, char* code, char* file_name) {
         insert(code, 0, strlen(code), "define double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n");
     }
     char* module_id = malloc(400);
-    memset(module_id, 0, 400);
+    memset(module_id, 0, 400); //  STRFORMAT
     snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\n\n%%.arr = type {i32, i8*}\n", file_name, file_name);
     insert(code, 0, strlen(code), module_id);
     free(module_id);
