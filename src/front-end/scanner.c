@@ -140,6 +140,59 @@ int split(const char *txt, char delim, char ***tokens) {
     return count;
 }
 
+void parse_string(char* str, char* endstr, int is_in_str) {
+    int pos = 0;
+    strcpy(endstr, "");
+    while (pos < strlen(str)) {
+        char c = str[pos];
+        if (c == '\\') {
+            switch (str[pos + 1]) {
+                case '\\':
+                    strcat(endstr, "\\\\");
+                    break;
+                case 'n':
+                    if (is_in_str) {
+                        strcat(endstr, "\\0A");
+                    } else {
+                        strcat(endstr, "\n");
+                    }
+                    break;
+                case 't':
+                    if (is_in_str) {
+                        strcat(endstr, "\\09");
+                    } else {
+                        strcat(endstr, "\t");
+                    }
+                    break;
+                case '"':
+                    if (is_in_str) {
+                        strcat(endstr, "\\22");
+                    } else {
+                        strcat(endstr, "\"");
+                    }
+                    break;
+                case '\'':
+                    if (is_in_str) {
+                        strcat(endstr, "\\27");
+                    } else {
+                        strcat(endstr, "'");
+                    }
+                    break;
+                default:
+                    strcat(endstr, "\\\\");
+                    strncat(endstr, &(str[pos + 1]), 1);
+            }
+            pos++;
+        } else {
+            strncat(endstr, &c, 1);
+        }
+        pos++;
+    }
+    if (is_in_str) {
+        strcat(endstr, "\\00");
+    }
+}
+
 void scan(char* code, Token* tokens) {
     int lineno = 1;
     char** lines;
@@ -412,7 +465,7 @@ void scan(char* code, Token* tokens) {
             }
             tok.value = malloc(len);
             memset(tok.value, 0, len);
-            strcpy(tok.value, string);
+            parse_string(string, tok.value, delim == '"'); 
             free(string);
             tok.type = tok_type;
             tok.lineno = lineno;

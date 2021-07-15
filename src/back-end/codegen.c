@@ -9,16 +9,6 @@
 
 #define MAX_BUF_LEN 2048
 
-/*
-define i8* @constr(i8* %a, i8* %b) {
-entry:
-    %0 = call i8* @malloc(i32 6)
-    call i8* @strcpy(i8* %0, i8* %a)
-    call i8* @strcat(i8* %0, i8* %b)
-    ret i8* %0
-}
-*/
-
 char* current_function_return_type;
 int var_c = 0;
 int save_var_c = 0;
@@ -225,6 +215,19 @@ char* find_operation_asm(char* oper, char* t) {
     return "";
 }
 
+int gizmo_strlen(char* str) {
+    int b_c = 0;
+    int pos = 0;
+    int str_len = strlen(str);
+    for (pos = 0; pos < str_len; pos++) {
+        char c = str[pos];
+        if (c == '\\') {
+            b_c++;
+        }
+    }
+    return pos - (2 * b_c);
+}
+
 char* generate_expression_asm(Node* n, char* expr_type, char* c);
 
 char* generate_operation_asm(Node* n, char* expr_type, char* c) {
@@ -248,17 +251,6 @@ char* generate_operation_asm(Node* n, char* expr_type, char* c) {
 
 int in_possible_escapes(char c) {
     return c == 'n' || c == 'r' || c == 't' || c == 'b' || c == '\\';
-}
-
-char* gizmo_str(char* str) {
-    int pos = 0;
-    char* end_str = heap_alloc(strlen(str) * 3);
-    while (pos < strlen(str)) {
-        char c = str[pos];
-        end_str[pos++] = c;
-    }
-    strcat(end_str, "\\00");
-    return end_str;
 }
 
 char* generate_expression_asm(Node* n, char* expr_type, char* c) {
@@ -319,8 +311,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
     } else if (n->n_type == CHAR_NODE) {
         return str_format("%d", (int)(((Char_node*) n)->value));
     } else if (n->n_type == STRING_NODE) {
-        insert(c, 0, strlen(c), str_format("@.str.%d = constant [%d x i8] c\"%s\"\n", str_c, strlen(((String_node*) n)->value) + 11, gizmo_str(((String_node*) n)->value)));
-        return str_format("bitcast ([%d x i8]* @.str.%d to i8*)", strlen(((String_node*) n)->value) + 1, str_c++);
+        insert(c, 0, strlen(c), str_format("@.str.%d = constant [%d x i8] c\"%s\"\n", str_c, gizmo_strlen(((String_node*) n)->value), ((String_node*) n)->value));
+        return str_format("bitcast ([%d x i8]* @.str.%d to i8*)", gizmo_strlen(((String_node*) n)->value), str_c++);
     } else if (n->n_type == REAL_NODE) {
         return str_format("%f", ((Real_node*) n)->value);
     } else if (n->n_type == BOOL_NODE) {

@@ -130,249 +130,206 @@ Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, c
     memset(var, 0, sizeof(Var_declaration_node));
 
     var->n_type = VAR_DECLARATION_NODE;
-
-    var->name = malloc(strlen(name) + 1);
-    strcpy(var->name, name);
-
-    var->codegen_name = malloc(strlen(codegen_name) + 1);
-    strcpy(var->codegen_name, codegen_name);
-
-    var->type = malloc(strlen(type) + 1);
-    strcpy(var->type, type);
-
+    var->name = strdup(name);
+    var->codegen_name = strdup(codegen_name);
+    var->type = strdup(type);
     var->value = value;
     return var;
 }
 
 void free_Var_declaration_node(Var_declaration_node* n) { /* Frees a variable declaration node */
-    if (n->value != NULL) {
-        free_node(n->value);
+    if (n != NULL) {
+        if (n->value != NULL) {
+            free_node(n->value);
+        }
+        free(n);
     }
-    free(n->codegen_name);
-    free(n->name);
-    free(n->type);
-    free(n);
 }
 
-var_assignment_node* new_var_assignment_node(char* name, node* value, char* cgid) {
-    var_assignment_node* var = malloc(sizeof(var_assignment_node));
-    memset(var, 0, sizeof(var_assignment_node));
+Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid) {
+    Var_assignment_node* var = malloc(sizeof(Var_assignment_node));
+    memset(var, 0, sizeof(Var_assignment_node));
 
-    var->n_type = var_assign_node;
-
-    var->name = malloc(strlen(name) + 1);
-    strcpy(var->name, name);
-
-    var->codegen_name = malloc(strlen(cgid) + 1);
-    strcpy(var->codegen_name, cgid);
-
+    var->n_type = VAR_ASSIGN_NODE;
+    var->name = strdup(name);
+    var->codegen_name = strdup(cgid);
     var->value = value;
     return var;
 }
 
-void free_var_assignment_node(var_assignment_node* v) {
+void free_Var_assignment_node(Var_assignment_node* v) {
     free_node(v->value);
-    free(v->name);
-    free(v->codegen_name);
     free(v);
 }
 
-while_loop_node* new_while_loop_node(node* condition, node* body, char* bcgid, char* ecgid) {
-    while_loop_node* w = malloc(sizeof(while_loop_node));
-    memset(w, 0, sizeof(while_loop_node));
+While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid) {
+    While_loop_node* w = malloc(sizeof(While_loop_node));
+    memset(w, 0, sizeof(While_loop_node));
 
-    w->n_type = while_node;
+    w->n_type = WHILE_NODE;
     w->condition = condition;
     w->body = body;
-
-    w->begin_cgid = malloc(strlen(bcgid) + 1);
-    strcpy(w->begin_cgid, bcgid);
-
-    w->end_cgid = malloc(strlen(ecgid) + 1);
-    strcpy(w->end_cgid, ecgid);
-
+    w->begin_cgid = strdup(bcgid);
+    w->end_cgid = strdup(ecgid);
     return w;
 }
 
-void free_while_loop_node(while_loop_node* w) {
+void free_While_loop_node(While_loop_node* w) {
     free_node(w->condition);
     free_node(w->body);
-    free(w->begin_cgid);
-    free(w->end_cgid);
     free(w);
 }
 
-skip_node* new_skip_node(int kind, char* code) {
-    skip_node* skip = malloc(sizeof(skip_node));
-    memset(skip, 0, sizeof(skip_node));
+Skip_node* new_Skip_node(int kind, char* code) {
+    Skip_node* skip = malloc(sizeof(Skip_node));
+    memset(skip, 0, sizeof(Skip_node));
 
-    skip->n_type = skip_node;
+    skip->n_type = SKIP_NODE;
     skip->skip_kind = kind;
-
-    skip->code = malloc(strlen(code) + 1);
-    strcpy(skip->code, code);
-
+    skip->code = strdup(code);
     return skip;
 }
 
-void free_skip_node(skip_node* s) {
-    free(s->code);
+void free_Skip_node(Skip_node* s) {
     free(s);
 }
 
-if_node* new_if_node(node* condition, node* body, node* else_body, char* bcgid, char* ecgid, char* elcgid) {
-    if_node* i = malloc(sizeof(if_node));
-    memset(i, 0, sizeof(if_node));
+If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid) {
+    If_node* i = malloc(sizeof(If_node));
+    memset(i, 0, sizeof(If_node));
 
-    i->n_type = if_node;
+    i->n_type = IF_NODE;
     i->condition = condition;
     i->body = body;
     i->else_body = else_body;
-
-    i->begin_cgid = malloc(strlen(bcgid) + 1);
-    strcpy(i->begin_cgid, bcgid);
-
-    i->else_cgid = malloc(strlen(elcgid) + 1);
-    strcpy(i->else_cgid, elcgid);
-
-    i->end_cgid = malloc(strlen(ecgid) + 1);
-    strcpy(i->end_cgid, ecgid);
-
+    i->begin_cgid = strdup(bcgid);
+    i->else_cgid = strdup(elcgid);
+    i->end_cgid = strdup(ecgid);
     return i;
 }
 
-void free_if_node(if_node* i) {
+void free_If_node(If_node* i) {
     free_node(i->condition);
     free_node(i->body);
-    free(i->begin_cgid);
-    free(i->else_cgid);
-    free(i->end_cgid);
     free(i);
 }
 
-func_call_node* new_func_call_node(char* name, node** args) { /* initializes a function call node */
-    func_call_node* func = malloc(sizeof(func_call_node));
-    memset(func, 0, sizeof(func_call_node));
+Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a function call node */
+    Func_call_node* func = malloc(sizeof(Func_call_node));
+    memset(func, 0, sizeof(Func_call_node));
     
     if (strcmp(name, "write") == 0) {
-        func->n_type = write_node;
+        func->n_type = WRITE_NODE;
     } else if (strcmp(name, "read") == 0) {
-        func->n_type = read_node;
+        func->n_type = READ_NODE;
     } else if (strcmp(name, "len") == 0) {
-        func->n_type = len_node;
+        func->n_type = LEN_NODE;
     } else {
-        func->n_type = func_call_node;
+        func->n_type = FUNC_CALL_NODE;
     }
     int len;
     for (len = 0;; len++) {
-        if (args[len] == null) {
+        if (args[len] == NULL) {
             break;
         }
     }
     func->args_len = len;
-    func->args = malloc(len * sizeof(node*));
+    func->args = malloc(len * sizeof(Node*));
     for (int i = 0; i < len; i++) {
         func->args[i] = args[i];
     }
-    func->name = malloc(strlen(name) + 1);
-    strcpy(func->name, name);
+    func->name = strdup(name);
     return func;
 }
 
-void free_func_call_node(func_call_node* f) { /* frees a variable declaration node */
-    for (int i = 0; i < f->args_len; i++) {
-        free_node(f->args[i]);
+void free_Func_call_node(Func_call_node* f) { /* Frees a variable declaration node */
+    if (f != NULL) {
+        for (int i = 0; i < f->args_len; i++) {
+            free_node(f->args[i]);
+        }
+        free(f->args);
+        free(f);
     }
-    free(f->name);
-    free(f->args);
-    free(f);
 }
 
-operator_node* new_operator_node(char* oper, node* left, node* right) { /* initializes an operator node */
-    operator_node* op = malloc(sizeof(operator_node));
-    memset(op, 0, sizeof(operator_node));
+Operator_node* new_Operator_node(char* oper, Node* left, Node* right) { /* Initializes an operator node */
+    Operator_node* op = malloc(sizeof(Operator_node));
+    memset(op, 0, sizeof(Operator_node));
 
-    op->n_type = operator_node;
-
-    op->oper = malloc(strlen(oper) + 1);
-    strcpy(op->oper, oper);
-
+    op->n_type = OPERATOR_NODE;
+    op->oper = strdup(oper);
     op->left = left;
     op->right = right;
     return op;
 }
 
-void free_operator_node(operator_node* n) { /* frees an operator node */
+void free_Operator_node(Operator_node* n) { /* Frees an operator node */
     free_node(n->left);
     free_node(n->right);
-    free(n->oper);
     free(n);
 }
 
-identifier_node* new_identifier_node(char* name, char* codegen_name, char* type) { /* initializes an identifier node */
-    identifier_node* i = malloc(sizeof(identifier_node));
-    memset(i, 0, sizeof(identifier_node));
+Identifier_node* new_Identifier_node(char* name, char* codegen_name, char* type) { /* Initializes an identifier node */
+    Identifier_node* i = malloc(sizeof(Identifier_node));
+    memset(i, 0, sizeof(Identifier_node));
     
-    i->n_type = id_node;
-    i->type = strdup(type); // continue here
+    i->n_type = ID_NODE;
+    i->type = strdup(type);
     i->name = strdup(name);
     i->codegen_name = strdup(codegen_name);
     return i;
 }
 
-void free_identifier_node(identifier_node* i) { /* frees an identifier node */
-    free(i->name);
-    free(i->type);
-    free(i->codegen_name);
+void free_Identifier_node(Identifier_node* i) { /* Frees an identifier node */
     free(i);
 }
 
-integer_node* new_integer_node(int val) { /* initializes an integer node */
-    integer_node* integer = malloc(sizeof(integer_node));
-    memset(integer, 0, sizeof(integer_node));
+Integer_node* new_Integer_node(int val) { /* Initializes an integer node */
+    Integer_node* integer = malloc(sizeof(Integer_node));
+    memset(integer, 0, sizeof(Integer_node));
 
-    integer->n_type = integer_node;
+    integer->n_type = INTEGER_NODE;
     integer->value = val;
     return integer;
 }
 
-void free_integer_node(integer_node* n) { /* frees an integer node */
+void free_Integer_node(Integer_node* n) { /* Frees an integer node */
     free(n);
 }
 
-list_node* new_list_node(char* type, node** elements) {
-    list_node* list = malloc(sizeof(list_node));
-    memset(list, 0, sizeof(list_node));
+List_node* new_List_node(char* type, Node** elements) {
+    List_node* list = malloc(sizeof(List_node));
+    memset(list, 0, sizeof(List_node));
 
-    list->n_type = list_node;
+    list->n_type = LIST_NODE;
     list->type = strdup(type);
     int len;
     for (len = 0;; len++) {
-        if (elements[len] == null) {
+        if (elements[len] == NULL) {
             break;
         }
     }
     list->len = len;
-    list->elements = malloc(len * sizeof(node*));
+    list->elements = malloc(len * sizeof(Node*));
     for (int element_c = 0; element_c < len; element_c++) {
         list->elements[element_c] = elements[element_c];
     }
     return list;
 }
 
-void free_list_node(list_node* list) {
-    for (int element_c = 0; element_c < list->len; element_c++) {
-        free_node(list->elements[element_c]);
+void free_List_node(List_node* list) {
+    int element_c = 0;
+    while (element_c < list->len) {
+        free_node(list->elements[element_c++]);
     }
-    free(list->type);
     free(list);
 }
 
-Index_node* new_index_node(node* id, node* expr, char* type, char* cgid) {
-    index_node* index = malloc(sizeof(index_node));
-    memset(index, 0, sizeof(index_node));
+Index_node* new_Index_node(Node* id, Node* expr, char* type, char* cgid) {
+    Index_node* index = malloc(sizeof(Index_node));
+    memset(index, 0, sizeof(Index_node));
 
-    index->n_type = index_node;
+    index->n_type = INDEX_NODE;
     index->id = id;
     index->type = strdup(type);
     index->cgid = strdup(cgid);
@@ -380,116 +337,111 @@ Index_node* new_index_node(node* id, node* expr, char* type, char* cgid) {
     return index;
 }
 
-void free_index_node(index_node* index) {
+void free_Index_node(Index_node* index) {
     free_node(index->expr);
-    free(index->type);
-    free(index->cgid);
     free(index);
 }
 
-Boolean_node* new_boolean_node(int val) {
-    boolean_node* boo = malloc(sizeof(boolean_node));
-    memset(boo, 0, sizeof(boolean_node));
+Boolean_node* new_Boolean_node(int val) {
+    Boolean_node* boo = malloc(sizeof(Boolean_node));
+    memset(boo, 0, sizeof(Boolean_node));
 
-    boo->n_type = bool_node;
+    boo->n_type = BOOL_NODE;
     boo->value = val;
     return boo;
 }
 
-void free_boolean_node(boolean_node* b) {
+void free_Boolean_node(Boolean_node* b) {
     free(b);
 }
 
-Real_node* new_real_node(double val) { /* initializes a real value node */
-    real_node* real = malloc(sizeof(real_node));
-    memset(real, 0, sizeof(real_node));
+Real_node* new_Real_node(double val) { /* Initializes a real value node */
+    Real_node* real = malloc(sizeof(Real_node));
+    memset(real, 0, sizeof(Real_node));
 
-    real->n_type = real_node;
+    real->n_type = REAL_NODE;
     real->value = val;
     return real;
 }
 
-void free_real_node(real_node* n) { /* frees a real value node */
+void free_Real_node(Real_node* n) { /* Frees a real value node */
     free(n);
 }
 
-Char_node* new_char_node(char val) { /* initializes a character node */
-    char_node* ch = malloc(sizeof(char_node));
-    memset(ch, 0, sizeof(char_node));
+Char_node* new_Char_node(char val) { /* Initializes a character node */
+    Char_node* ch = malloc(sizeof(Char_node));
+    memset(ch, 0, sizeof(Char_node));
 
-    ch->n_type = char_node;
+    ch->n_type = CHAR_NODE;
     ch->value = val;
     return ch;
 }
 
-void free_char_node(char_node* c) { /* frees a character node */
+void free_Char_node(Char_node* c) { /* Frees a character node */
     free(c);
 }
 
-String_node* new_string_node(char* val) { /* initializes a string node */
-    string_node* str = malloc(sizeof(string_node));
-    memset(str, 0, sizeof(string_node));
+String_node* new_String_node(char* val) { /* Initializes a string node */
+    String_node* str = malloc(sizeof(String_node));
+    memset(str, 0, sizeof(String_node));
 
-    str->n_type = string_node;
-    str->value = strdup(val);
+    str->n_type = STRING_NODE;
+    str->value = val;
     return str;
 }
 
-void free_string_node(string_node* n) { /* frees a string node */
-    free(n->value);
+void free_String_node(String_node* n) { /* Frees a string node */
     free(n);
 }
 
-Return_node* new_return_node(node* expr) {
-    return_node* ret = malloc(sizeof(return_node));
-    memset(ret, 0, sizeof(return_node));
+Return_node* new_Return_node(Node* expr) {
+    Return_node* ret = malloc(sizeof(Return_node));
+    memset(ret, 0, sizeof(Return_node));
 
-    ret->n_type = ret_node;
+    ret->n_type = RET_NODE;
     ret->expr = expr;
     return ret;
 }
 
-void free_return_node(return_node* r) {
+void free_Return_node(Return_node* r) {
     free_node(r->expr);
     free(r);
 }
 
-Func_decl_node* new_func_decl_node(char* name, char* type, node** args, int args_len, node* body) {
-    func_decl_node* func = malloc(sizeof(func_decl_node));
-    memset(func, 0, sizeof(func_decl_node));
+Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args_len, Node* body) {
+    Func_decl_node* func = malloc(sizeof(Func_decl_node));
+    memset(func, 0, sizeof(Func_decl_node));
 
-    func->n_type = func_decl_node;
+    func->n_type = FUNC_DECL_NODE;
     func->body = body;
     func->name = strdup(name);
     func->type = strdup(type);
     func->args_len = args_len;
-    func->args = malloc(sizeof(node) * args_len);
+    func->args = malloc(sizeof(Node) * args_len);
     for (int i = 0; i < args_len; i++) {
         func->args[i] = args[i];
     }
     return func;
 }
 
-void free_func_decl_node(func_decl_node* f) {
+void free_Func_decl_node(Func_decl_node* f) {
     for (int i = 0; i < f->args_len; i++) {
         free_node(f->args[i]);
     }
     free(f->args);
     free_node(f->body);
-    free(f->name);
-    free(f->type);
     free(f);
 }
 
-block_node* new_block_node(node** statements, int ssize) { /* initializes a block node */
-    block_node* block = malloc(sizeof(block_node));
-    memset(block, 0, sizeof(block_node));
-    block->statements = malloc(sizeof(node*) * ssize);
+Block_node* new_Block_node(Node** statements, int ssize) { /* Initializes a block node */
+    Block_node* block = malloc(sizeof(Block_node));
+    memset(block, 0, sizeof(Block_node));
+    block->statements = malloc(sizeof(Node*) * ssize);
     
-    block->n_type = block_node;
+    block->n_type = BLOCK_NODE;
     int i;
     for (i = 0; i < ssize; i++) {
-        if (statements[i] == null) {
+        if (statements[i] == NULL) {
             break;
         }
         block->statements[i] = statements[i];
@@ -498,7 +450,7 @@ block_node* new_block_node(node** statements, int ssize) { /* initializes a bloc
     return block;
 }
 
-void free_block_node(block_node* b) { /* frees a block node */
+void free_Block_node(Block_node* b) { /* Frees a block node */
     for (int i = 0; i < b->ssize; i++) {
         free_node(b->statements[i]);
     }
@@ -543,7 +495,7 @@ void free_node(Node* n) { /* Frees the given node */
         case VAR_DECLARATION_NODE:
             free_Var_declaration_node((Var_declaration_node*) n);
             break;
-		case VAR_ASSIGN_NODE:
+        case VAR_ASSIGN_NODE:
             free_Var_assignment_node((Var_assignment_node*) n);
             break;
         case OPERATOR_NODE:
