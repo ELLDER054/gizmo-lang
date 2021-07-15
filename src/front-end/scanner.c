@@ -463,8 +463,8 @@ void scan(char* code, Token* tokens) {
             if (delim == '\'') {
                 tok_type = T_CHAR;
             }
-            tok.value = malloc(len);
-            memset(tok.value, 0, len);
+            tok.value = malloc(len * 3 + 1);
+            memset(tok.value, 0, len * 3 + 1);
             parse_string(string, tok.value, delim == '"'); 
             free(string);
             tok.type = tok_type;
