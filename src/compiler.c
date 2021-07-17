@@ -12,7 +12,7 @@
 
 FILE* in_file = NULL;
 FILE* out_file = NULL;
-char* out_file_name = NULL;
+char* in_file_name = NULL;
 
 void compile(char* code, char* out, char* file_name) {
     Token* tokens = malloc(strlen(code) * sizeof(Token));
@@ -54,9 +54,6 @@ void parse_command_line_args(int argc, char** argv) {
             }
             int index = ++i;
             out_file = fopen(argv[index], "w");
-            out_file_name = malloc(strlen(argv[index]) + 1);
-            memset(out_file_name, 0, strlen(argv[index]) + 1);
-            sprintf(out_file_name, "%s", argv[index]);
             if (out_file == NULL) {
                 fprintf(stderr, "gizmo: Could not open output file\n");
                 exit(-1);
@@ -66,6 +63,9 @@ void parse_command_line_args(int argc, char** argv) {
             log_set_quiet(0);
         } else if (argv[i][0] != '-' && !has_found_in_file) {
             in_file = fopen(argv[i], "r");
+            in_file_name = malloc(strlen(argv[i]) + 1);
+            memset(in_file_name, 0, strlen(argv[i]) + 1);
+            sprintf(in_file_name, "%s", argv[i]);
             if (in_file == NULL) {
                 fprintf(stderr, "gizmo: Could not open input file\n");
                 exit(-1);
@@ -103,26 +103,15 @@ int main(int argc, char** argv) {
     log_trace("Opening source file %s\n", argv[1]);
 
     if (out_file == NULL) {
-        out_file = fopen("a.out", "w");
-        out_file_name = malloc(5);
-        strcpy(out_file_name, "a.out");
+        out_file = fopen("a.ll", "w");
     }
     char* output = malloc(10000);
     memset(output, 0, 10000);
 
-    compile(code, output, argv[1]);
+    compile(code, output, in_file_name);
 
-    FILE* ll_file = fopen("a.ll", "r+");
-    fprintf(ll_file, "%s", output);
-
-    system("llc --relocation-model=pic a.ll -o a.s");
-
-    char* gcc_out = malloc(12 + strlen(out_file_name));
-    snprintf(gcc_out, 12 + strlen(out_file_name), "gcc a.s -o %s", out_file_name);
-    system(gcc_out);
-
-    free(gcc_out);
-    free(out_file_name);
+    fprintf(out_file, "%s", output);
+    free(in_file_name);
     free(output);
     free(code);
     return 0;
