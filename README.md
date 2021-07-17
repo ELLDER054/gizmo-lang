@@ -17,7 +17,7 @@ See the [main website](http://www.gizmolang.org) to learn more!
 
 Requirements:
 1. A terminal or shell
-2. A C Compiler (gcc or clang)
+2. gcc
 3. make and cmake
 4. llvm
 
