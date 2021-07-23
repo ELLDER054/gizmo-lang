@@ -3,6 +3,7 @@
 #include <string.h>
 #include "scanner.h"
 #include "parser.h"
+#include "../back-end/codegen.h"
 #include "../common/include/log.h"
 
 int isAlpha(char c) { /* Checks if the given character is a valid part of an identifier */
@@ -322,10 +323,7 @@ void scan(char* code, Token* tokens) {
         } else if (is_one_char_token(ch)) {
             Token tok;
             tok.type = one_char_tokens(ch);
-            tok.value = malloc(2);
-            memset(tok.value, 0, 2);
-            tok.value[0] = ch;
-            tok.value[1] = '\0';
+            tok.value = str_format("%c", ch);
             tok.lineno = lineno;
             tok.line = strdup(lines[lineno - 1]);
             tok.col = col++;
@@ -339,9 +337,7 @@ void scan(char* code, Token* tokens) {
                 if (ch == '\0') {
                     Token fake_tok;
                     fake_tok.type = T_INT;
-                    fake_tok.value = malloc(2);
-                    memset(fake_tok.value, 0, 2);
-                    strcpy(fake_tok.value, " ");
+                    fake_tok.value = str_format(" ");
                     fake_tok.lineno = lineno;
                     fake_tok.line = strdup(lines[lineno - 1]);
                     fake_tok.col = col;
@@ -387,8 +383,8 @@ void scan(char* code, Token* tokens) {
             tokens[token_c++] = tok;
         } else if (ch == '=') {
             Token tok;
-            tok.value = malloc(3);
-            memset(tok.value, 0, 3);
+            tok.value = malloc(MAX_OPER_LEN);
+            memset(tok.value, 0, MAX_OPER_LEN);
             if (next(code, pos) == '=') {
                 strcpy(tok.value, "==");
                 tok.type = T_EQUALS_EQUALS;
@@ -406,9 +402,7 @@ void scan(char* code, Token* tokens) {
         } else if (ch == '!') {
             Token tok;
             if (next(code, pos) == '=') {
-                tok.value = malloc(3);
-                memset(tok.value, 0, 3);
-                strcpy(tok.value, "!=");
+                tok.value = str_format("!=");
                 tok.type = T_NOT_EQUALS;
                 col++;
                 pos++;
@@ -430,9 +424,7 @@ void scan(char* code, Token* tokens) {
                 if (ch == '\n' || ch == '\0') {
                     Token fake_tok;
                     fake_tok.type = T_INT;
-                    fake_tok.value = malloc(2);
-                    memset(fake_tok.value, 0, 2);
-                    strcpy(fake_tok.value, " ");
+                    fake_tok.value = str_format(" ");
                     fake_tok.lineno = lineno;
                     fake_tok.line = strdup(lines[lineno - 1]);
                     fake_tok.col = col;
@@ -480,18 +472,13 @@ void scan(char* code, Token* tokens) {
             col = 0;
             lineno++;
         } else {
-            char* error = malloc(100);
-            memset(error, 0, 100);
-            snprintf(error, 100, "Unexpected character `%c`", ch);
             Token fake_tok;
             fake_tok.type = T_INT;
-            fake_tok.value = malloc(2);
-            memset(fake_tok.value, 0, 2);
-            strcpy(fake_tok.value, " ");
+            fake_tok.value = str_format(" ");
             fake_tok.lineno = lineno;
             fake_tok.line = strdup(lines[lineno - 1]);
             fake_tok.col = col;
-            Error(fake_tok, error, 0);
+            Error(fake_tok, str_format("Unexpected character '%c'", ch), 0);
         }
     }
 

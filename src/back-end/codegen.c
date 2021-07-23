@@ -400,6 +400,8 @@ char* generate_expression_asm(Node* n, char* expr_type, char* c) {
         strcat(c, temp_var2);
         strcat(c, "\n");
         return last_temp_var;
+    } else if (n->n_type == WRITE_NODE) {
+        return "0";
     }
     
     return generate_operation_asm(n, expr_type, c);
