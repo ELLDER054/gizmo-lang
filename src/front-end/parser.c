@@ -1039,6 +1039,7 @@ void parse(char* code, Token* toks, Node** ast, Symbol** sym_t) { /* Calls progr
     symtab_add_symbol("none", "func", "write", 1, "write");
     symtab_add_symbol("string", "func", "read", 1, "read");
     symtab_add_symbol("int", "func", "len", 1, "len");
+    symtab_add_symbol("none", "func", "append", 2, "append");
     for (int i = 0; i < tokslen(toks); i++) {
         tokens[i] = toks[i];
     }

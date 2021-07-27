@@ -97,6 +97,7 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case READ_NODE:
         case WRITE_NODE:
         case LEN_NODE:
+        case APPEND_NODE:
             print_func_call(f, (Func_call_node*) n);
             break;
         case FUNC_DECL_NODE:
@@ -258,6 +259,8 @@ Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a f
         func->n_type = READ_NODE;
     } else if (strcmp(name, "len") == 0) {
         func->n_type = LEN_NODE;
+    } else if (strcmp(name, "append") == 0) {
+        func->n_type = APPEND_NODE;
     } else {
         func->n_type = FUNC_CALL_NODE;
     }
@@ -583,6 +586,7 @@ void free_node(Node* n) { /* Frees the given node */
         case READ_NODE:
         case WRITE_NODE:
         case LEN_NODE:
+        case APPEND_NODE:
             free_Func_call_node((Func_call_node*) n);
             break;
         case FUNC_DECL_NODE:

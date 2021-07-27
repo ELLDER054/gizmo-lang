@@ -475,6 +475,33 @@ void generate_statement(Node* n, char* code) {
             strcat(code, "\n");
             strcat(code, i->end_cgid);
             strcat(code, ":\n");
+        } else if (n->n_type == APPEND_NODE) {
+            Func_call_node* append = (Func_call_node*) n;
+            char* list = generate_expression_asm(append->args[0], type(append->args[0]), code);
+            char* appended = generate_expression_asm(append->args[1], type(append->args[1]), code);
+            if (type(append->args[0])[strlen(type(append->args[0])) - 1] == ']') {
+                char* extra_name = str_format("%%%d", var_c++);
+                char* len_name = str_format("%%%d", var_c++);
+                char* list_name = str_format("%%%d", var_c++);
+                char* load_name = str_format("%%%d", var_c++);
+                char* bitcast_name = str_format("%%%d", var_c++);
+                char* extra_extra_name = str_format("%%%d", var_c++);
+                strcat(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n\tstore %s %s, %s* %s\n", extra_name, list, len_name, extra_name, list_name, list, load_name, list_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name, types(type(append->args[1])), appended, types(type(append->args[1])), extra_extra_name));
+            } else if (strcmp(type(append->args[0]), "string") == 0) {
+                char* len_name = str_format("%%%d", var_c++);
+                char* actual_len = str_format("%%%d", var_c++);
+                char* malloc_name = str_format("%%%d", var_c++);
+                var_c++;
+                char* temp_name = str_format("%%%d", var_c++);
+                char* first_char = str_format("%%%d", var_c++);
+                char* second_char = str_format("%%%d", var_c++);
+                char* end_temp_name = str_format("%%%d", var_c++);
+                var_c++;
+                needs_strlen = 1;
+                needs_malloc = 1;
+                needs_strcpy = 1;
+                strcat(code, str_format("\t%s = call i32 @strlen(i8* %s)\n\t%s = add i32 2, %s\n\t%s = call i8* @malloc(i32 %s)\n\tstore i8 0, i8* %s\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\t%s = alloca [2 x i8]\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tstore i8 %s, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 1\n\tstore i8 0, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\tstore i8* %s, i8** %%%s\n", len_name, list, actual_len, len_name, malloc_name, actual_len, malloc_name, malloc_name, list, temp_name, first_char, temp_name, appended, first_char, second_char, temp_name, second_char, end_temp_name, temp_name, malloc_name, end_temp_name, malloc_name, ((Identifier_node*) append->args[0])->codegen_name));
+            }
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
             needs_printf = 1;

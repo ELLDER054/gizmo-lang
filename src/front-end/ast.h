@@ -29,6 +29,7 @@ typedef enum {
     WRITE_NODE,
     LEN_NODE,
     READ_NODE,
+    APPEND_NODE,
     NODE_NODE,
     FUNC_CALL_NODE,
     FUNC_DECL_NODE,
