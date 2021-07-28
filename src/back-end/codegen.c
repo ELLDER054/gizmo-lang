@@ -482,11 +482,12 @@ void generate_statement(Node* n, char* code) {
             if (type(append->args[0])[strlen(type(append->args[0])) - 1] == ']') {
                 char* extra_name = str_format("%%%d", var_c++);
                 char* len_name = str_format("%%%d", var_c++);
+                char* add_name = str_format("%%%d", var_c++);
                 char* list_name = str_format("%%%d", var_c++);
                 char* load_name = str_format("%%%d", var_c++);
                 char* bitcast_name = str_format("%%%d", var_c++);
                 char* extra_extra_name = str_format("%%%d", var_c++);
-                strcat(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n\tstore %s %s, %s* %s\n", extra_name, list, len_name, extra_name, list_name, list, load_name, list_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name, types(type(append->args[1])), appended, types(type(append->args[1])), extra_extra_name));
+                strcat(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = add i32 1, %s\n\tstore i32 %s, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n\tstore %s %s, %s* %s\n", extra_name, list, len_name, extra_name, add_name, len_name, add_name, extra_name, list_name, list, load_name, list_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name, types(type(append->args[1])), appended, types(type(append->args[1])), extra_extra_name));
             } else if (strcmp(type(append->args[0]), "string") == 0) {
                 char* len_name = str_format("%%%d", var_c++);
                 char* actual_len = str_format("%%%d", var_c++);
