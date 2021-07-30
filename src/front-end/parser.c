@@ -172,6 +172,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case READ_NODE:
         case WRITE_NODE:
         case LEN_NODE:
+        case APPEND_NODE:
            return symtab_find_global(((Func_call_node*) n)->name, "func")->type;
         case FUNC_DECL_NODE:
         case IF_NODE:

@@ -14,7 +14,7 @@ FILE* in_file = NULL;
 FILE* out_file = NULL;
 char* in_file_name = NULL;
 
-void compile(char* code, char* out, char* file_name) {
+void compile(char* code, Stream_buf* out, char* file_name) {
     Token* tokens = malloc(strlen(code) * sizeof(Token));
     memset(tokens, 0, strlen(code) * sizeof(Token));
     scan(code, tokens);
@@ -24,7 +24,7 @@ void compile(char* code, char* out, char* file_name) {
     Symbol** symbol_table = malloc(strlen(code) * sizeof(Symbol*));
     memset(symbol_table, 0, strlen(code) * sizeof(Symbol*));
     parse(code, tokens, program, symbol_table);
-
+    
     generate(program, strlen(code) * sizeof(Node*), out, file_name);
     for (int i = 0; i < strlen(code); i++) {
         free_node(program[i]);
@@ -105,12 +105,12 @@ int main(int argc, char** argv) {
     if (out_file == NULL) {
         out_file = fopen("a.ll", "w");
     }
-    char* output = malloc(10000);
-    memset(output, 0, 10000);
+
+    Stream_buf* output = new_Stream_buf(NULL, 5000);
 
     compile(code, output, in_file_name);
 
-    fprintf(out_file, "%s", output);
+    fprintf(out_file, "%s", output->buf);
     free(in_file_name);
     free(output);
     free(code);
