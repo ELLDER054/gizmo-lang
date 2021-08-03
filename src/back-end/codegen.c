@@ -281,7 +281,14 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
             char* name = str_format("%%%d", var_c++);
             char* current_number = str_format("%d", i);
             Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 %s\n", name, len, types(get_type_from(list->type)), len, types(get_type_from(list->type)), allarr_name, current_number));
-            Stream_buf_append_str(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(list->type)), element_name, types(get_type_from(list->type)), name));
+
+            if (strcmp(types(get_type_from(list->type)), "%.arr") == 0) {
+                char* load_name = str_format("%%%d", var_c++);
+                Stream_buf_append_str(c, str_format("\t%s = load %%.arr, %%.arr* %s\n", load_name, element_name));
+                Stream_buf_append_str(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(list->type)), load_name, types(get_type_from(list->type)), name));
+            } else {
+                Stream_buf_append_str(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(list->type)), element_name, types(get_type_from(list->type)), name));
+            }
         }
         char* end_getel_name = str_format("%%%d", var_c++);
         char* bitcast_name = str_format("%%%d", var_c++);
@@ -356,7 +363,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
             }
         }
         char* func_call_name = str_format("%%%d", var_c++); //  STRFORMAT
-        snprintf(call, 1024, "\t%s = call %s @%s(%s)\n", func_call_name, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code);
+        snprintf(call, 1024, "\t%s = call %s @%s(%s)\n", func_call_name, strcmp(types(((Func_call_node*) n)->type), "%.arr") == 0 ? "%.arr*" : types(((Func_call_node*) n)->type), ((Func_call_node*) n)->name, arg_code);
         Stream_buf_append_str(c, call);
         free(arg_code);
         free(call);
@@ -385,9 +392,9 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
         char* temp_var = str_format("%%%d", var_c++);
         Stream_buf_append_str(c, "\t"); //  STRFORMAT
         Stream_buf_append_str(c, func_call_name);
-        Stream_buf_append_str(c, " = alloca [1024 x i8], align 8\n\t"); // LIMIT
+        Stream_buf_append_str(c, " = alloca [1024 x i8], align 8\n\t");
         Stream_buf_append_str(c, temp_var);
-        Stream_buf_append_str(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* "); // LIMIT
+        Stream_buf_append_str(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* ");
         Stream_buf_append_str(c, func_call_name);
         Stream_buf_append_str(c, ", i32 0, i32 0\n\t");
         char* write_name = generate_expression_llvm(((Func_call_node*) n)->args[0], "string", c);
@@ -499,7 +506,14 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 char* load_name = str_format("%%%d", var_c++);
                 char* bitcast_name = str_format("%%%d", var_c++);
                 char* extra_extra_name = str_format("%%%d", var_c++);
-                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = add i32 1, %s\n\tstore i32 %s, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n\tstore %s %s, %s* %s\n", extra_name, list, len_name, extra_name, add_name, len_name, add_name, extra_name, list_name, list, load_name, list_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name, types(type(append->args[1])), appended, types(type(append->args[1])), extra_extra_name));
+                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = add i32 1, %s\n\tstore i32 %s, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", extra_name, list, len_name, extra_name, add_name, len_name, add_name, extra_name, list_name, list, load_name, list_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name));
+                if (strcmp(types(type(append->args[1])), "%.arr") == 0) {
+                    char* load_name = str_format("%%%d", var_c++);
+                    Stream_buf_append_str(code, str_format("\t%s = load %%.arr, %%.arr* %s\n", load_name, appended));
+                    Stream_buf_append_str(code, str_format("\tstore %%.arr %s, %%.arr* %s\n",  load_name, extra_extra_name));
+                } else {
+                    Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %s\n", types(type(append->args[1])), appended, types(type(append->args[1])), extra_extra_name));
+                }
             } else if (strcmp(type(append->args[0]), "string") == 0) {
                 char* len_name = str_format("%%%d", var_c++);
                 char* actual_len = str_format("%%%d", var_c++);
@@ -532,9 +546,9 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
             } else if (strcmp(type(func->args[0]), "bool") == 0) {
                 needs_true_const = 1; //  STRFORMAT
                 needs_false_const = 1;
-                char* t = str_format("true%d", label_c++);
-                char* f = str_format("false%d", label_c++);
-                char* end = str_format("end%d", label_c++);
+                char* t = str_format("%d", label_c++);
+                char* f = str_format("%d", label_c++);
+                char* end = str_format("%d", label_c++);
                 var_c++;
                 Stream_buf_append_str(code, "\tbr i1 ");
                 Stream_buf_append_str(code, write_arg_name);
@@ -617,7 +631,7 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 }
             }
             log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type)); //  STRFORMAT
-            Stream_buf_append_str(mini_code, str_format("define %s @%s(%s) {\nentry:\n", types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name, arg_code));
+            Stream_buf_append_str(mini_code, str_format("define %s @%s(%s) {\nentry:\n", strcmp(types(((Func_decl_node*) n)->type), "%.arr") == 0 ? "%.arr*" : types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name, arg_code));
             strcpy(current_function_return_type, ((Func_decl_node*) n)->type);
             enter_function();
             generate_statement(((Func_decl_node*) n)->body, mini_code);
@@ -630,7 +644,7 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
         } else if (n->n_type == RET_NODE) {
             char* ret_name = generate_expression_llvm(((Return_node*) n)->expr, current_function_return_type, code);
             var_c++;
-            Stream_buf_append_str(code, str_format("\tret %s %s\n", types(current_function_return_type), ret_name));
+            Stream_buf_append_str(code, str_format("\tret %s %s\n", strcmp(types(current_function_return_type), "%.arr") == 0 ? "%.arr*" : types(current_function_return_type), ret_name));
         } else {
             fprintf(stderr, "gizmo: This feature (%d) is either not yet implemented in the back-end or there is an internal compiler error\nPlease report this error, along with the number in the parenthesis, to the developers at gizmo@gizmolang.org\n", n->n_type);
             exit(-1);

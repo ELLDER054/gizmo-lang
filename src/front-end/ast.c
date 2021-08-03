@@ -249,7 +249,7 @@ void free_If_node(If_node* i) {
     free(i);
 }
 
-Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a function call node */
+Func_call_node* new_Func_call_node(char* name, char* type, Node** args) { /* Initializes a function call node */
     Func_call_node* func = malloc(sizeof(Func_call_node));
     memset(func, 0, sizeof(Func_call_node));
     
@@ -278,6 +278,9 @@ Func_call_node* new_Func_call_node(char* name, Node** args) { /* Initializes a f
 
     func->name = malloc(strlen(name) + 1);
     strcpy(func->name, name);
+
+    func->type = malloc(strlen(type) + 1);
+    strcpy(func->type, type);
 
     return func;
 }

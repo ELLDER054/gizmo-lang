@@ -171,8 +171,8 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
-        case LEN_NODE:
         case APPEND_NODE:
+        case LEN_NODE:
            return symtab_find_global(((Func_call_node*) n)->name, "func")->type;
         case FUNC_DECL_NODE:
         case IF_NODE:
@@ -586,7 +586,7 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
     if (args_len != symtab_find_global(id, "func")->args_len) {
         Error(tokens[start], str_format("Wrong amount of arguments for function '%s'\nExpected %d, found %d", id, symtab_find_global(id, "func")->args_len, args_len), 0);
     }
-    return (Node*) new_Func_call_node(id, args);
+    return (Node*) new_Func_call_node(id, symtab_find_global(id, "func")->type, args);
 }
 
 Node* incomplete_initializers(char* t) { /* Returns the most low-level value for each type */
@@ -666,7 +666,7 @@ Node* function_call(int start) { /* A function call with a semi-colon */
         snprintf(error, 100, "Wrong amount of arguments for function `%s`", id);
         Error(tokens[start], error, 0);
     }
-    return (Node*) new_Func_call_node(id, args);
+    return (Node*) new_Func_call_node(id, symtab_find_global(id, "func")->type, args);
 } 
 
 Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
@@ -785,11 +785,10 @@ Node* skip_statement(int start) {
         return NULL;
     }
     consume(T_SEMI_COLON, "Expected semi-colon after 'break' or 'continue'");
-    char code[100]; // LIMIT
     if (nested_loops == 0) {
         Error(tokens[start], "'break' or 'continue' statements must only be in loops", 0);
     }
-    snprintf(code, 100, "br label %%%s\n", strcmp(key, "break") == 0 ? current_loop_end : current_loop_begin);
+    char* code = str_format("br label %%%s\n", strcmp(key, "break") == 0 ? current_loop_end : current_loop_begin);
     return (Node*) new_Skip_node(strcmp(key, "break") == 0 ? 0 : 1, code);
 }
 
@@ -818,12 +817,9 @@ Node* if_statement(int start) {
             Error(tokens[ind - 1], "Expected body after else", 1);
         }
     }
-    char bcgid[100]; // LIMITS
-    snprintf(bcgid, 100, ".%d", id_c++);
-    char elcgid[100];
-    snprintf(elcgid, 100, ".%d", id_c++);
-    char ecgid[100];
-    snprintf(ecgid, 100, ".%d", id_c++);
+    char* bcgid = str_format(".%d", id_c++);
+    char* elcgid = str_format(".%d", id_c++);
+    char* ecgid = str_format(".%d", id_c++);
     return (Node*) new_If_node(condition, body, else_body, bcgid, ecgid, elcgid);
 }
 
