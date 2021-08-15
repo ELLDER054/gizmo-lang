@@ -143,7 +143,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case INTEGER_NODE:
             return "int";
         case LIST_NODE:
-            return ((List_node*) n)->type;
+            return ((Array_node*) n)->type;
         case INDEX_NODE:
             str = heap_alloc(100);
             memset(str, 0, 100);
@@ -419,7 +419,7 @@ Node* indexed(int start) {
         } else if (strcmp(type(expr), "string") == 0) {
             strcpy(typ, "char");
         } else {
-            printf("In dev error: Cannot index a non-list value\n");
+            printf("In dev error: Cannot index a non-array value\n");
             exit(-1);
         }
         expr = (Node*) new_Index_node(expr, value, typ, "");
@@ -477,25 +477,25 @@ Node* primary(int start) {
     }
 
     if (expect_type(T_LEFT_BRACKET) != NULL) {
-        Node* list[1024]; // LIMIT
-        memset(list, 0, 1024); // AND HERE
+        Node* array[1024]; // LIMIT
+        memset(array, 0, 1024); // AND HERE
         int len = 0;
         int save = ind - 1;
-        func_expr_args(ind, list, &len);
-        char* should_be_type = type(list[0]);
+        func_expr_args(ind, array, &len);
+        char* should_be_type = type(array[0]);
         for (int i = 1; i < len; i++) {
-            if (strcmp(type(list[i]), should_be_type) != 0) {
+            if (strcmp(type(array[i]), should_be_type) != 0) {
                 Error(tokens[save], "Expected all array elements to be the same type", 0);
             }
         }
         consume(T_RIGHT_BRACKET, "Expect ']' after array elements");
-        char list_type[MAX_TYPE_LEN];
+        char array_type[MAX_TYPE_LEN];
         if (len == 0) {
             Error(tokens[save], "Cannot figure out what type this array is", 0);
         }
-        strcpy(list_type, type(list[0]));
-        strcat(list_type, "[]");
-        return (Node*) new_List_node(list_type, list);
+        strcpy(array_type, type(array[0]));
+        strcat(array_type, "[]");
+        return (Node*) new_Array_node(array_type, array);
     }
     
     ind = start;

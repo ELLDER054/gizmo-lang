@@ -269,31 +269,31 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
     if (n->n_type == INTEGER_NODE) {
         return str_format("%d", ((Integer_node*) n)->value);
     } else if (n->n_type == LIST_NODE) {
-        char* end_list_name = str_format("%%%d", var_c++);
-        char* list_name = str_format("%%%d", var_c++);
+        char* end_array_name = str_format("%%%d", var_c++);
+        char* array_name = str_format("%%%d", var_c++);
         char* allarr_name = str_format("%%%d", var_c++);
         char* len_name = str_format("%%%d", var_c++);
-        List_node* list = (List_node*) n;
-        char* len = str_format("%d", list->len);
-        Stream_buf_append_str(c, str_format("\t%s = alloca %%.arr\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = alloca [%s x %s]\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\tstore i32 %s, i32* %s\n", end_list_name, list_name, end_list_name, allarr_name, len, types(get_type_from(list->type)), len_name, end_list_name, len, len_name));
-        for (int i = 0; i < list->len; i++) {
-            char* element_name = generate_expression_llvm(list->elements[i], type(list->elements[i]), c);
+        Array_node* array = (Array_node*) n;
+        char* len = str_format("%d", array->len);
+        Stream_buf_append_str(c, str_format("\t%s = alloca %%.arr\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = alloca [%s x %s]\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\tstore i32 %s, i32* %s\n", end_array_name, array_name, end_array_name, allarr_name, len, types(get_type_from(array->type)), len_name, end_array_name, len, len_name));
+        for (int i = 0; i < array->len; i++) {
+            char* element_name = generate_expression_llvm(array->elements[i], type(array->elements[i]), c);
             char* name = str_format("%%%d", var_c++);
             char* current_number = str_format("%d", i);
-            Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 %s\n", name, len, types(get_type_from(list->type)), len, types(get_type_from(list->type)), allarr_name, current_number));
+            Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 %s\n", name, len, types(get_type_from(array->type)), len, types(get_type_from(array->type)), allarr_name, current_number));
 
-            if (strcmp(types(get_type_from(list->type)), "%.arr") == 0) {
+            if (strcmp(types(get_type_from(array->type)), "%.arr") == 0) {
                 char* load_name = str_format("%%%d", var_c++);
                 Stream_buf_append_str(c, str_format("\t%s = load %%.arr, %%.arr* %s\n", load_name, element_name));
-                Stream_buf_append_str(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(list->type)), load_name, types(get_type_from(list->type)), name));
+                Stream_buf_append_str(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(array->type)), load_name, types(get_type_from(array->type)), name));
             } else {
-                Stream_buf_append_str(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(list->type)), element_name, types(get_type_from(list->type)), name));
+                Stream_buf_append_str(c, str_format("\tstore %s %s, %s* %s\n", types(get_type_from(array->type)), element_name, types(get_type_from(array->type)), name));
             }
         }
         char* end_getel_name = str_format("%%%d", var_c++);
         char* bitcast_name = str_format("%%%d", var_c++);
-        Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 0\n\t%s = bitcast %s* %s to i8*\n\tstore i8* %s, i8** %s\n", end_getel_name, len, types(get_type_from(list->type)), len, types(get_type_from(list->type)), allarr_name, bitcast_name, types(get_type_from(list->type)), end_getel_name, bitcast_name, list_name));
-        return end_list_name;
+        Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 0\n\t%s = bitcast %s* %s to i8*\n\tstore i8* %s, i8** %s\n", end_getel_name, len, types(get_type_from(array->type)), len, types(get_type_from(array->type)), allarr_name, bitcast_name, types(get_type_from(array->type)), end_getel_name, bitcast_name, array_name));
+        return end_array_name;
     } else if (n->n_type == INDEX_NODE) {
         Index_node* index = (Index_node*) n;
         char* index_value_name = generate_expression_llvm(index->expr, type(index->expr), c);
@@ -303,13 +303,16 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
             char* loadi8_name = str_format("%%%d", var_c++);
             char* bitcast_arr_name = str_format("%%%d", var_c++);
             char* extra_extra_name = str_format("%%%d", var_c++);
-            char* extra_name = str_format("%%%d", var_c++);
             Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n", arr_name, index_id));
             Stream_buf_append_str(c, str_format("\t%s = load i8*, i8** %s\n", loadi8_name, arr_name));
             Stream_buf_append_str(c, str_format("\t%s = bitcast i8* %s to %s*\n", bitcast_arr_name, loadi8_name, types(index->type)));
             Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", extra_extra_name, types(index->type), types(index->type), bitcast_arr_name, index_value_name));
-            Stream_buf_append_str(c, str_format("\t%s = load %s, %s* %s\n", extra_name, types(index->type), types(index->type), extra_extra_name));
-            return extra_name;
+            if (strcmp(types(index->type), "%.arr") != 0) {
+                char* extra_name = str_format("%%%d", var_c++);
+                Stream_buf_append_str(c, str_format("\t%s = load %s, %s* %s\n", extra_name, types(index->type), types(index->type), extra_extra_name));
+                return extra_name;
+            }
+            return extra_extra_name;
         } else {
             char* arr_name = str_format("%%%d", var_c++);
             char* loadi8_name = str_format("%%%d", var_c++);
@@ -318,14 +321,13 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
             return loadi8_name;
         }
     } if (n->n_type == ID_NODE) {
-        char* id = str_format("%%%d", var_c);
         if (((Identifier_node*) n)->type[strlen(((Identifier_node*) n)->type) - 1] != ']') {
-            var_c++;
+            char* id = str_format("%%%d", var_c++);
             Stream_buf_append_str(c, str_format("\t%s = load %s, %s* %%%s\n", id, types(((Identifier_node*) n)->type), types(((Identifier_node*) n)->type), ((Identifier_node*) n)->codegen_name));
+            return id;
         } else {
             return str_format("%%%s", ((Identifier_node*) n)->codegen_name);
         }
-        return id;
     } else if (n->n_type == CHAR_NODE) {
         return str_format("%d", (int)(((Char_node*) n)->value));
     } else if (n->n_type == STRING_NODE) {
@@ -496,17 +498,17 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
             Stream_buf_append_str(code, ":\n");
         } else if (n->n_type == APPEND_NODE) {
             Func_call_node* append = (Func_call_node*) n;
-            char* list = generate_expression_llvm(append->args[0], type(append->args[0]), code);
+            char* array = generate_expression_llvm(append->args[0], type(append->args[0]), code);
             char* appended = generate_expression_llvm(append->args[1], type(append->args[1]), code);
             if (type(append->args[0])[strlen(type(append->args[0])) - 1] == ']') {
                 char* extra_name = str_format("%%%d", var_c++);
                 char* len_name = str_format("%%%d", var_c++);
                 char* add_name = str_format("%%%d", var_c++);
-                char* list_name = str_format("%%%d", var_c++);
+                char* array_name = str_format("%%%d", var_c++);
                 char* load_name = str_format("%%%d", var_c++);
                 char* bitcast_name = str_format("%%%d", var_c++);
                 char* extra_extra_name = str_format("%%%d", var_c++);
-                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = add i32 1, %s\n\tstore i32 %s, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", extra_name, list, len_name, extra_name, add_name, len_name, add_name, extra_name, list_name, list, load_name, list_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name));
+                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = add i32 1, %s\n\tstore i32 %s, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", extra_name, array, len_name, extra_name, add_name, len_name, add_name, extra_name, array_name, array, load_name, array_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name));
                 if (strcmp(types(type(append->args[1])), "%.arr") == 0) {
                     char* load_name = str_format("%%%d", var_c++);
                     Stream_buf_append_str(code, str_format("\t%s = load %%.arr, %%.arr* %s\n", load_name, appended));
@@ -527,7 +529,7 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 needs_strlen = 1;
                 needs_malloc = 1;
                 needs_strcpy = 1;
-                Stream_buf_append_str(code, str_format("\t%s = call i32 @strlen(i8* %s)\n\t%s = add i32 2, %s\n\t%s = call i8* @malloc(i32 %s)\n\tstore i8 0, i8* %s\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\t%s = alloca [2 x i8]\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tstore i8 %s, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 1\n\tstore i8 0, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\tstore i8* %s, i8** %%%s\n", len_name, list, actual_len, len_name, malloc_name, actual_len, malloc_name, malloc_name, list, temp_name, first_char, temp_name, appended, first_char, second_char, temp_name, second_char, end_temp_name, temp_name, malloc_name, end_temp_name, malloc_name, ((Identifier_node*) append->args[0])->codegen_name));
+                Stream_buf_append_str(code, str_format("\t%s = call i32 @strlen(i8* %s)\n\t%s = add i32 2, %s\n\t%s = call i8* @malloc(i32 %s)\n\tstore i8 0, i8* %s\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\t%s = alloca [2 x i8]\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tstore i8 %s, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 1\n\tstore i8 0, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\tstore i8* %s, i8** %%%s\n", len_name, array, actual_len, len_name, malloc_name, actual_len, malloc_name, malloc_name, array, temp_name, first_char, temp_name, appended, first_char, second_char, temp_name, second_char, end_temp_name, temp_name, malloc_name, end_temp_name, malloc_name, ((Identifier_node*) append->args[0])->codegen_name));
             }
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;

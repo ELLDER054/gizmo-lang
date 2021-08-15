@@ -64,7 +64,6 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case WHILE_NODE:
         case LIST_NODE:
         case INDEX_NODE:
-            break;
         case OPERATOR_NODE:
             print_oper(f, (Operator_node*) n);
             break;
@@ -351,9 +350,9 @@ void free_Integer_node(Integer_node* n) { /* Frees an integer node */
     free(n);
 }
 
-List_node* new_List_node(char* type, Node** elements) {
-    List_node* list = malloc(sizeof(List_node));
-    memset(list, 0, sizeof(List_node));
+Array_node* new_Array_node(char* type, Node** elements) {
+    Array_node* list = malloc(sizeof(Array_node));
+    memset(list, 0, sizeof(Array_node));
 
     list->n_type = LIST_NODE;
 
@@ -373,7 +372,7 @@ List_node* new_List_node(char* type, Node** elements) {
     return list;
 }
 
-void free_List_node(List_node* list) {
+void free_Array_node(Array_node* list) {
     int element_c = 0;
     while (element_c < list->len) {
         free_node(list->elements[element_c++]);
@@ -545,7 +544,7 @@ void free_node(Node* n) { /* Frees the given node */
             free_String_node((String_node*) n);
             break;
         case LIST_NODE:
-            free_List_node((List_node*) n);
+            free_Array_node((Array_node*) n);
             break;
         case INDEX_NODE:
             break;
