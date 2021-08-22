@@ -129,6 +129,7 @@ int needs_malloc = 0;
 int needs_strcpy = 0;
 int needs_strcat = 0;
 int needs_strlen = 0;
+int needs_memcpy = 0;
 
 int label_c = 0; // label count
 
@@ -506,16 +507,27 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 char* add_name = str_format("%%%d", var_c++);
                 char* array_name = str_format("%%%d", var_c++);
                 char* load_name = str_format("%%%d", var_c++);
-                char* bitcast_name = str_format("%%%d", var_c++);
+                char* alloc_name = str_format("%%%d", var_c++);
+                var_c++;
                 char* extra_extra_name = str_format("%%%d", var_c++);
-                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n\t%s = add i32 1, %s\n\tstore i32 %s, i32* %s\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = load i8*, i8** %s\n\t%s = bitcast i8* %s to %s*\n\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", extra_name, array, len_name, extra_name, add_name, len_name, add_name, extra_name, array_name, array, load_name, array_name, bitcast_name, load_name, types(type(append->args[1])), extra_extra_name, types(type(append->args[1])), types(type(append->args[1])), bitcast_name, len_name));
-                if (strcmp(types(type(append->args[1])), "%.arr") == 0) {
+                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n", extra_name, array));
+                Stream_buf_append_str(code, str_format("\t%s = load i32, i32* %s\n", len_name, extra_name));
+                Stream_buf_append_str(code, str_format("\t%s = add i32 1, %s\n", add_name, len_name));
+                Stream_buf_append_str(code, str_format("\tstore i32 %s, i32* %s\n", add_name, extra_name));
+                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n", array_name, array));
+                Stream_buf_append_str(code, str_format("\t%s = load i8*, i8** %s\n", load_name, array_name));
+                needs_malloc = 1;
+                Stream_buf_append_str(code, str_format("\t%s = call i8* @malloc(i32 %s)\n", alloc_name, len_name, add_name));
+                needs_memcpy = 1;
+                Stream_buf_append_str(code, str_format("\tcall i32 @memcpy(i8* %s, i8* %s, i32 %s)\n", alloc_name, load_name, add_name));
+                Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds i8, i8* %s, i32 %s\n", extra_extra_name, alloc_name, len_name));
+                /*if (strcmp(types(type(append->args[1])), "%.arr") == 0) {
                     char* load_name = str_format("%%%d", var_c++);
                     Stream_buf_append_str(code, str_format("\t%s = load %%.arr, %%.arr* %s\n", load_name, appended));
                     Stream_buf_append_str(code, str_format("\tstore %%.arr %s, %%.arr* %s\n",  load_name, extra_extra_name));
                 } else {
                     Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %s\n", types(type(append->args[1])), appended, types(type(append->args[1])), extra_extra_name));
-                }
+                }*/
             } else if (strcmp(type(append->args[0]), "string") == 0) {
                 char* len_name = str_format("%%%d", var_c++);
                 char* actual_len = str_format("%%%d", var_c++);
@@ -529,6 +541,7 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 needs_strlen = 1;
                 needs_malloc = 1;
                 needs_strcpy = 1;
+                Stream_buf_append_str(code, str_format("\t%s = call i32 @strlen(i8* %s)\n\t%s = add i32 2, %s\n\t%s = call i8* @malloc(i32 %s)\n\tstore i8 0, i8* %s\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\t%s = alloca [2 x i8]\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tstore i8 %s, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 1\n\tstore i8 0, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\tstore i8* %s, i8** %%%s\n", len_name, array, actual_len, len_name, malloc_name, actual_len, malloc_name, malloc_name, array, temp_name, first_char, temp_name, appended, first_char, second_char, temp_name, second_char, end_temp_name, temp_name, malloc_name, end_temp_name, malloc_name, ((Identifier_node*) append->args[0])->codegen_name));
                 Stream_buf_append_str(code, str_format("\t%s = call i32 @strlen(i8* %s)\n\t%s = add i32 2, %s\n\t%s = call i8* @malloc(i32 %s)\n\tstore i8 0, i8* %s\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\t%s = alloca [2 x i8]\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tstore i8 %s, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 1\n\tstore i8 0, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\tstore i8* %s, i8** %%%s\n", len_name, array, actual_len, len_name, malloc_name, actual_len, malloc_name, malloc_name, array, temp_name, first_char, temp_name, appended, first_char, second_char, temp_name, second_char, end_temp_name, temp_name, malloc_name, end_temp_name, malloc_name, ((Identifier_node*) append->args[0])->codegen_name));
             }
         } else if (n->n_type == WRITE_NODE) {
@@ -564,7 +577,6 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 Stream_buf_append_str(code, end);
                 Stream_buf_append_str(code, "\n");
                 Stream_buf_append_str(code, f);
-                Stream_buf_append_str(code, ":\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.false, i32 0, i32 0))\n\tbr label %");
                 Stream_buf_append_str(code, end);
                 Stream_buf_append_str(code, "\n");
                 Stream_buf_append_str(code, end);
@@ -728,6 +740,10 @@ void generate(Node** ast, int size, Stream_buf* code, char* file_name) { // crea
     if (needs_strcmp) {
         Stream_buf_append_str(code, "declare i32 @strcmp(i8*, i8*)\n");
     }
+    if (needs_memcpy) {
+        Stream_buf_append_str(code, "declare i32 @memcpy(i8*, i8*, i32)\n");
+    }
     heap_free_all();
     symtab_destroy();
 }
+#include <stdio.h>
