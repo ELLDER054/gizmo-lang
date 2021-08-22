@@ -561,9 +561,9 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
             } else if (strcmp(type(func->args[0]), "bool") == 0) {
                 needs_true_const = 1; //  STRFORMAT
                 needs_false_const = 1;
-                char* t = str_format("%d", label_c++);
-                char* f = str_format("%d", label_c++);
-                char* end = str_format("%d", label_c++);
+                char* t = str_format("true%d", label_c++);
+                char* f = str_format("false%d", label_c++);
+                char* end = str_format("end%d", label_c++);
                 var_c++;
                 Stream_buf_append_str(code, "\tbr i1 ");
                 Stream_buf_append_str(code, write_arg_name);
@@ -577,6 +577,7 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 Stream_buf_append_str(code, end);
                 Stream_buf_append_str(code, "\n");
                 Stream_buf_append_str(code, f);
+                Stream_buf_append_str(code, ":\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.false, i32 0, i32 0))\n\tbr label %");
                 Stream_buf_append_str(code, end);
                 Stream_buf_append_str(code, "\n");
                 Stream_buf_append_str(code, end);
