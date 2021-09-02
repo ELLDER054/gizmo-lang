@@ -18,7 +18,7 @@ typedef enum {
     SKIP_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
-    LIST_NODE,
+    ARRAY_NODE,
     INDEX_NODE,
     BOOL_NODE,
     STRING_NODE,
@@ -58,7 +58,7 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
-    char* type; // The type of the list
+    char* type; // The type of the array
     Node** elements; // Elements in the array
     int len; // Length of the array
 } Array_node;
@@ -144,7 +144,7 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
-    Node** statements; // The list of statements in the block
+    Node** statements; // The array of statements in the block
     int ssize; // Length of statements
 } Block_node;
 

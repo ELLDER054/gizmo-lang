@@ -17,11 +17,13 @@ int str_c = 1; // string count
 char* type(Node* n);
 
 void enter_function() { // save off the variable count
+    printf("Entering function, var_c = %d, save_var_c = %d\n", var_c, save_var_c);
     save_var_c = var_c;
     var_c = 0;
 }
 
 void leave_function() { // restore the variable count
+    printf("Leaving function, var_c = %d, save_var_c = %d\n", var_c, save_var_c);
     var_c = save_var_c;
     save_var_c = 0;
 }
@@ -269,18 +271,20 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
     log_trace("type: %d\n", n->n_type);
     if (n->n_type == INTEGER_NODE) {
         return str_format("%d", ((Integer_node*) n)->value);
-    } else if (n->n_type == LIST_NODE) {
+    } else if (n->n_type == ARRAY_NODE) {
         char* end_array_name = str_format("%%%d", var_c++);
         char* array_name = str_format("%%%d", var_c++);
         char* allarr_name = str_format("%%%d", var_c++);
         char* len_name = str_format("%%%d", var_c++);
         Array_node* array = (Array_node*) n;
         char* len = str_format("%d", array->len);
+        printf("%d: var_c is %d\n", __LINE__, var_c);
         Stream_buf_append_str(c, str_format("\t%s = alloca %%.arr\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n\t%s = alloca [%s x %s]\n\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\tstore i32 %s, i32* %s\n", end_array_name, array_name, end_array_name, allarr_name, len, types(get_type_from(array->type)), len_name, end_array_name, len, len_name));
         for (int i = 0; i < array->len; i++) {
             char* element_name = generate_expression_llvm(array->elements[i], type(array->elements[i]), c);
             char* name = str_format("%%%d", var_c++);
             char* current_number = str_format("%d", i);
+            printf("%d: var_c is %d\n", __LINE__, var_c);
             Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 %s\n", name, len, types(get_type_from(array->type)), len, types(get_type_from(array->type)), allarr_name, current_number));
 
             if (strcmp(types(get_type_from(array->type)), "%.arr") == 0) {
@@ -293,6 +297,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
         }
         char* end_getel_name = str_format("%%%d", var_c++);
         char* bitcast_name = str_format("%%%d", var_c++);
+        printf("%d: var_c is %d\n", __LINE__, var_c);
         Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [%s x %s], [%s x %s]* %s, i32 0, i32 0\n\t%s = bitcast %s* %s to i8*\n\tstore i8* %s, i8** %s\n", end_getel_name, len, types(get_type_from(array->type)), len, types(get_type_from(array->type)), allarr_name, bitcast_name, types(get_type_from(array->type)), end_getel_name, bitcast_name, array_name));
         return end_array_name;
     } else if (n->n_type == INDEX_NODE) {
@@ -304,6 +309,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
             char* loadi8_name = str_format("%%%d", var_c++);
             char* bitcast_arr_name = str_format("%%%d", var_c++);
             char* extra_extra_name = str_format("%%%d", var_c++);
+            printf("%d: var_c is %d\n", __LINE__, var_c);
             Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n", arr_name, index_id));
             Stream_buf_append_str(c, str_format("\t%s = load i8*, i8** %s\n", loadi8_name, arr_name));
             Stream_buf_append_str(c, str_format("\t%s = bitcast i8* %s to %s*\n", bitcast_arr_name, loadi8_name, types(index->type)));
@@ -317,6 +323,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
         } else {
             char* arr_name = str_format("%%%d", var_c++);
             char* loadi8_name = str_format("%%%d", var_c++);
+            printf("%d: var_c is %d\n", __LINE__, var_c);
             Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds %s, %s* %s, i32 %s\n", arr_name, types(index->type), types(index->type), index_id, index_value_name));
             Stream_buf_append_str(c, str_format("\t%s = load i8, i8* %s\n", loadi8_name, arr_name));
             return loadi8_name;
@@ -377,6 +384,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
         if (type(len->args[0])[strlen(type(len->args[0])) - 1] == ']') {
             char* extra_name = str_format("%%%d", var_c++);
             char* len_name = str_format("%%%d", var_c++);
+            printf("%d: var_c is %d\n", __LINE__, var_c);
             Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n", extra_name, len_value, len_name, extra_name));
             return len_name;
         } else if (strcmp(type(len->args[0]), "string") == 0) {
@@ -397,14 +405,17 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
         Stream_buf_append_str(c, func_call_name);
         Stream_buf_append_str(c, " = alloca [1024 x i8], align 8\n\t");
         Stream_buf_append_str(c, temp_var);
+        printf("%d: var_c is %d\n", __LINE__, var_c);
         Stream_buf_append_str(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* ");
         Stream_buf_append_str(c, func_call_name);
         Stream_buf_append_str(c, ", i32 0, i32 0\n\t");
         char* write_name = generate_expression_llvm(((Func_call_node*) n)->args[0], "string", c);
+        printf("%d: var_c is %d\n", __LINE__, var_c);
         Stream_buf_append_str(c, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
         Stream_buf_append_str(c, write_name);
         var_c++;
         Stream_buf_append_str(c, ")\n\t");
+        printf("%d: var_c is %d\n", __LINE__, var_c);
         Stream_buf_append_str(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
         Stream_buf_append_str(c, temp_var);
         var_c++;
@@ -430,6 +441,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
 }
 
 void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for a statement
+        printf("%d: var_c is %d\n", __LINE__, var_c);
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char* var_name = generate_expression_llvm(v->value, v->type, code);
@@ -498,6 +510,7 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
             Stream_buf_append_str(code, i->end_cgid);
             Stream_buf_append_str(code, ":\n");
         } else if (n->n_type == APPEND_NODE) {
+            printf("%d: var_c is %d\n", __LINE__, var_c);
             Func_call_node* append = (Func_call_node*) n;
             char* array = generate_expression_llvm(append->args[0], type(append->args[0]), code);
             char* appended = generate_expression_llvm(append->args[1], type(append->args[1]), code);
@@ -510,17 +523,23 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 char* alloc_name = str_format("%%%d", var_c++);
                 var_c++;
                 char* extra_extra_name = str_format("%%%d", var_c++);
+                char* bitcast_name = str_format("%%%d", var_c++);
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n", extra_name, array));
                 Stream_buf_append_str(code, str_format("\t%s = load i32, i32* %s\n", len_name, extra_name));
                 Stream_buf_append_str(code, str_format("\t%s = add i32 1, %s\n", add_name, len_name));
                 Stream_buf_append_str(code, str_format("\tstore i32 %s, i32* %s\n", add_name, extra_name));
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 1\n", array_name, array));
                 Stream_buf_append_str(code, str_format("\t%s = load i8*, i8** %s\n", load_name, array_name));
                 needs_malloc = 1;
-                Stream_buf_append_str(code, str_format("\t%s = call i8* @malloc(i32 %s)\n", alloc_name, len_name, add_name));
+                Stream_buf_append_str(code, str_format("\t%s = call i8* @malloc(i32 %s)\n", alloc_name, add_name));
                 needs_memcpy = 1;
                 Stream_buf_append_str(code, str_format("\tcall i32 @memcpy(i8* %s, i8* %s, i32 %s)\n", alloc_name, load_name, add_name));
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, str_format("\t%s = getelementptr inbounds i8, i8* %s, i32 %s\n", extra_extra_name, alloc_name, len_name));
+                Stream_buf_append_str(code, str_format("\t%s = bitcast i8* %s to %s*\n", bitcast_name, extra_extra_name, types(type(append->args[1]))));
+                Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %s\n", types(type(append->args[1])), appended, types(type(append->args[1])), bitcast_name));
                 /*if (strcmp(types(type(append->args[1])), "%.arr") == 0) {
                     char* load_name = str_format("%%%d", var_c++);
                     Stream_buf_append_str(code, str_format("\t%s = load %%.arr, %%.arr* %s\n", load_name, appended));
@@ -529,6 +548,7 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                     Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %s\n", types(type(append->args[1])), appended, types(type(append->args[1])), extra_extra_name));
                 }*/
             } else if (strcmp(type(append->args[0]), "string") == 0) {
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 char* len_name = str_format("%%%d", var_c++);
                 char* actual_len = str_format("%%%d", var_c++);
                 char* malloc_name = str_format("%%%d", var_c++);
@@ -541,7 +561,8 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 needs_strlen = 1;
                 needs_malloc = 1;
                 needs_strcpy = 1;
-                Stream_buf_append_str(code, str_format("\t%s = call i32 @strlen(i8* %s)\n\t%s = add i32 2, %s\n\t%s = call i8* @malloc(i32 %s)\n\tstore i8 0, i8* %s\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\t%s = alloca [2 x i8]\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tstore i8 %s, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 1\n\tstore i8 0, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\tstore i8* %s, i8** %%%s\n", len_name, array, actual_len, len_name, malloc_name, actual_len, malloc_name, malloc_name, array, temp_name, first_char, temp_name, appended, first_char, second_char, temp_name, second_char, end_temp_name, temp_name, malloc_name, end_temp_name, malloc_name, ((Identifier_node*) append->args[0])->codegen_name));
+                printf("%d: var_c is %d\n", __LINE__, var_c);
+                printf("%d\n", var_c);
                 Stream_buf_append_str(code, str_format("\t%s = call i32 @strlen(i8* %s)\n\t%s = add i32 2, %s\n\t%s = call i8* @malloc(i32 %s)\n\tstore i8 0, i8* %s\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\t%s = alloca [2 x i8]\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tstore i8 %s, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 1\n\tstore i8 0, i8* %s\n\t%s = getelementptr inbounds [2 x i8], [2 x i8]* %s, i32 0, i32 0\n\tcall i8* @strcpy(i8* %s, i8* %s)\n\tstore i8* %s, i8** %%%s\n", len_name, array, actual_len, len_name, malloc_name, actual_len, malloc_name, malloc_name, array, temp_name, first_char, temp_name, appended, first_char, second_char, temp_name, second_char, end_temp_name, temp_name, malloc_name, end_temp_name, malloc_name, ((Identifier_node*) append->args[0])->codegen_name));
             }
         } else if (n->n_type == WRITE_NODE) {
@@ -550,11 +571,13 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
             char* write_arg_name = generate_expression_llvm(func->args[0], type(func->args[0]), code);
             if (strcmp(type(func->args[0]), "int") == 0) {
                 needs_num_const = 1; //  STRFORMAT
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.num, i32 0, i32 0), i32 ");
                 Stream_buf_append_str(code, write_arg_name); //  STRFORMAT
                 Stream_buf_append_str(code, ")");
             } else if (strcmp(type(func->args[0]), "string") == 0) {
                 needs_str_const = 1;
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
                 Stream_buf_append_str(code, write_arg_name); //  STRFORMAT
                 Stream_buf_append_str(code, ")");
@@ -573,10 +596,12 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 Stream_buf_append_str(code, f);
                 Stream_buf_append_str(code, "\n");
                 Stream_buf_append_str(code, t);
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, ":\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([6 x i8], [6 x i8]* @.true, i32 0, i32 0))\n\tbr label %");
                 Stream_buf_append_str(code, end);
                 Stream_buf_append_str(code, "\n");
                 Stream_buf_append_str(code, f);
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, ":\n\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([7 x i8], [7 x i8]* @.false, i32 0, i32 0))\n\tbr label %");
                 Stream_buf_append_str(code, end);
                 Stream_buf_append_str(code, "\n");
@@ -584,11 +609,13 @@ void generate_statement(Node* n, Stream_buf* code) { // generates llvm code for 
                 Stream_buf_append_str(code, ":");
             } else if (strcmp(type(func->args[0]), "char") == 0) {
                 needs_chr_const = 1; //  STRFORMAT
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.chr, i32 0, i32 0), i8 ");
                 Stream_buf_append_str(code, write_arg_name);
                 Stream_buf_append_str(code, ")");
             } else if (strcmp(type(func->args[0]), "real") == 0) {
                 needs_real_const = 1; //  STRFORMAT
+                printf("%d: var_c is %d\n", __LINE__, var_c);
                 Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.real, i32 0, i32 0), double ");
                 Stream_buf_append_str(code, write_arg_name);
                 Stream_buf_append_str(code, ")");

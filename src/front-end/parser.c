@@ -142,7 +142,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
             return "int";
-        case LIST_NODE:
+        case ARRAY_NODE:
             return ((Array_node*) n)->type;
         case INDEX_NODE:
             str = heap_alloc(100);

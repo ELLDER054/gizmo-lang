@@ -62,7 +62,7 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case IF_NODE:
         case SKIP_NODE:
         case WHILE_NODE:
-        case LIST_NODE:
+        case ARRAY_NODE:
         case INDEX_NODE:
         case OPERATOR_NODE:
             print_oper(f, (Operator_node*) n);
@@ -351,34 +351,34 @@ void free_Integer_node(Integer_node* n) { /* Frees an integer node */
 }
 
 Array_node* new_Array_node(char* type, Node** elements) {
-    Array_node* list = malloc(sizeof(Array_node));
-    memset(list, 0, sizeof(Array_node));
+    Array_node* array = malloc(sizeof(Array_node));
+    memset(array, 0, sizeof(Array_node));
 
-    list->n_type = LIST_NODE;
+    array->n_type = ARRAY_NODE;
 
-    list->type = malloc(strlen(type) + 1);
-    strcpy(list->type, type);
+    array->type = malloc(strlen(type) + 1);
+    strcpy(array->type, type);
     int len;
     for (len = 0;; len++) {
         if (elements[len] == NULL) {
             break;
         }
     }
-    list->len = len;
-    list->elements = malloc(len * sizeof(Node*));
+    array->len = len;
+    array->elements = malloc(len * sizeof(Node*));
     for (int element_c = 0; element_c < len; element_c++) {
-        list->elements[element_c] = elements[element_c];
+        array->elements[element_c] = elements[element_c];
     }
-    return list;
+    return array;
 }
 
-void free_Array_node(Array_node* list) {
+void free_Array_node(Array_node* array) {
     int element_c = 0;
-    while (element_c < list->len) {
-        free_node(list->elements[element_c++]);
+    while (element_c < array->len) {
+        free_node(array->elements[element_c++]);
     }
-    free(list->type);
-    free(list);
+    free(array->type);
+    free(array);
 }
 
 Index_node* new_Index_node(Node* id, Node* expr, char* type, char* cgid) {
@@ -543,7 +543,7 @@ void free_node(Node* n) { /* Frees the given node */
         case STRING_NODE:
             free_String_node((String_node*) n);
             break;
-        case LIST_NODE:
+        case ARRAY_NODE:
             free_Array_node((Array_node*) n);
             break;
         case INDEX_NODE:
