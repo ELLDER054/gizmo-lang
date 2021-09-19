@@ -2,7 +2,8 @@
 #include <stdlib.h>
 #include <string.h>
 #include <stdint.h>
-#include "streambuf.h"
+#include <stdarg.h>
+#include "tools.h"
 
 Stream_buf* new_Stream_buf(uint8_t* buf, int len) {
     Stream_buf* stream_buf = malloc(sizeof(Stream_buf));
@@ -43,4 +44,32 @@ void Stream_buf_append(Stream_buf* s, uint8_t* to_append, int len) {
 void free_Stream_buf(Stream_buf* s) {
     free(s->buf);
     free(s);
+}
+    
+char* str_format(const char* fmt, ...) { // returns a formatted string
+    int size = 0;
+    char *p = NULL;
+    va_list ap;
+
+    va_start(ap, fmt);
+    size = vsnprintf(p, size, fmt, ap);
+    va_end(ap);
+
+    if (size < 0)
+        return NULL;
+
+    size++;             /* For '\0' */
+    p = malloc(size);
+    if (p == NULL)
+        return NULL;
+
+    va_start(ap, fmt);
+    size = vsnprintf(p, size, fmt, ap);
+    va_end(ap);
+
+    if (size < 0) {
+        return NULL;
+    }
+
+    return p;
 }

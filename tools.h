@@ -1,5 +1,5 @@
-#ifndef STREAMBUF_H
-#define STREAMBUF_H
+#ifndef COMPILER_H
+#define COMPILER_H
 
 #include <stdint.h>
 
@@ -14,4 +14,6 @@ void Stream_buf_append_str(Stream_buf* s, char* to_append);
 void Stream_buf_append(Stream_buf* s, uint8_t* to_append, int len);
 void free_Stream_buf(Stream_buf* s);
 
-#endif /* STREAMBUF_H */
+char* str_format(const char* fmt, ...);
+
+#endif // COMPILER_H

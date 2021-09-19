@@ -1,7 +1,0 @@
-
-int say_hello() {
-    write("hello!\n");
-    return 0;
-}
-
-say_hello();
