@@ -37,23 +37,70 @@ void lex(char* code, Token** tokens) {
         char ch = code[pos];
         
         Token_t t = -1;
-        switch (ch) {
+        Token_t double_t = -1;
+        Token_t equal_t = -1;
+        switch (ch) { // Symbol tokens
             case '+':
                 t = ADD_T;
+                double_t = ADD_ADD_T;
+                equal_t = ADD_EQUAL_T;
                 break;
             case '-':
                 t = SUB_T;
+                double_t = SUB_SUB_T;
+                equal_t = SUB_EQUAL_T;
                 break;
             case '*':
                 t = MUL_T;
+                double_t = MUL_MUL_T;
+                equal_t = MUL_EQUAL_T;
                 break;
             case '/':
                 t = DIV_T;
+                double_t = DIV_DIV_T;
+                equal_t = DIV_EQUAL_T;
+                break;
+            case '=':
+                t = EQUAL_T;
+                double_t = EQUAL_EQUAL_T;
+                // because double_t and equal_t would be the same, we don't need to assign equal_t
+                break;
+            case ';':
+                t = SEMI_COLON_T;
+                break;
+            case '(':
+                t = LEFT_PAREN_T;
+                break;
+            case ')':
+                t = RIGHT_PAREN_T;
+                break;
+            case '[':
+                t = LEFT_BRACKET_T;
+                break;
+            case ']':
+                t = RIGHT_BRACKET_T;
+                break;
+            case '{':
+                t = LEFT_BRACE_T;
+                break;
+            case '}':
+                t = RIGHT_BRACE_T;
+                break;
+            case '!':
+                t = NOT_T;
                 break;
         }
         if (t != -1) {
+            if (double_t != -1 && code[pos + 1] == ch) {
+                tokens[tok_c++] = new_token(double_t, str_format("%c%c", ch, code[pos + 1]), lineno, col++);
+                pos++;
+            } else if (equal_t != -1 && code[pos + 1] == '=') {
+                tokens[tok_c++] = new_token(equal_t, str_format("%c=", ch), lineno, col++);
+                pos++;
+            } else {
+                tokens[tok_c++] = new_token(t, str_format("%c", ch), lineno, col++);
+            }
             pos++;
-            tokens[tok_c++] = new_token(t, str_format("%c", ch), lineno, col++);
             continue;
         }
 
