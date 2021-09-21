@@ -8,4 +8,4 @@ Some ways to contribute are:
 3. Getting support for Gizmo on your favorite IDE/editor
 
 ## Learn More
-Check out the [Gizmo website](gizmolang.org) for more information about the language and it's creation.
+Check out the [Gizmo website](http://gizmolang.org) for more information about the language and it's creation.
