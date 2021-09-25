@@ -113,8 +113,14 @@ void lex(char* code, Token** tokens) {
                 ch = code[++pos];
                 col++;
             }
+            
+            Token_t tok_t = ID_T;
+            char* id_buf = (char*) (id->buf);
+            if (strcmp(id_buf, "int") == 0 || strcmp(id_buf, "string") == 0 || strcmp(id_buf, "bool") == 0 || strcmp(id_buf, "char") == 0) {
+                tok_t = TYPE_T;
+            }
 
-            tokens[tok_c++] = new_token(ID_T, (char*) (id->buf), lineno, begin);
+            tokens[tok_c++] = new_token(tok_t, (char*) (id->buf), lineno, begin);
         } else if (is_digit(ch)) { // If ch is a digit
             Stream_buf* num = new_Stream_buf(NULL, 1); // Make a growable string
             

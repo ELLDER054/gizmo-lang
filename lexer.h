@@ -4,6 +4,7 @@
 typedef enum {
     NUM_T,
     ID_T,
+    TYPE_T,
     STR_T,
 
     ADD_T,
