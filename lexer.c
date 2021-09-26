@@ -4,7 +4,8 @@
 #include "tools.h"
 #include "lexer.h"
 
-int is_alpha(char c) { // Returns true if c is in the alphabet or is an underscore
+// Returns true if c is in the alphabet or is an underscore
+int is_alpha(char c) {
     return (c >= 0x41 && c <= 0x5A) || (c >= 0x61 && c <= 0x7A) || (c == 0x5F);
 }
 
@@ -27,67 +28,75 @@ Token* new_token(Token_t type, char* value, int lineno, int col) {
 }
 
 void lex(char* code, Token** tokens) {
-    int pos = 0; // Position in the code
-    int lineno = 1; // Current line number
-    int col = 0; // Length from beginning of the line to current position
-    int tok_c = 0; // Token count
+    // position in the code
+    int pos = 0;
+
+    // Current line number
+    int lineno = 1;
+
+    // Length from beginning of the line to current position
+    int col = 0;
+
+    // Token count
+    int tok_c = 0;
     int code_len = strlen(code);
     
     while (pos < code_len) {
         char ch = code[pos];
         
+        // Symbol tokens
         Token_t t = -1;
         Token_t double_t = -1;
         Token_t equal_t = -1;
-        switch (ch) { // Symbol tokens
+        switch (ch) {
             case '+':
-                t = ADD_T;
-                double_t = ADD_ADD_T;
-                equal_t = ADD_EQUAL_T;
+                t = T_PLUS;
+                double_t = T_PLUS_PLUS;
+                equal_t = T_PLUS_EQUALS;
                 break;
             case '-':
-                t = SUB_T;
-                double_t = SUB_SUB_T;
-                equal_t = SUB_EQUAL_T;
+                t = T_MINUS;
+                double_t = T_MINUS_MINUS;
+                equal_t = T_MINUS_EQUALS;
                 break;
             case '*':
-                t = MUL_T;
-                double_t = MUL_MUL_T;
-                equal_t = MUL_EQUAL_T;
+                t = T_TIMES;
+                double_t = T_TIMES_TIMES;
+                equal_t = T_TIMES_EQUALS;
                 break;
             case '/':
-                t = DIV_T;
-                double_t = DIV_DIV_T;
-                equal_t = DIV_EQUAL_T;
+                t = T_DIVIDE;
+                double_t = T_DIVIDE_DIVIDE;
+                equal_t = T_DIVIDE_EQUALS;
                 break;
             case '=':
-                t = EQUAL_T;
-                double_t = EQUAL_EQUAL_T;
-                // because double_t and equal_t would be the same, we don't need to assign equal_t
+                t = T_EQUALS;
+                double_t = T_EQUALS_EQUALS;
+                // Because double_t and equal_t would be the same, we don't need to assign equal_t
                 break;
             case ';':
-                t = SEMI_COLON_T;
+                t = T_SEMI_COLON;
                 break;
             case '(':
-                t = LEFT_PAREN_T;
+                t = T_LEFT_PAREN;
                 break;
             case ')':
-                t = RIGHT_PAREN_T;
+                t = T_RIGHT_PAREN;
                 break;
             case '[':
-                t = LEFT_BRACKET_T;
+                t = T_LEFT_BRACKET;
                 break;
             case ']':
-                t = RIGHT_BRACKET_T;
+                t = T_RIGHT_BRACKET;
                 break;
             case '{':
-                t = LEFT_BRACE_T;
+                t = T_LEFT_BRACE;
                 break;
             case '}':
-                t = RIGHT_BRACE_T;
+                t = T_RIGHT_BRACE;
                 break;
             case '!':
-                t = NOT_T;
+                t = T_NOT;
                 break;
         }
         if (t != -1) {
@@ -103,63 +112,76 @@ void lex(char* code, Token** tokens) {
             pos++;
             continue;
         }
-
-        if (is_alpha(ch)) { // If ch is in the alphabet or is an underscore
-            Stream_buf* id = new_Stream_buf(NULL, 1); // Make a growable string
+        
+        if (is_alpha(ch)) {
+            // Make a growable string
+            Stream_buf* id = new_Stream_buf(NULL, 1);
             
             int begin = col;
             while (is_alpha(ch) || is_digit(ch)) {
-                Stream_buf_append_str(id, str_format("%c", ch)); // Grow the string
+                // Grow the string
+                Stream_buf_append_str(id, str_format("%c", ch));
                 ch = code[++pos];
                 col++;
             }
             
-            Token_t tok_t = ID_T;
+            Token_t tok_t = T_ID;
             char* id_buf = (char*) (id->buf);
             if (strcmp(id_buf, "int") == 0 || strcmp(id_buf, "string") == 0 || strcmp(id_buf, "bool") == 0 || strcmp(id_buf, "char") == 0) {
-                tok_t = TYPE_T;
+                tok_t = T_TYPE;
             }
 
             tokens[tok_c++] = new_token(tok_t, (char*) (id->buf), lineno, begin);
-        } else if (is_digit(ch)) { // If ch is a digit
-            Stream_buf* num = new_Stream_buf(NULL, 1); // Make a growable string
+        } else if (is_digit(ch)) {
+            // Make a growable string
+            Stream_buf* num = new_Stream_buf(NULL, 1);
             
             int begin = col;
             while (is_digit(ch)) {
-                Stream_buf_append_str(num, str_format("%c", ch)); // Grow the string
+                // Grow the string
+                Stream_buf_append_str(num, str_format("%c", ch));
                 ch = code[++pos];
                 col++;
             }
 
-            tokens[tok_c++] = new_token(NUM_T, (char*) (num->buf), lineno, begin);
-        } else if (ch == '"') { // If ch is a double quote
-            Stream_buf* str = new_Stream_buf(NULL, 1); // Make a growable string
+            tokens[tok_c++] = new_token(T_INT, (char*) (num->buf), lineno, begin);
+        } else if (ch == '"') {
+            // Make a growable string
+            Stream_buf* str = new_Stream_buf(NULL, 1);
             
-            ch = code[++pos]; // Skip over first quote
+            // Skip over first quote
+            ch = code[++pos];
             int begin = col++;
             while (ch != '"') {
-                Stream_buf_append_str(str, str_format("%c", ch)); // Grow the string
+                // Grow the string
+                Stream_buf_append_str(str, str_format("%c", ch));
                 ch = code[++pos];
                 col++;
             }
-            pos++; // Skip over end quote
+
+            // Skip over end quote
+            pos++;
             col++;
 
-            tokens[tok_c++] = new_token(STR_T, (char*) (str->buf), lineno, begin);
-        } else if (ch == ' ' || ch == '\t') { // If ch is whitespace
-            pos++; // Skip over whitespace
-            col++;
-        } else if (ch == '\n') { // If ch is a newline
-            lineno++; // Increment lineno
+            tokens[tok_c++] = new_token(T_STR, (char*) (str->buf), lineno, begin);
+        } else if (ch == ' ' || ch == '\t') {
+            // Skip over whitespace
             pos++;
-            col = 0; // Reset col
-        } else { // Unknown character
+            col++;
+        } else if (ch == '\n') {
+            // Increment lineno
+            lineno++;
+            pos++;
+            // Reset col
+            col = 0;
+        } else {
             fprintf(stderr, "On line %d:\nerror: Undefined character '%c'\n", lineno, ch);
             break;
         }
     }
 
-    for (int i = 0; i < tok_c; i++) { // Print the tokens
+    // Print the tokens
+    for (int i = 0; i < tok_c; i++) {
         printf("%d, ", tokens[i]->type);
         printf("%s, ", tokens[i]->value);
         printf("%d, ", tokens[i]->lineno);

@@ -58,108 +58,108 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
-    char* type; // The type of the array
-    Node** elements; // Elements in the array
-    int len; // Length of the array
+    char* type; /**< The type of the array */
+    Node** elements; /**< Elements in the array */
+    int len; /**< Length of the array */
 } Array_node;
 
 typedef struct {
     NodeType n_type;
-    Node* id; // The identifier that comes before the square brackets
-    Node* expr; // The expression inside the square brackets
-    char* type; // Type of each element in the array or string
-    char* cgid; // Code generation name of the object being indexed
+    Node* id; /**< The identifier that comes before the square brackets */
+    Node* expr; /**< The expression inside the square brackets */
+    char* type; /**< Type of each element in the array or string */
+    char* cgid; /**< Code generation name of the object being indexed */
 } Index_node;
 
 typedef struct {
     NodeType n_type;
-    Node* condition; // Condition of the while loop
-    Node* body; // Body of the while loop
-    char* begin_cgid; // Code generation names saved for llvm
+    Node* condition; /**< Condition of the while loop */
+    Node* body; /**< Body of the while loop */
+    char* begin_cgid; /**< Code generation names saved for llvm */
     char* end_cgid;
 } While_loop_node;
 
 typedef struct {
     NodeType n_type;
-    Node* condition; // Condition of the if statement
-    Node* body; // Body of the if statement
-    Node* else_body; // Body of the else (NULL if else is not used)
-    char* begin_cgid; // Code generation names saved for llvm
+    Node* condition; /**< Condition of the if statement */
+    Node* body; /**< Body of the if statement */
+    Node* else_body; /**< Body of the else (NULL if else is not used) */
+    char* begin_cgid; /**< Code generation names saved for llvm */
     char* else_cgid;
     char* end_cgid;
 } If_node;
 
 typedef struct {
     NodeType n_type;
-    char* name; // Name of the function
-    char* type; // Type of the function
-    Node** args; // Arguments of the function
-    int args_len; // Length of the functions arguments
+    char* name; /**< Name of the function */
+    char* type; /**< Type of the function */
+    Node** args; /** Arguments of the function */
+    int args_len; /**< Length of the functions arguments */
 } Func_call_node;
 
 typedef struct {
     NodeType n_type;
-    char* name; // Identifier's name
-    char* codegen_name; // Identifier's code generation name
-    char* type; // Identifier's type
+    char* name; /**< Identifier's name */
+    char* codegen_name; /**< Identifier's code generation name */
+    char* type; /**< Identifier's type */
 } Identifier_node;
 
 typedef struct {
     NodeType n_type;
-    int value; // Literal integer
+    int value; /**< Literal integer */
 } Integer_node;
 
 typedef struct {
     NodeType n_type;
-    int skip_kind; // Either 0 or 1, standing for break/continue
-    char* code; // llvm code to break or continue
+    int skip_kind; /**< Either 0 or 1, standing for break/continue */
+    char* code; /**< llvm code to break or continue */
 } Skip_node;
 
 typedef struct {
     NodeType n_type;
-    int value; // Either 0 or 1, standing for true/false
+    int value; /**< Either 0 or 1, standing for true/false */
 } Boolean_node;
 
 typedef struct {
     NodeType n_type;
-    double value; // Literal decimal
+    double value; /**< Literal decimal */
 } Real_node;
 
 typedef struct {
     NodeType n_type;
-    char value; // Literal character
+    char value; /**< Literal character */
 } Char_node;
 
 typedef struct {
     NodeType n_type;
-    char* value; // Literal string
+    char* value; /**< Literal string */
 } String_node;
 
 typedef struct {
     NodeType n_type;
-    Node* left; // Left side of the expression
-    Node* right; // Right side of the expression
-    char* oper; // The operator used
+    Node* left; /**< Left side of the expression */
+    Node* right; /**< Right side of the expression */
+    char* oper; /**< The operator used */
 } Operator_node;
 
 typedef struct {
     NodeType n_type;
-    Node** statements; // The array of statements in the block
-    int ssize; // Length of statements
+    Node** statements; /**< The array of statements in the block */
+    int ssize; /**< Length of statements */
 } Block_node;
 
 typedef struct {
     NodeType n_type;
-    Node** args; // Arguments of the function
-    Node* body; // Body of the function
-    int args_len; // Length of the function arguments
-    char* type; // Type of the function
-    char* name; // Name of the function
+    Node** args; /**< Arguments of the function */
+    Node* body; /**< Body of the function */
+    int args_len; /**< Length of the function arguments */
+    char* type; /**< Type of the function */
+    char* name; /**< Name of the function */
 } Func_decl_node;
 
 typedef struct {
     NodeType n_type;
-    Node* expr; // Returned expression
+    Node* expr; /**< Returned expression */
 } Return_node;
 
 void free_node(Node* n);

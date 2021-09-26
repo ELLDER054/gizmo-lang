@@ -10,16 +10,20 @@ struct SymbolTable {
   Symbol* sym_tail;
 };
 
-static SymbolTable *global = NULL; // Global scope
-static SymbolTable *cur = NULL; // Current scope
+// Global scope
+static SymbolTable *global = NULL;
+// Current scope
+static SymbolTable *cur = NULL;
 
-void symtab_init(void) { /* Initializes a symbol table */
+// Initializes a symbol table
+void symtab_init(void) {
   global = malloc(sizeof(SymbolTable));
   memset(global, 0, sizeof(SymbolTable));
   cur = global;
 }
 
-void symtab_print_all(void) { // Print the symbols in the current scope
+// Print the symbols in the current scope
+void symtab_print_all(void) {
   Symbol *sym = cur->sym_head;
   SymbolTable *parent = cur->parent;
   while (sym != NULL) {
@@ -29,11 +33,13 @@ void symtab_print_all(void) { // Print the symbols in the current scope
   }
 }
 
-SymbolTable* symtab_get_current() { // Allows other files to access the current scope
+// Allows other files to access the current scope
+SymbolTable* symtab_get_current() {
     return cur;
 }
 
-Symbol* symtab_find_in(SymbolTable* symtab, char* name, char* sym_type) { // Get the info from a symbol
+// Get the info from a symbol
+Symbol* symtab_find_in(SymbolTable* symtab, char* name, char* sym_type) {
   for (SymbolTable* sym_tab = symtab; sym_tab != NULL; sym_tab = sym_tab->parent) {
     for (Symbol *sym = sym_tab->sym_head; sym != NULL; sym = sym->next) {
       if (strcmp(sym->name, name) == 0 && strcmp(sym->sym_type, sym_type) == 0) {
@@ -44,7 +50,8 @@ Symbol* symtab_find_in(SymbolTable* symtab, char* name, char* sym_type) { // Get
   return NULL;
 } 
 
-void symtab_destroy(void) { // Frees a symbol table
+// Frees a symbol table
+void symtab_destroy(void) {
   Symbol* sym = global->sym_head;
   while (sym != NULL) {
     Symbol *next = sym->next;
@@ -58,7 +65,8 @@ void symtab_destroy(void) { // Frees a symbol table
    free(global);
 }
 
-Symbol* symtab_find_local(char *name, char* sym_type) { // Finds a symbol in the local scope
+// Finds a symbol in the local scope
+Symbol* symtab_find_local(char *name, char* sym_type) {
   for (Symbol *sym = cur->sym_head; sym != NULL; sym = sym->next) {
     if (strcmp(sym->name, name) == 0 && strcmp(sym->sym_type, sym_type) == 0) {
       return sym;
@@ -67,7 +75,8 @@ Symbol* symtab_find_local(char *name, char* sym_type) { // Finds a symbol in the
   return NULL;
 }
 
-Symbol* symtab_find_global(char *name, char* sym_type) { // Finds a symbol in the global scope
+// Finds a symbol in the global scope
+Symbol* symtab_find_global(char *name, char* sym_type) {
   for (SymbolTable* sym_tab = cur; sym_tab != NULL; sym_tab = sym_tab->parent) {
     for (Symbol *sym = sym_tab->sym_head; sym != NULL; sym = sym->next) {
       if (strcmp(sym->name, name) == 0 && strcmp(sym->sym_type, sym_type) == 0) {
@@ -78,7 +87,8 @@ Symbol* symtab_find_global(char *name, char* sym_type) { // Finds a symbol in th
   return NULL;
 }
 
-int symtab_add_symbol(char* type, char* sym_type, char* name, int args_len, char* cgid) { // Adds a symbol to the local scope
+// Adds a symbol to the local scope
+int symtab_add_symbol(char* type, char* sym_type, char* name, int args_len, char* cgid) {
   if (NULL != symtab_find_local(name, sym_type)) {
     printf("Symbol %s already exists!\n", name);
     return -1;
@@ -109,7 +119,8 @@ int symtab_add_symbol(char* type, char* sym_type, char* name, int args_len, char
   return 0;
 }
 
-void symtab_push_context(void) { // Pushes a new context to the symbol table
+// Pushes a new context to the symbol table
+void symtab_push_context(void) {
   SymbolTable* sym_tab = malloc(sizeof(SymbolTable));
   memset(sym_tab, 0, sizeof(SymbolTable));
   cur->child = sym_tab;
@@ -117,7 +128,8 @@ void symtab_push_context(void) { // Pushes a new context to the symbol table
   cur = sym_tab;
 }
 
-void symtab_pop_context(void) { // Pops a context from the symbol table
+// Pops a context from the symbol table
+void symtab_pop_context(void) {
   Symbol *sym = cur->sym_head;
   SymbolTable *parent = cur->parent;
   while (sym != NULL) {

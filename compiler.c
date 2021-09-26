@@ -3,6 +3,8 @@
 #include <string.h>
 #include "tools.h"
 #include "lexer.h"
+#include "parser.h"
+#include "ast.h"
 
 #define GIZMO_VERSION   "v0.2"
 
@@ -61,8 +63,16 @@ int main(int argc, char** argv) {
         Stream_buf_append_str(code, str_format("%c", c));
     }
 
-    Token** tokens = malloc(code->len);
-    memset(tokens, 0, code->len);
+    Token** tokens = malloc(code->len * sizeof(Token));
+    memset(tokens, 0, code->len * sizeof(Token));
     lex((char*) (code->buf), tokens);
+
+    Node** ast = malloc(code->len * sizeof(Node));
+    memset(ast, 0, code->len * sizeof(Node));
+    
+    Symbol** sym_tab =  malloc(code->len * sizeof(Symbol));
+    memset(sym_tab, 0, code->len * sizeof(Symbol));
+
+    parse((char*) (code->buf), tokens, ast, sym_tab);
     return 0;
 }

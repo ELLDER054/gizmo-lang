@@ -9,7 +9,7 @@ Stream_buf* new_Stream_buf(uint8_t* buf, int len) {
     Stream_buf* stream_buf = malloc(sizeof(Stream_buf));
     memset(stream_buf, 0, sizeof(Stream_buf));
 
-    // initialize stream buffer
+    // Initialize stream buffer
     stream_buf->buf = malloc(len);
     memset(stream_buf->buf, 0, len);
 
@@ -20,7 +20,7 @@ Stream_buf* new_Stream_buf(uint8_t* buf, int len) {
 }
 
 void Stream_buf_append_str(Stream_buf* s, char* to_append) {
-    // rewind the NUL terminator
+    // Rewind the NUL terminator
     if (s->index > 0) {
         s->index--;
     }
@@ -30,13 +30,13 @@ void Stream_buf_append_str(Stream_buf* s, char* to_append) {
 
 void Stream_buf_append(Stream_buf* s, uint8_t* to_append, int len) {
 
-    // if we need to reallocate
+    // If we need to reallocate
     if (len > (s->len - s->index)) {
         s->buf = realloc(s->buf, (s->len + len) * 2);
         s->len = (s->len + len) * 2;
     }
 
-    // add to_append to the stream buffer
+    // Add to_append to the stream buffer
     memcpy(s->buf + s->index, to_append, len);
     s->index += len;
 }
@@ -45,8 +45,9 @@ void free_Stream_buf(Stream_buf* s) {
     free(s->buf);
     free(s);
 }
-    
-char* str_format(const char* fmt, ...) { // returns a formatted string
+
+// Returns a formatted string
+char* str_format(const char* fmt, ...) {
     int size = 0;
     char *p = NULL;
     va_list ap;
@@ -57,8 +58,9 @@ char* str_format(const char* fmt, ...) { // returns a formatted string
 
     if (size < 0)
         return NULL;
-
-    size++;             /* For '\0' */
+    
+    // For '\0'
+    size++;
     p = malloc(size);
     if (p == NULL)
         return NULL;
