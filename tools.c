@@ -75,3 +75,9 @@ char* str_format(const char* fmt, ...) {
 
     return p;
 }
+
+// Gives errors
+void Error(const Token* token, const char* err, const int after) {
+	fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n", token->lineno, err);
+    exit(-1);
+}

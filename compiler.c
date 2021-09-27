@@ -1,18 +1,16 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "tools.h"
-#include "lexer.h"
-#include "parser.h"
-#include "ast.h"
 
 #define GIZMO_VERSION   "v0.2"
 
-FILE* out_file;
-FILE* in_file;
-char* in_file_name;
+static FILE* out_file;
+static FILE* in_file;
+static char* in_file_name;
 
-void parse_command_line_args(int argc, char** argv) {
+static void parse_command_line_args(int argc, char** argv) {
     if (argc < 2) {
         fprintf(stdout, "Gizmo, a fast and user-friendly programming language for parsing and manipulating strings\n");
         exit(-1);

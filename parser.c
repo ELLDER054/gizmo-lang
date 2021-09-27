@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "parser.h"
+
 #include "tools.h"
 
 static int ind = 0;
@@ -24,8 +24,7 @@ static int toks_len(Token** toks) {
 void consume(Token_t type, char* err) {
     if (ind >= tokens_len) {
 		// If there is nothing to consume, give error
-        fprintf(stderr, "%s\n", err);
-        exit(EXIT_FAILURE);
+        Error(tokens[ind - 1], err, 1);
     }
     if (tokens[ind]->type == type) {
 		// Consume correct token if it finds it
@@ -33,8 +32,7 @@ void consume(Token_t type, char* err) {
         return;
     }
 	// If there is nothing to consume, give error
-    fprintf(stderr, "%s\n", err);
-    exit(EXIT_FAILURE);
+    Error(tokens[ind - 1], err, 1);
 }
 
 // Expects a Token Type and if it finds the wrong type, return NULL
@@ -71,14 +69,12 @@ Node* logical(int start) {
 
     while (expect_type(T_AND) != NULL || expect_type(T_OR) != NULL) {
         if (expr == NULL) {
-            fprintf(stderr, "Unexpected token");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Unexpected token", 1);
         }
         int save = ind - 1;
         Node* right = equality(ind);
         if (right == NULL) {
-            fprintf(stderr, "Expected right side of expression");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Expected expression after operator", 1);
         }
         expr = (Node*) new_Operator_node(tokens[save]->value, expr, right);
     }
@@ -92,14 +88,12 @@ Node* equality(int start) {
 
     while (expect_type(T_NOT_EQUALS) != NULL || expect_type(T_EQUALS_EQUALS) != NULL) {
         if (expr == NULL) {
-            fprintf(stderr, "Unexpected token");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Unexpected token", 1);
         }
         int save = ind - 1;
         Node* right = comparison(ind);
         if (right == NULL) {
-            fprintf(stderr, "Expected right side of expression");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Expected expression after operator", 1);
         }
         expr = (Node*) new_Operator_node(tokens[save]->value, expr, right);
     }
@@ -113,14 +107,12 @@ Node* comparison(int start) {
 
     while (expect_type(T_GREATER_THAN) != NULL || expect_type(T_LESS_THAN) != NULL || expect_type(T_GREATER_THAN_EQUALS) != NULL || expect_type(T_LESS_THAN_EQUALS) != NULL) {
         if (expr == NULL) {
-            fprintf(stderr, "Unexpected token");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Unexpected token", 0);
         }
         int save = ind - 1;
         Node* right = term(ind);
         if (right == NULL) {
-            fprintf(stderr, "Expected right side of expression");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Expected right side of expression", 1);
         }
         expr = (Node*) new_Operator_node(tokens[save]->value, expr, right);
     }
@@ -134,14 +126,12 @@ Node* term(int start) {
 
     while (expect_type(T_PLUS) != NULL || expect_type(T_MINUS) != NULL) {
         if (expr == NULL) {
-            fprintf(stderr, "Unexpected token");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Unexpected token", 0);
         }
         int save = ind - 1;
         Node* right = factor(ind);
         if (right == NULL) {
-            fprintf(stderr, "Expected right side of expression");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Expected right side of expression", 1);
         }
         expr = (Node*) new_Operator_node(tokens[save]->value, expr, right);
     }
@@ -155,14 +145,12 @@ Node* factor(int start) {
 
     while (expect_type(T_TIMES) != NULL || expect_type(T_DIVIDE) != NULL) {
         if (expr == NULL) {
-            fprintf(stderr, "Unexpected token");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Unexpected token", 0);
         }
         int save = ind - 1;
         Node* right = unary(ind);
         if (right == NULL) {
-            fprintf(stderr, "Expected right side of expression");
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Expected right side of expression", 1);
         }
         expr = (Node*) new_Operator_node(tokens[save]->value, expr, right);
     }
@@ -177,8 +165,7 @@ Node* unary(int start) {
         int save = ind - 1;
         Node* right = unary(ind);
         if (right == NULL) {
-            fprintf(stderr, "Expected something after operator");
-            exit(EXIT_FAILURE);
+            Error(tokens[save], "Expected something after operator", 1);
         }
         return (Node*) new_Operator_node(tokens[save]->type == T_MINUS ? "*" : "!=", (Node*) new_Integer_node(tokens[save]->type == T_MINUS ? -1 : 1), right);
     }
@@ -203,9 +190,8 @@ Node* primary(int start) {
 
     if (expect_type(T_ID) != NULL) {
         int begin = ind - 1;
-        if (symtab_find_global(tokens[ind - 1]->value, "var") == NULL) {
-            fprintf(stderr, "Use of undefined variable");
-            exit(EXIT_FAILURE);
+        if (symtab_find_global(tokens[begin]->value, "var") == NULL) {
+            Error(tokens[begin], "Use of undefined variable", 0);
         }
         return (Node*) new_Identifier_node(tokens[begin]->value, symtab_find_global(tokens[begin]->value, "var")->cgid, symtab_find_global(tokens[begin]->value, "var")->type);
     }
@@ -244,8 +230,7 @@ Node* var_declaration(int start) {
 	// Expecting an identifier
     char* id = expect_type(T_ID);
     if (id == NULL) {
-        fprintf(stderr, "Expected identifier after type\n");
-        exit(EXIT_FAILURE);
+        Error(tokens[ind - 1], "Expected identifier after type\n", 1);
     }
 	// Expecting an equal sign
     char* eq = expect_type(T_EQUALS);
@@ -256,8 +241,7 @@ Node* var_declaration(int start) {
 	// Expecting an expression
     Node* value = expression(ind);
     if (value == NULL) {
-        fprintf(stderr, "Expected expression after equal sign\n");
-        exit(EXIT_FAILURE);
+        Error(tokens[ind - 1], "Expected expression after equal sign\n", 1);
     }
     consume(T_SEMI_COLON, "Expected semi-colon");
 
@@ -285,9 +269,7 @@ void program(Node** ast, int max_len) {
         Node* stmt = statement(ind);
 		// If no statements work, give error
         if (stmt == NULL) {
-            fprintf(stderr, "Unexpected token\n");
-            fprintf(stderr, "%s", tokens[ind]->value);
-            exit(EXIT_FAILURE);
+            Error(tokens[ind - 1], "Unexpected token\n", 0);
         }
         ast[stmt_c++] = stmt;
     }

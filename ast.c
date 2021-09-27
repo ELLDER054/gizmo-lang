@@ -1,9 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "ast.h"
 
-Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, char* name, Node* value) { /* Initializes a variable declaration node */
+#include "tools.h"
+
+Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, char* name, Node* value) {
 
     Var_declaration_node* var = malloc(sizeof(Var_declaration_node));
     memset(var, 0, sizeof(Var_declaration_node));
@@ -22,7 +23,7 @@ Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, c
     return var;
 }
 
-void free_Var_declaration_node(Var_declaration_node* n) { /* Frees a variable declaration node */
+void free_Var_declaration_node(Var_declaration_node* n) { 
     if (n->value != NULL) {
         free_node(n->value);
     }

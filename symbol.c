@@ -1,7 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
-#include "symbol.h"
+
+#include "tools.h"
 
 struct SymbolTable {
   SymbolTable* parent;

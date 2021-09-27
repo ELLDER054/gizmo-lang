@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+
 #include "tools.h"
-#include "lexer.h"
 
 // Returns true if c is in the alphabet or is an underscore
 int is_alpha(char c) {
@@ -143,8 +143,37 @@ void lex(char* code, Token** tokens) {
                 ch = code[++pos];
                 col++;
             }
+            // If the digit is precise
+            if (ch == '.') {
+                // Skip over dot
+                col++;
+                pos++;
+                while (is_digit(ch)) {
+                    // Grow the string
+                    Stream_buf_append_str(num, str_format("%c", ch));
+                    ch = code[++pos];
+                    col++;
+                }
+                if (ch == '.') {
+                    Error(new_token(T_INT, (char*) (num->buf), lineno, begin), "Too many dots in precision number", 1);
+                }
+            }
 
             tokens[tok_c++] = new_token(T_INT, (char*) (num->buf), lineno, begin);
+        } else if (ch == '\\' && code[pos + 1] == '(') {
+            // Skip comment until \)
+            ch = code[++pos];
+            col++;
+            while (ch != '\\' && code[pos + 1] != ')') {
+                ch = code[++pos];
+                col++;
+            }
+        } else if (ch == '\\') {
+            // Skip comment until newline
+            while (ch != '\n') {
+                ch = code[++pos];
+                col++;
+            }
         } else if (ch == '"') {
             // Make a growable string
             Stream_buf* str = new_Stream_buf(NULL, 1);
