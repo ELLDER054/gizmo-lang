@@ -63,6 +63,7 @@ Node* expression(int start) {
     return logical(start);
 }
 
+// Logical operators
 Node* logical(int start) {
     ind = start;
     Node* expr = equality(ind);
@@ -82,6 +83,7 @@ Node* logical(int start) {
     return expr;
 }
 
+// Equality operators
 Node* equality(int start) {
     ind = start;
     Node* expr = comparison(ind);
@@ -101,6 +103,7 @@ Node* equality(int start) {
     return expr;
 }
 
+// Comparative operators
 Node* comparison(int start) {
     ind = start;
     Node* expr = term(ind);
@@ -120,6 +123,7 @@ Node* comparison(int start) {
     return expr;
 }
 
+// Addition or subtraction
 Node* term(int start) {
     ind = start;
     Node* expr = factor(ind);
@@ -139,6 +143,7 @@ Node* term(int start) {
     return expr;
 }
 
+// Multiplication or division
 Node* factor(int start) {
     ind = start;
     Node* expr = unary(ind);
@@ -158,6 +163,7 @@ Node* factor(int start) {
     return expr;
 }
 
+// Negative numbers (-1) or opposite booleans (not true)
 Node* unary(int start) {
 	ind = start;
 
@@ -173,6 +179,7 @@ Node* unary(int start) {
     return primary(ind);
 }
 
+// Goes through all the possible primary operands
 Node* primary(int start) {
 	ind = start;
 
@@ -276,8 +283,10 @@ void program(Node** ast, int max_len) {
 }
 // Main parse function
 void parse(char* code, Token** toks, Node** ast, Symbol** sym_tab) {
+    // Save a global length of tokens
     tokens_len = toks_len(toks);
 
+    // Copy tokens
     tokens = malloc(tokens_len * sizeof(Token*));
     memcpy(tokens, toks, tokens_len * sizeof(Token*));
 
