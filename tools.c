@@ -3,6 +3,7 @@
 #include <string.h>
 #include <stdint.h>
 #include <stdarg.h>
+
 #include "tools.h"
 
 Stream_buf* new_Stream_buf(uint8_t* buf, int len) {

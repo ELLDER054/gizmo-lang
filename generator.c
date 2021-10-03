@@ -4,19 +4,21 @@
 
 #include "tools.h"
 
-char* global_code;
+static Stream_buf* llvm;
+
+// llvm temporary variable name counter (I.E. %0 or %6)
+static int name_c;
 
 // LLVM declarations
 
-void llvm_var_decl() {
-
+void llvm_var_decl(Var_declaration_node* node) {
+    Stream_buf_append_str(llvm, str_format("%%%s = call i32 @malloc(i32 %d)\n", node->codegen_name, 5));
 }
 
 // End LLVM declarations
 
 void generate(Node** ast, char* code) {
-    global_code = malloc(strlen(code) + 1);
-    memcpy(global_code, code, strlen(code) + 1);
+    llvm = new_Stream_buf(NULL, 1);
 
     // Current node
     Node* node;
@@ -25,7 +27,8 @@ void generate(Node** ast, char* code) {
 
         Node_t node_t = node->n_type;
         if (node_t == VAR_DECLARATION_NODE) {
-            llvm_var_decl();
+            llvm_var_decl((Var_declaration_node*) node);
         }
     }
+    memcpy(code, llvm->buf, strlen((char*) (llvm->buf)));
 }

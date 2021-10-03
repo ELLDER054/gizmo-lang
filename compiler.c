@@ -3,6 +3,7 @@
 #include <string.h>
 
 #include "tools.h"
+#include "generator.h"
 
 #define GIZMO_VERSION   "v0.2"
 
@@ -72,5 +73,11 @@ int main(int argc, char** argv) {
     memset(sym_tab, 0, code->len * sizeof(Symbol));
 
     parse((char*) (code->buf), tokens, ast, sym_tab);
+
+    char* llvm = malloc(code->len);
+    memset(llvm, 0, code->len);
+
+    generate(ast, llvm);
+    printf("%s", llvm);
     return 0;
 }

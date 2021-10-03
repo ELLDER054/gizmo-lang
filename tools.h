@@ -1,5 +1,5 @@
-#ifndef COMPILER_H
-#define COMPILER_H
+#ifndef TOOLS_H
+#define TOOLS_H
 
 #include <stdint.h>
 
@@ -23,4 +23,4 @@ char* str_format(const char* fmt, ...);
 
 void Error(const Token* token, const char* err, const int after);
 
-#endif // COMPILER_H
+#endif // TOOLS_H

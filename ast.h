@@ -1,8 +1,7 @@
 #ifndef AST_H
 #define AST_H
 
-#include "lexer.h"
-#include "symbol.h"
+#include "tools.h"
 
 #define MAX_NAME_LEN  100
 #define MAX_TYPE_LEN  100
@@ -183,4 +182,4 @@ Func_decl_node* new_Func_decl_node(char* name, char* type, Node** args, int args
 Return_node* new_Return_node(Node* expr);
 Block_node* new_Block_node(Node** statements, int ssize);
 
-#endif
+#endif // AST_H
