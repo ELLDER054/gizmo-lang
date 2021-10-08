@@ -48,6 +48,26 @@ char* expect_type(Token_t type) {
     return NULL;
 }
 
+char* type(Node* n) {
+    if (n->n_type == INTEGER_NODE) {
+        return str_format("int");
+    } else if (n->n_type == STRING_NODE) {
+        return str_format("string");
+    } else if (n->n_type == CHAR_NODE) {
+        return str_format("char");
+    } else if (n->n_type == BOOL_NODE) {
+        return str_format("bool");
+    } else if (n->n_type == OPERATOR_NODE) {
+        char* o = ((Operator_node*) n)->oper;
+        if (strcmp(o, "<") == 0 || strcmp(o, ">") == 0 || strcmp(o, "<=") == 0 || strcmp(o, ">=") == 0 || strcmp(o, "!=") == 0) {
+            return str_format("bool");
+        } else {
+            return type(((Operator_node*) n)->left);
+        }
+    }
+    return NULL;
+}
+
 // Expression functions - Thanks to Robert Nystrom for the grammar (http://craftinginterpreters.com/parsing-expressions.html#ambiguity-and-the-parsing-game)
 Node* expression(int start);
 Node* logical(int start);

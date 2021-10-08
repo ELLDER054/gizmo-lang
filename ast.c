@@ -4,7 +4,7 @@
 
 #include "tools.h"
 
-Var_declaration_node* new_Var_declaration_node(char* type, char* codegen_name, char* name, Node* value) {
+Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value) {
 
     Var_declaration_node* var = malloc(sizeof(Var_declaration_node));
     memset(var, 0, sizeof(Var_declaration_node));
