@@ -46,7 +46,6 @@ class SimpleRunTimeTests(RunTimeTest):
         self.execute(
             """
             int i = 0;
-
             while (i < 4) {
                 if (i == 0) {
                     write("i is 0\\n");

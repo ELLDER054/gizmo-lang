@@ -48,4 +48,3 @@ class RunTimeTest(CompiledTest):
         self.assertEqual(0, p.returncode)
 
         self.assertRegex(p.stdout, regex)
-

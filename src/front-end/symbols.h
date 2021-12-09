@@ -28,4 +28,4 @@ void symtab_pop_context(void);
 void symtab_init(void);
 void symtab_destroy(void);
 
-#endif // SYMBOLS_H
+#endif /* SYMBOLS_H */

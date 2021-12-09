@@ -1,12 +1,7 @@
-#ifndef TOOLS_H
-#define TOOLS_H
+#ifndef STREAMBUF_H
+#define STREAMBUF_H
 
 #include <stdint.h>
-
-#include "lexer.h"
-#include "ast.h"
-#include "parser.h"
-#include "symbol.h"
 
 typedef struct {
     uint8_t* buf;
@@ -19,8 +14,4 @@ void Stream_buf_append_str(Stream_buf* s, char* to_append);
 void Stream_buf_append(Stream_buf* s, uint8_t* to_append, int len);
 void free_Stream_buf(Stream_buf* s);
 
-char* str_format(const char* fmt, ...);
-
-void Error(const Token* token, const char* err, const int after);
-
-#endif // TOOLS_H
+#endif /* STREAMBUF_H */

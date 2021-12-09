@@ -1,5 +1,8 @@
-#ifndef LEXER_H
-#define LEXER_H
+#ifndef SCANNER_H
+#define SCANNER_H
+
+#define MAX_LINE_LEN 1024
+#define MAX_NAME_LEN 100
 
 typedef enum {
     T_INT = 200,
@@ -54,15 +57,16 @@ typedef enum {
     T_IF,
     T_ELSE,
     T_SKIP,
-} Token_t;
+} TokenType;
 
 typedef struct {
-    Token_t type;
+    int type;
     char* value;
-    int lineno;
     int col;
+    char* line;
+    int lineno;
 } Token;
 
-void lex(char* code, Token** tokens);
+void scan(char* code, Token* tokens);
 
-#endif // LEXER_H
+#endif /* SCANNER_H */
