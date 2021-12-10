@@ -1,0 +1,4 @@
+
+int a = 9;
+int b = a / 3 * 6;
+write(b);

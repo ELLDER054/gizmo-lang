@@ -3,4 +3,3 @@ gizmo
 *.pyc
 *.ll
 build/*
-*.gizmo

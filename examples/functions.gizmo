@@ -1,0 +1,12 @@
+int add(int a, int b) {
+  return a + b;
+}
+
+write(add(5, 5) + add(10, 10)); \ 30
+
+int square(int a) {
+  return a * a;
+}
+
+write(square(5)); \ 25
+write(square(10)); \ 100
