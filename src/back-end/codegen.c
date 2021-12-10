@@ -15,7 +15,9 @@ int var_c = 0; // variable count
 int save_var_c = 0; // temporary variable count
 int str_c = 1; // string count
 char* type(Node* n);
-void allocate(Stream_buf* code, char* type, char* name);
+char* allocate(Stream_buf* code, char* type, char* name);
+char* load(Stream_buf* code, char* type, char* name1, char* name2);
+void store(Stream_buf* code, char* type, char* name1, char* name2);
 
 void enter_function() { // save off the variable count
     printf("Entering function, var_c = %d, save_var_c = %d\n", var_c, save_var_c);
@@ -273,7 +275,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
     } if (n->n_type == ID_NODE) {
         if (((Identifier_node*) n)->type[strlen(((Identifier_node*) n)->type) - 1] != ']') {
             char* id = str_format("%%%d", var_c++);
-            Stream_buf_append_str(c, str_format("\t%s = load %s, %s* %%%s\n", id, types(((Identifier_node*) n)->type), types(((Identifier_node*) n)->type), ((Identifier_node*) n)->codegen_name));
+            load(c, types(((Identifier_node*) n)->type), id, str_format("%%%s", ((Identifier_node*) n)->codegen_name));
             return id;
         } else {
             return str_format("%%%s", ((Identifier_node*) n)->codegen_name);
@@ -294,16 +296,9 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
         memset(arg_code, 0, 100);
         for (int i = 0; i < ((Func_call_node*) n)->args_len; i++) {
             char* arg = generate_expression_llvm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), c);
-            char* extra_name = str_format("%d", var_c);
+            char* extra_name = str_format("%%%d", var_c++);
             allocate(c, types(type(((Func_call_node*) n)->args[i])), extra_name);
-            Stream_buf_append_str(c, "\tstore ");
-            Stream_buf_append_str(c, types(type(((Func_call_node*) n)->args[i])));
-            Stream_buf_append_str(c, " ");
-            Stream_buf_append_str(c, arg);
-            Stream_buf_append_str(c, ", ");
-            Stream_buf_append_str(c, types(type(((Func_call_node*) n)->args[i])));
-            Stream_buf_append_str(c, "* ");
-            Stream_buf_append_str(c, extra_name);
+            store(c, types(type(((Func_call_node*) n)->args[i])), arg, extra_name);
             strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
             strcat(arg_code, "* ");
             strcat(arg_code, extra_name);
@@ -311,7 +306,7 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
                 strcat(arg_code, ", ");
             }
         }
-        char* func_call_name = str_format("%%%d", var_c++); //  STRFORMAT
+        char* func_call_name = str_format("%%%d", var_c++);
         snprintf(call, 1024, "\t%s = call %s @%s(%s)\n", func_call_name, strcmp(types(((Func_call_node*) n)->type), "%.arr") == 0 ? "%.arr*" : types(((Func_call_node*) n)->type), ((Func_call_node*) n)->name, arg_code);
         Stream_buf_append_str(c, call);
         free(arg_code);
@@ -324,7 +319,8 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
             char* extra_name = str_format("%%%d", var_c++);
             char* len_name = str_format("%%%d", var_c++);
             printf("%d: var_c is %d\n", __LINE__, var_c);
-            Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n\t%s = load i32, i32* %s\n", extra_name, len_value, len_name, extra_name));
+            Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds %%.arr, %%.arr* %s, i32 0, i32 0\n", extra_name, len_value));
+            load(c, str_format("i32"), len_name, extra_name);
             return len_name;
         } else if (strcmp(type(len->args[0]), "string") == 0) {
             char* len_name = str_format("%%%d", var_c++);
@@ -341,35 +337,19 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
         char* func_call_name = str_format("%%%d", var_c++);
         char* temp_var = str_format("%%%d", var_c++);
         allocate(c, str_format("[1024 x i8]"), func_call_name);
-        Stream_buf_append_str(c, "\t");
-        Stream_buf_append_str(c, temp_var);
-        printf("%d: var_c is %d\n", __LINE__, var_c);
-        Stream_buf_append_str(c, " = getelementptr inbounds [1024 x i8], [1024 x i8]* ");
-        Stream_buf_append_str(c, func_call_name);
-        Stream_buf_append_str(c, ", i32 0, i32 0\n\t");
+        Stream_buf_append_str(c, str_format("\t%s = getelementptr inbounds [1024 x i8], [1024 x i8]* %s, i32 0, i32 0\n", temp_var, func_call_name));
         char* write_name = generate_expression_llvm(((Func_call_node*) n)->args[0], "string", c);
         printf("%d: var_c is %d\n", __LINE__, var_c);
-        Stream_buf_append_str(c, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
-        Stream_buf_append_str(c, write_name);
+        Stream_buf_append_str(c, str_format("\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* %s)\n", write_name));
         var_c++;
-        Stream_buf_append_str(c, ")\n\t");
         printf("%d: var_c is %d\n", __LINE__, var_c);
-        Stream_buf_append_str(c, "call i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
-        Stream_buf_append_str(c, temp_var);
+        Stream_buf_append_str(c, str_format("\tcall i32 (i8*, ...) @scanf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* %s)\n", temp_var));
         var_c++;
         char* temp_var2 = str_format("%%%d", var_c++);
-        Stream_buf_append_str(c, ")\n");
         allocate(c, str_format("i8*"), temp_var2);
-        Stream_buf_append_str(c, "\tstore i8*");
-        Stream_buf_append_str(c, temp_var);
-        Stream_buf_append_str(c, ", i8** ");
-        Stream_buf_append_str(c, temp_var2);
-        Stream_buf_append_str(c, "\n");
+        store(c, str_format("i8*"), temp_var, temp_var2);
         char* last_temp_var = str_format("%%%d", var_c++);
-        Stream_buf_append_str(c, last_temp_var);
-        Stream_buf_append_str(c, " = load i8*, i8** ");
-        Stream_buf_append_str(c, temp_var2);
-        Stream_buf_append_str(c, "\n");
+        load(c, str_format("i8*"), last_temp_var, temp_var2);
         return last_temp_var;
     } else if (n->n_type == WRITE_NODE) {
         return "0";
@@ -378,11 +358,24 @@ char* generate_expression_llvm(Node* n, char* expr_type, Stream_buf* c) { // gen
     return generate_operation_llvm(n, expr_type, c);
 }
 
-void allocate(Stream_buf* code, char* type, char* name) {
+char* allocate(Stream_buf* code, char* type, char* name) {
     if (name == NULL) {
-        name = str_format("%d", var_c);
+        name = str_format("%%%d", var_c++);
     }
-    Stream_buf_append_str(code, str_format("\t%%%s = alloca %s\n", name, type));
+    Stream_buf_append_str(code, str_format("\t%s = alloca %s\n", name, type));
+    return name;
+}
+
+void store(Stream_buf* code, char* type, char* name1, char* name2) {
+    Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %s\n", type, name1, type, name2));
+}
+
+char* load(Stream_buf* code, char* type, char* name1, char* name2) {
+    if (name1 == NULL) {
+        name1 = str_format("%%%d", var_c++);
+    }
+    Stream_buf_append_str(code, str_format("\t%s = load %s, %s* %s\n", name1, type, type, name2));
+    return name1;
 }
 
 void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code for a statement
@@ -390,12 +383,12 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
         if (n->n_type == VAR_DECLARATION_NODE) {
             Var_declaration_node* v = (Var_declaration_node*) n;
             char* var_name = generate_expression_llvm(v->value, v->type, code);
-            allocate(code, types(v->type), v->codegen_name);
-            Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %%%s\n", types(v->type), var_name, types(v->type), v->codegen_name));
+            allocate(code, types(v->type), str_format("%%%s", v->codegen_name));
+            store(code, types(v->type), var_name, str_format("%%%s", v->codegen_name));
         } else if (n->n_type == VAR_ASSIGN_NODE) {
             Var_assignment_node* v = (Var_assignment_node*) n;
             char* var_name = generate_expression_llvm(v->value, type(v->value), code);
-            Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %%%s\n", types(type(v->value)), var_name, types(type(v->value)), v->codegen_name));
+            store(code, types(type(v->value)), var_name, str_format("%%%s", v->codegen_name));
         } else if (n->n_type == SKIP_NODE) {
             Stream_buf_append_str(code, "\t");
             Stream_buf_append_str(code, ((Skip_node*) n)->code);
@@ -403,71 +396,36 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
         } else if (n->n_type == WHILE_NODE) {
             While_loop_node* wh = (While_loop_node*) n;
             char* while_name = generate_expression_llvm(wh->condition, type(wh->condition), code);
-            Stream_buf_append_str(code, "\tbr i1 "); //  STRFORMAT
-            Stream_buf_append_str(code, while_name);
-            Stream_buf_append_str(code, ", label %");
-            Stream_buf_append_str(code, wh->begin_cgid);
-            Stream_buf_append_str(code, ", label %");
-            Stream_buf_append_str(code, wh->end_cgid);
-            Stream_buf_append_str(code, "\n");
-            Stream_buf_append_str(code, wh->begin_cgid);
-            Stream_buf_append_str(code, ":\n");
+            Stream_buf_append_str(code, str_format("\tbr i1 %s, label %%%s, label %%%s\n%s:\n", while_name, wh->begin_cgid, wh->end_cgid, wh->begin_cgid));
             llvm_generate_statement(wh->body, code);
             char* while_name2 = generate_expression_llvm(wh->condition, type(wh->condition), code);
-            Stream_buf_append_str(code, "\tbr i1 ");
-            Stream_buf_append_str(code, while_name2);
-            Stream_buf_append_str(code, ", label %");
-            Stream_buf_append_str(code, wh->begin_cgid);
-            Stream_buf_append_str(code, ", label %");
-            Stream_buf_append_str(code, wh->end_cgid);
-            Stream_buf_append_str(code, "\n");
-            Stream_buf_append_str(code, wh->end_cgid);
-            Stream_buf_append_str(code, ":\n");
+            Stream_buf_append_str(code, str_format("\tbr i1 %s, label %%%s, label %%%s\n%s:\n", while_name2, wh->begin_cgid, wh->end_cgid, wh->end_cgid));
         } else if (n->n_type == IF_NODE) {
             If_node* i = (If_node*) n;
             char* if_name = generate_expression_llvm(i->condition, type(i->condition), code);
-            Stream_buf_append_str(code, "\tbr i1 "); //  STRFORMAT
-            Stream_buf_append_str(code, if_name);
-            Stream_buf_append_str(code, ", label %");
-            Stream_buf_append_str(code, i->begin_cgid);
-            Stream_buf_append_str(code, ", label %");
-            Stream_buf_append_str(code, i->else_body == NULL ? i->end_cgid : i->else_cgid);
-            Stream_buf_append_str(code, "\n");
-            Stream_buf_append_str(code, i->begin_cgid);
-            Stream_buf_append_str(code, ":\n");
+            Stream_buf_append_str(code, str_format("\tbr i1 %s, label %%%s, label %%%s\n%s:\n", if_name, i->else_body == NULL? i->end_cgid : i->else_cgid, i->begin_cgid));
             llvm_generate_statement(i->body, code);
-            Stream_buf_append_str(code, "\tbr label %");
-            Stream_buf_append_str(code, i->end_cgid);
+            Stream_buf_append_str(code, str_format("\tbr label %%%s", i->end_cgid));
             if (i->else_body != NULL) {
-                Stream_buf_append_str(code, "\n");
-                Stream_buf_append_str(code, i->else_cgid);
-                Stream_buf_append_str(code, ":\n");
+                Stream_buf_append_str(code, str_format("\n%s:\n", i->else_cgid));
                 llvm_generate_statement(i->else_body, code);
-                Stream_buf_append_str(code, "\tbr label %");
-                Stream_buf_append_str(code, i->end_cgid);
-                Stream_buf_append_str(code, "\n");
+                Stream_buf_append_str(code, str_format("\tbr label %%%s\n", i->end_cgid));
             }
-            Stream_buf_append_str(code, "\n");
-            Stream_buf_append_str(code, i->end_cgid);
-            Stream_buf_append_str(code, ":\n");
+            Stream_buf_append_str(code, str_format("\n%s\n", i->end_cgid));
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
             needs_printf = 1;
             char* write_arg_name = generate_expression_llvm(func->args[0], type(func->args[0]), code);
             if (strcmp(type(func->args[0]), "int") == 0) {
-                needs_num_const = 1; //  STRFORMAT
+                needs_num_const = 1;
                 printf("%d: var_c is %d\n", __LINE__, var_c);
-                Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.num, i32 0, i32 0), i32 ");
-                Stream_buf_append_str(code, write_arg_name); //  STRFORMAT
-                Stream_buf_append_str(code, ")");
+                Stream_buf_append_str(code, str_format("\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.num, i32 0, i32 0), i32 %s)", write_arg_name));
             } else if (strcmp(type(func->args[0]), "string") == 0) {
                 needs_str_const = 1;
                 printf("%d: var_c is %d\n", __LINE__, var_c);
-                Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* ");
-                Stream_buf_append_str(code, write_arg_name); //  STRFORMAT
-                Stream_buf_append_str(code, ")");
+                Stream_buf_append_str(code, str_format("\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.str, i32 0, i32 0), i8* %s)", write_arg_name));
             } else if (strcmp(type(func->args[0]), "bool") == 0) {
-                needs_true_const = 1; //  STRFORMAT
+                needs_true_const = 1;
                 needs_false_const = 1;
                 char* t = str_format("true%d", label_c++);
                 char* f = str_format("false%d", label_c++);
@@ -493,17 +451,13 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
                 Stream_buf_append_str(code, end);
                 Stream_buf_append_str(code, ":");
             } else if (strcmp(type(func->args[0]), "char") == 0) {
-                needs_chr_const = 1; //  STRFORMAT
+                needs_chr_const = 1;
                 printf("%d: var_c is %d\n", __LINE__, var_c);
-                Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.chr, i32 0, i32 0), i8 ");
-                Stream_buf_append_str(code, write_arg_name);
-                Stream_buf_append_str(code, ")");
+                Stream_buf_append_str(code, str_format("\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.chr, i32 0, i32 0), i8 %s)", write_arg_name));
             } else if (strcmp(type(func->args[0]), "real") == 0) {
-                needs_real_const = 1; //  STRFORMAT
+                needs_real_const = 1;
                 printf("%d: var_c is %d\n", __LINE__, var_c);
-                Stream_buf_append_str(code, "\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.real, i32 0, i32 0), double ");
-                Stream_buf_append_str(code, write_arg_name);
-                Stream_buf_append_str(code, ")");
+                Stream_buf_append_str(code, str_format("\tcall i32 (i8*, ...) @printf(i8* getelementptr inbounds ([3 x i8], [3 x i8]* @.real, i32 0, i32 0), double %s)", write_arg_name));
             }
             Stream_buf_append_str(code, "\n");
             var_c++;
@@ -520,7 +474,7 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
                 char* arg = generate_expression_llvm(((Func_call_node*) n)->args[i], type(((Func_call_node*) n)->args[i]), code);
                 char* extra_name = str_format("%%%d", var_c++);
                 allocate(code, types(type(((Func_call_node*) n)->args[i])), extra_name);
-                Stream_buf_append_str(code, str_format("\tstore %s %s, %s* %s\n", types(type(((Func_call_node*) n)->args[i])), arg, types(type(((Func_call_node*) n)->args[i])), extra_name));
+                store(code, types(type(((Func_call_node*) n)->args[i])), arg, extra_name);
                 strcat(arg_code, types(type(((Func_call_node*) n)->args[i])));
                 strcat(arg_code, "* ");
                 strcat(arg_code, extra_name);
@@ -528,13 +482,7 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
                     strcat(arg_code, ", ");
                 }
             }
-            Stream_buf_append_str(code, "\tcall "); //  STRFORMAT
-            Stream_buf_append_str(code, types(symtab_find_global(((Func_call_node*) n)->name, "func")->type));
-            Stream_buf_append_str(code, " @");
-            Stream_buf_append_str(code, ((Func_call_node*) n)->name);
-            Stream_buf_append_str(code, "(");
-            Stream_buf_append_str(code, arg_code);
-            Stream_buf_append_str(code, ")");
+            Stream_buf_append_str(code, str_format("\tcall %s @%s(%s)", types(symtab_find_global(((Func_call_node*) n)->name, "func")->type), ((Func_call_node*) n)->name, arg_code));
             free(arg_code);
             var_c++;
         } else if (n->n_type == FUNC_DECL_NODE) {
@@ -550,7 +498,7 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
                     strcat(arg_code, ", ");
                 }
             }
-            log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type)); //  STRFORMAT
+            log_trace("funtion type %s\n", types(((Func_decl_node*) n)->type));
             Stream_buf_append_str(mini_code, str_format("define %s @%s(%s) {\nentry:\n", strcmp(types(((Func_decl_node*) n)->type), "%.arr") == 0 ? "%.arr*" : types(((Func_decl_node*) n)->type), ((Func_decl_node*) n)->name, arg_code));
             strcpy(current_function_return_type, ((Func_decl_node*) n)->type);
             enter_function();
@@ -619,11 +567,7 @@ void generate(Node** ast, int size, Stream_buf* code, char* file_name) { // crea
     if (needs_div_int) {
         insert(code, 0, code->len, "define double @div_int(i32 %a, i32 %b) {\nentry:\n\t%0 = sitofp i32 %a to double\n\t%1 = sitofp i32 %b to double\n\t%2 = fdiv double %0, %1\n\tret double %2\n}\n");
     }
-    char* module_id = malloc(400);
-    memset(module_id, 0, 400); //  STRFORMAT
-    snprintf(module_id, 400, "; ModuleID = '%s'\nsource_filename = \"%s\"\n\n%%.arr = type {i32, i8*}\n", file_name, file_name);
-    insert(code, 0, code->len, module_id);
-    free(module_id);
+    char* module_id = str_format("; ModuleID = '%s'\nsource_file_name = \"%s\"\n\n", file_name, file_name);
     Stream_buf_append_str(code, "\tret i32 0\n}\n");
     if (needs_strlen) {
         Stream_buf_append_str(code, "declare i32 @strlen(i8*)\n");
@@ -652,4 +596,3 @@ void generate(Node** ast, int size, Stream_buf* code, char* file_name) { // crea
     heap_free_all();
     symtab_destroy();
 }
-#include <stdio.h>
