@@ -403,7 +403,7 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
         } else if (n->n_type == IF_NODE) {
             If_node* i = (If_node*) n;
             char* if_name = generate_expression_llvm(i->condition, type(i->condition), code);
-            Stream_buf_append_str(code, str_format("\tbr i1 %s, label %%%s, label %%%s\n%s:\n", if_name, i->else_body == NULL? i->end_cgid : i->else_cgid, i->begin_cgid));
+            Stream_buf_append_str(code, str_format("\tbr i1 %s, label %%%s, label %%%s\n%s:\n", if_name, i->else_body == NULL? i->begin_cgid : i->else_cgid, i->end_cgid, i->begin_cgid));
             llvm_generate_statement(i->body, code);
             Stream_buf_append_str(code, str_format("\tbr label %%%s", i->end_cgid));
             if (i->else_body != NULL) {
@@ -411,7 +411,7 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
                 llvm_generate_statement(i->else_body, code);
                 Stream_buf_append_str(code, str_format("\tbr label %%%s\n", i->end_cgid));
             }
-            Stream_buf_append_str(code, str_format("\n%s\n", i->end_cgid));
+            Stream_buf_append_str(code, str_format("\n%s:\n", i->end_cgid));
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
             needs_printf = 1;

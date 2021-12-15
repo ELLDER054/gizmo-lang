@@ -238,9 +238,9 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_AND;
             } else if (strcmp(name, "or") == 0) {
                 tok.type = T_OR;
-            } /*else if (strcmp(name, "not") == 0) {
+            } else if (strcmp(name, "not") == 0) {
                 tok.type = T_NOT;
-            }*/ else if (strcmp(name, "true") == 0) {
+            } else if (strcmp(name, "true") == 0) {
                 tok.type = T_TRUE;
             } else if (strcmp(name, "while") == 0) {
                 tok.type = T_WHILE;
