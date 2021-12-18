@@ -62,6 +62,7 @@ void print_node(FILE* f, Node* n) { /* Prints the given node */
         case IF_NODE:
         case SKIP_NODE:
         case WHILE_NODE:
+        case FOR_NODE:
         case INDEX_NODE:
         case OPERATOR_NODE:
             print_oper(f, (Operator_node*) n);
@@ -198,6 +199,31 @@ void free_While_loop_node(While_loop_node* w) {
     free(w->begin_cgid);
     free(w->end_cgid);
     free(w);
+}
+
+For_loop_node* new_For_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid) {
+    For_loop_node* f = malloc(sizeof(For_loop_node));
+    memset(f, 0, sizeof(For_loop_node));
+
+    f->n_type = FOR_NODE;
+    f->condition = condition;
+    f->body = body;
+
+    f->begin_cgid = malloc(strlen(bcgid) + 1);
+    strcpy(f->begin_cgid, bcgid);
+
+    f->end_cgid = malloc(strlen(ecgid) + 1);
+    strcpy(f->end_cgid, ecgid);
+
+    return f;
+}
+
+void free_For_loop_node(For_loop_node* f) {
+    free_node(f->condition);
+    free_node(f->body);
+    free(f->begin_cgid);
+    free(f->end_cgid);
+    free(f);
 }
 
 Skip_node* new_Skip_node(int kind, char* code) {
@@ -545,6 +571,9 @@ void free_node(Node* n) { /* Frees the given node */
             break;
         case WHILE_NODE:
             free_While_loop_node((While_loop_node*) n);
+            break;
+        case FOR_NODE:
+            free_For_loop_node((For_loop_node*) n);
             break;
         case IF_NODE:
             free_If_node((If_node*) n);

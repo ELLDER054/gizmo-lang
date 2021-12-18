@@ -10,13 +10,11 @@ int isAlpha(char c) { /* Checks if the given character is a valid part of an ide
     return (c >= 'a' && c <= 'z') || c == '_' || (c >= 'A' && c <= 'Z');
 }
 
-/* For both isAlpha() and isDigit(), we can compare variable 'c' to digits due to the fact that chars are digits */
-
 int isDigit(char c) { /* Checks if the given character is a valid digit */
     return (c >= '0' && c <= '9');
 }
 
-int is_one_char_token(char c) { /* Checks if the given character is a one-char-token */
+int is_one_char_token(char c) { /* Checks if the given character is a token */
     return (c == '(') || (c == ')') || (c == '[') || (c == ']') || (c == '{') || (c == '}') || (c == '.') || (c == ',') || (c == ':') || (c == ';');
 }
 
@@ -244,6 +242,8 @@ void scan(char* code, Token* tokens) {
                 tok.type = T_TRUE;
             } else if (strcmp(name, "while") == 0) {
                 tok.type = T_WHILE;
+            } else if (strcmp(name, "for") == 0) {
+                tok.type = T_FOR;
             } else if (strcmp(name, "if") == 0) {
                 tok.type = T_IF;
             } else if (strcmp(name, "else") == 0) {

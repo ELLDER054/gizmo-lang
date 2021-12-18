@@ -54,6 +54,7 @@ typedef enum {
     T_TRUE,
     T_FALSE,
     T_WHILE,
+    T_FOR,
     T_IF,
     T_ELSE,
     T_SKIP,

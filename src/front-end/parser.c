@@ -19,9 +19,11 @@ int has_returned_in_definite_scope = 0;
 int ind = 0;
 Token* tokens;
 
-// begin helper functions
+// Begin helper functions
 
-void Error(Token token, const char* error, const int after) { /* Gives errors */
+
+// A function to print out a formatted error message
+void Error(Token token, const char* error, const int after) {
     fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", token.lineno, error, token.line);
     int col = after ? token.col + 1 : token.col;
     for (int i = 0; i < col; i++) {
@@ -43,7 +45,8 @@ void Error(Token token, const char* error, const int after) { /* Gives errors */
     exit(-1);
 }
 
-int tokslen(Token* tokens) { /* Returns the length of a tokens array */
+// Returns the length of a tokens array
+int tokslen(Token* tokens) {
     int len = 0;
     for (int i = 0;; i++) {
         if (tokens[i].type < 200 || tokens[i].type > 247) {
@@ -54,7 +57,8 @@ int tokslen(Token* tokens) { /* Returns the length of a tokens array */
     return len;
 }
 
-void consume(TokenType type, char* err) { /* Consumes a token and gives error if not right token */
+// Consumes a token, and attempts to match it. Not finding a match results in an error message
+void consume(TokenType type, char* err) {
     if (ind >= tokslen(tokens)) {
         Error(tokens[ind - 1], err, 1);
     }
@@ -65,7 +69,8 @@ void consume(TokenType type, char* err) { /* Consumes a token and gives error if
     Error(tokens[ind], err, 0);
 }
 
-char* expect_type(TokenType type) { /* Expects a Token Type and if wrong type, return NULL */
+// Consumes a token and attempts to match it. Not finding a match results in returning NULL
+char* expect_type(TokenType type) {
     if (ind >= tokslen(tokens)) {
         return NULL;
     }
@@ -75,8 +80,7 @@ char* expect_type(TokenType type) { /* Expects a Token Type and if wrong type, r
     return NULL;
 }
 
-// end helper functions
-
+// Looks for an identifier, followed by any number of bracket pairs
 void gizmo_type(int start, char* end_type) {
     char* reg_type = expect_type(T_TYPE);
     if (reg_type == NULL) {
@@ -94,6 +98,8 @@ void gizmo_type(int start, char* end_type) {
     }
 }
 
+// End helper functions
+
 Node* expression(int start);
 Node* logical(int start);
 Node* term(int start);
@@ -103,23 +109,25 @@ Node* factor(int start);
 Node* primary(int start);
 Node* indexed(int start);
 Node* unary(int start);
-
-// begin expressions parsing
-
 Node* incomplete_function_call(int start);
 
+// Begin expressions parsing
+
+// Returns true if operator variable is any of the logical operators
 int is_logical_operator(char* operator) {
     return (strcmp(operator, "<") == 0) || (strcmp(operator, ">") == 0) || (strcmp(operator, "<=") == 0) || (strcmp(operator, ">=") == 0) || (strcmp(operator, "==") == 0) || (strcmp(operator, "!=") == 0);
 }
 
+// Collects the base type from an array type (I.E. int[][] -> int)
 void get_type_from_str(char* str, char* end) {
-    for (int i = 0; i < strlen(str) - 2; i++) {
+    for (int i = 0; str[i] != '['; i++) {
         char c = str[i];
         strncat(end, &c, 1);
     }
 }
 
-char* type(Node* n) { /* Returns the type of the given Node* */
+// Returns the type of the given Node*
+char* type(Node* n) {
     if (n == NULL) {
         return NULL;
     }
@@ -175,6 +183,7 @@ char* type(Node* n) { /* Returns the type of the given Node* */
         case FUNC_DECL_NODE:
         case IF_NODE:
         case WHILE_NODE:
+        case FOR_NODE:
         case RET_NODE:
         case NODE_NODE:
         case SKIP_NODE:
@@ -183,7 +192,8 @@ char* type(Node* n) { /* Returns the type of the given Node* */
     return NULL;
 }
 
-void check_type(int start, Node* left, Node* right, char* oper) { /* Checks if expressions follow the type rules */
+// Checks if the expression follows the semantic rules for expressions
+void check_type(int start, Node* left, Node* right, char* oper) {
     if (strcmp(oper, "+") == 0) {
         if (!strcmp(type(left), "int")) {
             if (strcmp(type(right), "int")) {
@@ -481,7 +491,8 @@ Node* primary(int start) {
 // end expressions parsing
 // begin statement parsing
 
-void func_expr_args(int start, Node** args, int* len) { /* Puts caller arguments in the Node** args */
+// Inserts the arguments from the function call into the Node** args list
+void func_expr_args(int start, Node** args, int* len) {
     ind = start;
     int arg_c = 0;
     int should_find = 0;
@@ -506,6 +517,7 @@ void func_expr_args(int start, Node** args, int* len) { /* Puts caller arguments
     *len = arg_c;
 }
 
+// Inserts the arguments from the function declaration into the Node** args list
 void func_decl_args(int start, Node** args, int* len) {
     ind = start;
     int arg_c = 0;
@@ -539,7 +551,8 @@ void func_decl_args(int start, Node** args, int* len) {
     *len = arg_c;
 }
 
-Node* incomplete_function_call(int start) { /* A function call with no semi-colon */
+// A function call without a semi-colon
+Node* incomplete_function_call(int start) {
     ind = start;
     char* id = expect_type(T_ID);
     if (id == NULL) {
@@ -565,7 +578,8 @@ Node* incomplete_function_call(int start) { /* A function call with no semi-colo
     return (Node*) new_Func_call_node(id, symtab_find_global(id, "func")->type, args);
 }
 
-Node* incomplete_initializers(char* t) { /* Returns the most low-level value for each type */
+// Returns the llvm standard value for every type
+Node* incomplete_initializers(char* t) {
     if (strcmp(t, "int") == 0) {
         return (Node*) new_Integer_node(0);
     } else if (strcmp(t, "real") == 0) {
@@ -578,7 +592,8 @@ Node* incomplete_initializers(char* t) { /* Returns the most low-level value for
     return (Node*) new_Integer_node(0);
 }
 
-Node* incomplete_var_declaration(int start) { /* A variable declaration with no semi-colon */
+// A variable delcaration without a semi-colon
+Node* incomplete_var_declaration(int start) {
     ind = start;
     char var_type[MAX_TYPE_LEN];
     gizmo_type(ind, var_type);
@@ -609,7 +624,8 @@ Node* incomplete_var_declaration(int start) { /* A variable declaration with no 
     return (Node*) new_Var_declaration_node(var_type, str_format(".%d", id_c++), id, incomplete_initializers(var_type));
 }
 
-Node* function_call(int start) { /* A function call with a semi-colon */
+// A function call with a semi-colon
+Node* function_call(int start) {
     ind = start;
     char* id = expect_type(T_ID);
     if (id == NULL) {
@@ -625,9 +641,6 @@ Node* function_call(int start) { /* A function call with a semi-colon */
     Node* args[1024]; // LIMIT
     memset(args, 0, 1024); // AND HERE
     func_expr_args(ind, args, &args_len);
-    /*for (int i = 0; i < args_len; i++) {
-        print_node(stdout, args[i]);
-    }*/
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n");
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n");
     if (symtab_find_global(id, "func") == NULL) {
@@ -645,7 +658,8 @@ Node* function_call(int start) { /* A function call with a semi-colon */
     return (Node*) new_Func_call_node(id, symtab_find_global(id, "func")->type, args);
 } 
 
-Node* var_declaration(int start) { /* A variable declaration with a semi-colon */
+// A variable declaration with a semi-colon
+Node* var_declaration(int start) {
     ind = start;
     char var_type[MAX_TYPE_LEN];
     gizmo_type(ind, var_type);
@@ -692,6 +706,7 @@ Node* var_declaration(int start) { /* A variable declaration with a semi-colon *
     return (Node*) new_Var_declaration_node(var_type, str_format(".%d", id_c++), id, expr);
 }
 
+// A variable assignment
 Node* var_assignment(int start) {
     ind = start;
     char* id = expect_type(T_ID);
@@ -720,6 +735,7 @@ void program(Node** ast, int max_len);
 void parse(char* code, Token* toks, Node** program, Symbol** sym_t);
 Node* statement(int start);
 
+// A while-loop
 Node* while_statement(int start) {
     ind = start;
     char* key = expect_type(T_WHILE);
@@ -753,6 +769,52 @@ Node* while_statement(int start) {
     return (Node*) new_While_loop_node(condition, body, bcgid, ecgid);
 }
 
+// A for-loop
+Node* for_statement(int start) {
+    ind = start;
+    char* key = expect_type(T_FOR);
+    if (key == NULL) {
+        ind = start;
+        return NULL;
+    }
+    expect_type(T_LEFT_PAREN);
+    Node* stmt = statement(ind);
+    if (stmt == NULL) {
+        Error(tokens[start], "Expected statement in for statement", 1);
+    }
+    Node* condition = expression(ind);
+    if (condition == NULL) {
+        Error(tokens[start], "Expected condition in for statement", 1);
+    }
+    if (strcmp(type(condition), "bool") != 0) {
+        Error(tokens[start + 1], "Expected condition, not expression, in for statement", 0);
+    }
+    consume(T_SEMI_COLON, "Expected semi-colon after condition");
+    Node* stmt2 = statement(ind);
+    if (stmt2 == NULL) {
+        Error(tokens[start], "Expected statement in for statement", 1);
+    }
+    expect_type(T_RIGHT_PAREN);
+    nested_loops++;
+    char* bcgid = str_format(".%d", id_c++);
+    char* ecgid = str_format(".%d", id_c++);
+    char* save_b = malloc(strlen(current_loop_begin) + 1);
+    char* save_e = malloc(strlen(current_loop_end) + 1);
+    strcpy(save_b, current_loop_begin);
+    strcpy(save_e, current_loop_end);
+    strcpy(current_loop_end, ecgid);
+    strcpy(current_loop_begin, bcgid);
+    Node* body = statement(ind);
+    if (body == NULL) {
+        Error(tokens[ind - 1], "Expected body", 1);
+    }
+    strcpy(current_loop_begin, save_b);
+    strcpy(current_loop_end, save_e);
+    nested_loops--;
+    return (Node*) new_For_loop_node(condition, body, bcgid, ecgid);
+}
+
+// Either a break or continue statement
 Node* skip_statement(int start) {
     ind = start;
     char* key = expect_type(T_SKIP);
@@ -768,6 +830,7 @@ Node* skip_statement(int start) {
     return (Node*) new_Skip_node(strcmp(key, "break") == 0 ? 0 : 1, code);
 }
 
+// If statement
 Node* if_statement(int start) {
     ind = start;
     char* key = expect_type(T_IF);
@@ -799,7 +862,8 @@ Node* if_statement(int start) {
     return (Node*) new_If_node(condition, body, else_body, bcgid, ecgid, elcgid);
 }
 
-Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /* A statement with multiple statements surrounded by curly braces inside it */
+// A statement with multiple statements inside and surrounded by curly braces
+Node* block_statement(int start, Symbol** predeclared, int len_predeclared) {
     ind = start;
     char* begin = expect_type(T_LEFT_BRACE);
     if (begin == NULL) {
@@ -844,7 +908,6 @@ Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /*
         if (statements[size] == NULL) {
             break;
         }
-        //print_node(stdout, statements[size]);
     }
     ind++;
     log_trace("size is: %d\n", size);
@@ -853,12 +916,13 @@ Node* block_statement(int start, Symbol** predeclared, int len_predeclared) { /*
         return (Node*) new_Block_node(statements, size);
     } else {
         Error(tokens[ind - 2], "Expected closing brace", 1);
-        return NULL; /* To satisfy Clang */
+        return NULL; // To staisfy clang
     }
 }
 
 Node* statement(int start);
 
+// A return statement
 Node* return_statement(int start) {
     ind = start;
     char* key = expect_type(T_RETURN);
@@ -880,6 +944,7 @@ Node* return_statement(int start) {
     return (Node*) new_Return_node(expr);
 }
 
+// A function declaration
 Node* function_declaration(int start) {
     ind = start;
     char func_type[MAX_TYPE_LEN];
@@ -929,7 +994,8 @@ Node* function_declaration(int start) {
     return (Node*) new_Func_decl_node(id, func_type, args, args_len, body);
 }
 
-Node* statement(int start) { /* Calls all possible statements */
+// Calls all possible statements
+Node* statement(int start) {
     ind = start;
     Node* i_var = incomplete_var_declaration(start);
     if (i_var != NULL) {
@@ -949,6 +1015,10 @@ Node* statement(int start) { /* Calls all possible statements */
     Node* w = while_statement(start);
     if (w != NULL) {
         return w;
+    }
+    Node* for_ = for_statement(start);
+    if (for_ != NULL) {
+        return for_;
     }
     Node* skip = skip_statement(start);
     if (skip != NULL) {
@@ -979,9 +1049,10 @@ Node* statement(int start) { /* Calls all possible statements */
     return NULL;
 }
 
-// end statement parsing
+// End statement parsing
 
-void program(Node** ast, int max_len) { /* Continuously calls statement() */
+// Continually calls the statement() function
+void program(Node** ast, int max_len) {
     if (max_len == -1) {
         max_len = tokslen(tokens);
     }
@@ -996,7 +1067,8 @@ void program(Node** ast, int max_len) { /* Continuously calls statement() */
     }
 }
 
-void parse(char* code, Token* toks, Node** ast, Symbol** sym_t) { /* Calls program */
+// Calls program()
+void parse(char* code, Token* toks, Node** ast, Symbol** sym_t) {
     tokens = malloc(strlen(code) * sizeof(Token));
     memset(tokens, 0, strlen(code) * sizeof(Token));
     global_code = malloc(strlen(code) + 1);
