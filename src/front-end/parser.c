@@ -936,10 +936,14 @@ Node* for_statement(int start) {
     if (body == NULL) {
         Error(tokens[ind - 1], "Expected body", 1);
     }
+    Node** combined = malloc(3 * sizeof(Node*));
+    combined[0] = stmt;
+    combined[1] = body;
+    combined[2] = stmt2;
     strcpy(current_loop_begin, save_b);
     strcpy(current_loop_end, save_e);
     nested_loops--;
-    return (Node*) new_For_loop_node(condition, body, bcgid, ecgid);
+    return (Node*) new_For_loop_node(condition, (Node*) new_Block_node(combined, 3), bcgid, ecgid);
 }
 
 /**
