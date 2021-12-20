@@ -238,6 +238,7 @@ int gizmo_strlen(char* str) { // gets the length of a special kind of string pas
         char c = str[pos];
         if (c == '\\') {
             b_c++;
+            pos++;
         }
     }
     return pos - (2 * b_c);

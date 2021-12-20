@@ -217,53 +217,37 @@ int split(const char *txt, char delim, char ***tokens) {
     return count;
 }
 
-
 /**
  * @brief Convert escaped characters in a string to LLVM string format
  *
- * @todo: Fix this
- *
  * @param str string to convert
  * @param endstr[out] converted string
- * @param is_in_str whether this is a string literal or not 
  */
-void parse_string(char* str, char* endstr, int is_in_str) {
+void parse_string(char* str, char* endstr) {
     int pos = 0;
+
+    // Make sure that the ouput string is empty
     strcpy(endstr, "");
+
     while (pos < strlen(str)) {
         char c = str[pos];
         if (c == '\\') {
+            // Switch-case statement to check the escaped character
             switch (str[pos + 1]) {
                 case '\\':
                     strcat(endstr, "\\\\");
                     break;
                 case 'n':
-                    if (is_in_str) {
-                        strcat(endstr, "\\0A");
-                    } else {
-                        strcat(endstr, "\n");
-                    }
+                    strcat(endstr, "\\0A");
                     break;
                 case 't':
-                    if (is_in_str) {
-                        strcat(endstr, "\\09");
-                    } else {
-                        strcat(endstr, "\t");
-                    }
+                    strcat(endstr, "\\09");
                     break;
                 case '"':
-                    if (is_in_str) {
-                        strcat(endstr, "\\22");
-                    } else {
-                        strcat(endstr, "\"");
-                    }
+                    strcat(endstr, "\\22");
                     break;
                 case '\'':
-                    if (is_in_str) {
-                        strcat(endstr, "\\27");
-                    } else {
-                        strcat(endstr, "'");
-                    }
+                    strcat(endstr, "\\27");
                     break;
                 default:
                     strcat(endstr, "\\\\");
@@ -271,12 +255,49 @@ void parse_string(char* str, char* endstr, int is_in_str) {
             }
             pos++;
         } else {
+            // If current character is not escaped, add the current character
             strncat(endstr, &c, 1);
         }
         pos++;
     }
-    if (is_in_str) {
-        strcat(endstr, "\\00");
+
+    // NUL terminator
+    strcat(endstr, "\\00");
+    printf("%s", endstr);
+}
+
+
+/**
+ * @brief Convert escaped characters to their real value for llvm
+ *
+ * @param ch char to convert
+ * @param endch[out] converted char
+ */
+void parse_char(char* ch, char* endch) {
+    if (ch[0] == '\\') {
+        // Switch-case statement to check the escaped character
+        switch (ch[1]) {
+            case '\\':
+                strcpy(endch, "\\\\");
+                break;
+            case 'n':
+                strcpy(endch, "\n");
+                break;
+            case 't':
+                strcpy(endch, "\t");
+                break;
+            case '"':
+                strcpy(endch, "\"");
+                break;
+            case '\'':
+                strcpy(endch, "'");
+                break;
+            default:
+                strcpy(endch, str_format("\\%s", ch[1]));
+        }
+    } else {
+        // If current character is not escaped, add the current character
+        strcpy(endch, ch);
     }
 }
 
@@ -551,7 +572,12 @@ void scan(char* code, Token* tokens) {
             }
             tok.value = malloc(len * 3 + 1);
             memset(tok.value, 0, len * 3 + 1);
-            parse_string(string, tok.value, delim == '"'); 
+            printf("%s", string);
+            if (delim == '"') {
+                parse_string(string, tok.value);
+            } else {
+                parse_char(string, tok.value);
+            }
             free(string);
             tok.type = tok_type;
             tok.lineno = lineno;
