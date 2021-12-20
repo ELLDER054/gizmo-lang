@@ -6,20 +6,50 @@
 #include "../back-end/codegen.h"
 #include "../common/include/log.h"
 
-int isAlpha(char c) { /* Checks if the given character is a valid part of an identifier */
+/**
+ * @brief Checks if the given character is a valid start of an identifier
+ *
+ * @param c character to check
+ *
+ * @return non-zero if valid, zero otherwise
+ */
+int isAlpha(char c) { 
     return (c >= 'a' && c <= 'z') || c == '_' || (c >= 'A' && c <= 'Z');
 }
 
-int isDigit(char c) { /* Checks if the given character is a valid digit */
+/**
+ * @brief Checks if the given character is a digit
+ *
+ * @param c character to check
+ *
+ * @return non-zero if digit, zero otherwise
+ */
+int isDigit(char c) {
     return (c >= '0' && c <= '9');
 }
 
-int is_one_char_token(char c) { /* Checks if the given character is a token */
+/**
+ * @brief Checks if the given character is a token
+ *
+ * @param c character to check
+ *
+ * @return non-zero if valid token, zero otherwise
+ */
+int is_one_char_token(char c) {
     return (c == '(') || (c == ')') || (c == '[') || (c == ']') || (c == '{') || (c == '}') || (c == '.') || (c == ',') || (c == ':') || (c == ';');
 }
 
-int one_char_tokens(char c) { /* Returns tokens based on given character */
-    switch(c) { /* Check if c is any of ()[]{}.,:; */
+/**
+ * @brief Converts a character to a token
+ *
+ * @param c character to convert
+ *
+ * @return token converted from given character
+ */
+int one_char_tokens(char c) {
+
+    /* Check if c is any of ()[]{}.,:; */
+    switch(c) { 
         case '(':
             return T_LEFT_PAREN;
         case ')':
@@ -44,14 +74,33 @@ int one_char_tokens(char c) { /* Returns tokens based on given character */
     return 0;
 }
 
-char next(char* code, int pos) { /* Returns next character in code unless the next is past the length of code */
+/**
+ * @brief Returns next character in code unless next is past the length of code
+ *
+ * @param code input string of current line
+ * @param pos integer index of current line
+ *
+ * @return next character in the input line
+ */
+char next(char* code, int pos) {
     if (pos + 1 >= strlen(code)) {
         return ' ';
     }
     return code[pos + 1];
 }
 
-int operators(char ch, char nch) { /* Returns operator token based on the current and next characters */
+/**
+ * @brief Returns the correct operator token based on current and next chars
+ *
+ * This function handles multi-character operators, such as '++'. It does this
+ * by looking at the current and next characters from the input.
+ *
+ * @param ch current character
+ * @param nch next character
+ *
+ * @return the correct token based on the current and next character
+ */
+int operators(char ch, char nch) {
     /* plus operators */
     if (ch == '+' && nch == '+') {
         return T_PLUS_PLUS;
@@ -109,36 +158,75 @@ int operators(char ch, char nch) { /* Returns operator token based on the curren
     }
 }
 
+/**
+ * @brief Checks if parameter @p c is an operator
+ *
+ * @param c character to check
+ *
+ * @return non-zero is given parameter is an operator, zero otherwise
+ */
 int in_operators(char c) { /* Checks if variable `c` is an operator */
     return (c == '+') || (c == '-') || (c == '*') || (c == '/') || (c == '>') || (c == '<') || (c == '%');
 }
 
+/**
+ * @brief Split the given txt into an array of tokens based on the delimeter
+ * 
+ * @todo: Rewrite this function to use strtok
+ * 
+ * @param txt[in] input text to split
+ * @param delim[in] delimeter to use
+ * @param tokens[out] array of tokens split from the given input 
+ *
+ * @return number of tokens split from the input
+ */
 int split(const char *txt, char delim, char ***tokens) {
     int *tklen, *t, count = 1;
     char **arr, *p = (char*) txt;
 
+    // count the total number of tokens to split
     while (*p != '\0') if (*p++ == delim) {
         count++;
     }
+
+    // allocate an int array to store the length of each token
     t = tklen = calloc(count, sizeof (int));
     for (p = (char*) txt; *p != '\0'; p++) {
         *p == delim ? *t++ : (*t)++;
     }
+
+    // allocate an array of token pointers
     *tokens = arr = malloc(count * sizeof(char*));
     t = tklen;
+
+    // allocate space for the first token string
     p = *arr++ = calloc(*(t++) + 1, sizeof(char*));
     while (*txt != '\0') {
         if (*txt == delim) {
+            // allocate space for the next token string
             p = *arr++ = calloc(*(t++) + 1, sizeof(char*));
             txt++;
         } else {
             *p++ = *txt++;
         }
     }
+
+    // free the array of token lengths
     free(tklen);
+
     return count;
 }
 
+
+/**
+ * @brief Convert escaped characters in a string to LLVM string format
+ *
+ * @todo: Fix this
+ *
+ * @param str string to convert
+ * @param endstr[out] converted string
+ * @param is_in_str whether this is a string literal or not 
+ */
 void parse_string(char* str, char* endstr, int is_in_str) {
     int pos = 0;
     strcpy(endstr, "");
@@ -192,6 +280,12 @@ void parse_string(char* str, char* endstr, int is_in_str) {
     }
 }
 
+/**
+ * @brief Convert the input code to an array of tokens (i.e., the lexer)
+ *
+ * @param code[in] string contain the code to lex
+ * @param tokens[out] array of tokens lexed from the input
+ */
 void scan(char* code, Token* tokens) {
     int lineno = 1;
     char** lines;
