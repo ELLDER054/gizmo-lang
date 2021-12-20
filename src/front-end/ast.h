@@ -19,7 +19,6 @@ typedef enum {
     SKIP_NODE,
     OPERATOR_NODE,
     INTEGER_NODE,
-    INDEX_NODE,
     BOOL_NODE,
     STRING_NODE,
     CHAR_NODE,
@@ -29,7 +28,6 @@ typedef enum {
     WRITE_NODE,
     LEN_NODE,
     READ_NODE,
-    APPEND_NODE,
     NODE_NODE,
     FUNC_CALL_NODE,
     FUNC_DECL_NODE,
@@ -55,14 +53,6 @@ typedef struct {
     Node* value;
     char* codegen_name;
 } Var_assignment_node;
-
-typedef struct {
-    NodeType n_type;
-    Node* id; // The identifier that comes before the square brackets
-    Node* expr; // The expression inside the square brackets
-    char* type; // Type of each element in the array or string
-    char* cgid; // Code generation name of the object being indexed
-} Index_node;
 
 typedef struct {
     NodeType n_type;
@@ -173,7 +163,6 @@ Skip_node* new_Skip_node(int kind, char* code);
 If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);
 Integer_node* new_Integer_node(int val);
-Index_node* new_Index_node(Node* id, Node* expr, char* type, char* cgid);
 Boolean_node* new_Boolean_node(int val);
 String_node* new_String_node(char* val);
 Char_node* new_Char_node(char val);

@@ -19,10 +19,13 @@ int has_returned_in_definite_scope = 0;
 int ind = 0;
 Token* tokens;
 
-// Begin helper functions
-
-
-// A function to print out a formatted error message
+/**
+ * @brief Prints out a formatted error message
+ *
+ * @param token token that has an error
+ * @param error error that is printed out
+ * @param after whether or not the point should be after the token or on the token
+ */
 void Error(Token token, const char* error, const int after) {
     fprintf(stderr, "\x1b[31;1merror\x1b[0m: On line %d\n%s\n%s\n", token.lineno, error, token.line);
     int col = after ? token.col + 1 : token.col;
@@ -45,7 +48,13 @@ void Error(Token token, const char* error, const int after) {
     exit(-1);
 }
 
-// Returns the length of a tokens array
+/**
+ * @brief Finds the length of a tokens array
+ *
+ * @param tokens tokens list given
+ *
+ * @return length of tokens
+ */
 int tokslen(Token* tokens) {
     int len = 0;
     for (int i = 0;; i++) {
@@ -57,7 +66,12 @@ int tokslen(Token* tokens) {
     return len;
 }
 
-// Consumes a token, and attempts to match it. Not finding a match results in an error message
+/**
+ * @brief Consumes a token, and attempts to match it. Not finding a match results in an error message
+ *
+ * @param type type that is expected
+ * @param err error that will be printed if type is not found
+ */
 void consume(TokenType type, char* err) {
     if (ind >= tokslen(tokens)) {
         Error(tokens[ind - 1], err, 1);
@@ -69,7 +83,13 @@ void consume(TokenType type, char* err) {
     Error(tokens[ind], err, 0);
 }
 
-// Consumes a token and attempts to match it. Not finding a match results in returning NULL
+/**
+ * @brief Consumes a token and attempts to match it. Not finding a match results in returning NULL
+ *
+ * @param type type that is expected
+ *
+ * @return NULL or the token that was consumed
+ */
 char* expect_type(TokenType type) {
     if (ind >= tokslen(tokens)) {
         return NULL;
@@ -80,7 +100,13 @@ char* expect_type(TokenType type) {
     return NULL;
 }
 
-// Looks for an identifier, followed by any number of bracket pairs
+
+/**
+ * @brief Looks for an identifier followed by any number of bracket pairs
+ *
+ * @param start starting index
+ * @param end_type[out] resulting string
+ */
 void gizmo_type(int start, char* end_type) {
     char* reg_type = expect_type(T_TYPE);
     if (reg_type == NULL) {
@@ -98,8 +124,6 @@ void gizmo_type(int start, char* end_type) {
     }
 }
 
-// End helper functions
-
 Node* expression(int start);
 Node* logical(int start);
 Node* term(int start);
@@ -111,14 +135,23 @@ Node* indexed(int start);
 Node* unary(int start);
 Node* incomplete_function_call(int start);
 
-// Begin expressions parsing
-
-// Returns true if operator variable is any of the logical operators
+/**
+ * @brief Checks whether or not parameter @p operator is a logical operator
+ *
+ * @param operator input operator
+ *
+ * @return true or false depending on the operator
+ */
 int is_logical_operator(char* operator) {
     return (strcmp(operator, "<") == 0) || (strcmp(operator, ">") == 0) || (strcmp(operator, "<=") == 0) || (strcmp(operator, ">=") == 0) || (strcmp(operator, "==") == 0) || (strcmp(operator, "!=") == 0);
 }
 
-// Collects the base type from an array type (I.E. int[][] -> int)
+/**
+ * @brief Gets the base type from an array type (i.e. int[][] -> int)
+ *
+ * @param str input string
+ * @param end[out] output string
+ */
 void get_type_from_str(char* str, char* end) {
     for (int i = 0; str[i] != '['; i++) {
         char c = str[i];
@@ -126,7 +159,13 @@ void get_type_from_str(char* str, char* end) {
     }
 }
 
-// Returns the type of the given Node*
+/**
+ * @brief Finds the type of the given node
+ *
+ * @param n input node
+ *
+ * @return type of the node
+ */
 char* type(Node* n) {
     if (n == NULL) {
         return NULL;
@@ -150,15 +189,6 @@ char* type(Node* n) {
             return type(((Operator_node*) n)->left);
         case INTEGER_NODE:
             return "int";
-        case INDEX_NODE:
-            str = heap_alloc(100);
-            memset(str, 0, 100);
-            if (strcmp(type(((Index_node*) n)->id), "string") == 0) {
-                strcpy(str, "char");
-            } else {
-                get_type_from_str(type(((Index_node*) n)->id), str);
-            }
-            return str;
         case BOOL_NODE:
             return "bool";
         case BLOCK_NODE:
@@ -177,7 +207,6 @@ char* type(Node* n) {
         case FUNC_CALL_NODE:
         case READ_NODE:
         case WRITE_NODE:
-        case APPEND_NODE:
         case LEN_NODE:
            return symtab_find_global(((Func_call_node*) n)->name, "func")->type;
         case FUNC_DECL_NODE:
@@ -192,7 +221,17 @@ char* type(Node* n) {
     return NULL;
 }
 
-// Checks if the expression follows the semantic rules for expressions
+
+/**
+ * @brief Checks the semantics of the expression
+ *
+ * If the semantics are incorrect, an error is given
+ *
+ * @param start starting index
+ * @param left left side of the expression
+ * @param right right side of the expression
+ * @param oper operation of the expression
+ */
 void check_type(int start, Node* left, Node* right, char* oper) {
     if (strcmp(oper, "+") == 0) {
         if (!strcmp(type(left), "int")) {
@@ -286,10 +325,28 @@ void check_type(int start, Node* left, Node* right, char* oper) {
     }
 }
 
+
+/**
+ * @brief Wrapper for the logical function
+ *
+ * Simpler to call expression() when you want an expression than logical()
+ *
+ * @param start starting index
+ *
+ * @return 
+ */
 Node* expression(int start) {
     return logical(start);
 }
 
+
+/**
+ * @brief Parses logical expressions
+ *
+ * @param start starting index
+ *
+ * @return AST for the expression
+ */
 Node* logical(int start) {
     ind = start;
     Node* expr = equality(ind);
@@ -310,6 +367,14 @@ Node* logical(int start) {
     return expr;
 }
 
+
+/**
+ * @brief Parses equality expressions
+ *
+ * @param start starting index
+ *
+ * @return AST for the expression
+ */
 Node* equality(int start) {
     ind = start;
     Node* expr = comparison(ind);
@@ -330,6 +395,14 @@ Node* equality(int start) {
     return expr;
 }
 
+
+/**
+ * @brief Parses comparison expressions
+ *
+ * @param start starting index
+ *
+ * @return AST for the expression
+ */
 Node* comparison(int start) {
     ind = start;
     Node* expr = term(ind);
@@ -350,6 +423,13 @@ Node* comparison(int start) {
     return expr;
 }
 
+/**
+ * @brief Parses addition and subtraction expressions
+ *
+ * @param start starting index
+ *
+ * @return AST for the expression
+ */
 Node* term(int start) {
     ind = start;
     Node* expr = factor(ind);
@@ -370,6 +450,13 @@ Node* term(int start) {
     return expr;
 }
 
+/**
+ * @brief Parses multiplication and division expressions
+ *
+ * @param start starting index
+ *
+ * @return AST for the expression
+ */
 Node* factor(int start) {
     ind = start;
     Node* expr = unary(ind);
@@ -390,6 +477,13 @@ Node* factor(int start) {
     return expr;
 }
 
+/**
+ * @brief Parses negative numbers and "not" expressions
+ *
+ * @param start starting index
+ *
+ * @return AST for the expression
+ */
 Node* unary(int start) {
 	ind = start;
 
@@ -402,42 +496,19 @@ Node* unary(int start) {
         return (Node*) new_Operator_node(tokens[save].type == T_MINUS ? "*" : "!=", (Node*) new_Integer_node(tokens[save].type == T_MINUS ? -1 : 1), right);
     }
 
-    return indexed(ind);
-}
-
-Node* indexed(int start) {
-    ind = start;
-
-    Node* expr = primary(ind);
-
-    while (expect_type(T_LEFT_BRACKET) != NULL) {
-        if (expr == NULL) {
-            Error(tokens[ind - 1], "Unexpected token", 0);
-        }
-        int save = ind - 1;
-        Node* value = expression(ind);
-        if (value == NULL) {
-            Error(tokens[save], "Expected expression after left bracket", 1);
-        }
-        expect_type(T_RIGHT_BRACKET);
-        char typ[MAX_TYPE_LEN];
-        strcpy(typ, "");
-        if (type(expr)[strlen(type(expr)) - 1] == ']') {
-            get_type_from_str(type(expr), typ);
-        } else if (strcmp(type(expr), "string") == 0) {
-            strcpy(typ, "char");
-        } else {
-            printf("In dev error: Cannot index a non-array value\n");
-            exit(-1);
-        }
-        expr = (Node*) new_Index_node(expr, value, typ, "");
-    }
-
-    return expr;
+    return primary(ind);
 }
 
 void func_expr_args(int start, Node** args, int* len);
 
+/**
+
+ * @brief Parses values like strings and integers
+ *
+ * @param start starting index
+ *
+ * @return AST for the expression
+*/
 Node* primary(int start) {
 	ind = start;
 
@@ -488,10 +559,13 @@ Node* primary(int start) {
     return NULL;
 }
 
-// end expressions parsing
-// begin statement parsing
-
-// Inserts the arguments from the function call into the Node** args list
+/**
+ * @brief Parses the arguments for a function call
+ *
+ * @param start starting index
+ * @param args[out] array that each arg is dumped into
+ * @param len[out] length of the @p args array
+ */
 void func_expr_args(int start, Node** args, int* len) {
     ind = start;
     int arg_c = 0;
@@ -517,7 +591,13 @@ void func_expr_args(int start, Node** args, int* len) {
     *len = arg_c;
 }
 
-// Inserts the arguments from the function declaration into the Node** args list
+/**
+ * @brief Parses the arguments for a function declaration
+ *
+ * @param start starting index
+ * @param args[out] array that each arg is dumped into
+ * @param len[out] length of the @p args array
+ */
 void func_decl_args(int start, Node** args, int* len) {
     ind = start;
     int arg_c = 0;
@@ -551,7 +631,13 @@ void func_decl_args(int start, Node** args, int* len) {
     *len = arg_c;
 }
 
-// A function call without a semi-colon
+/**
+ * @brief Parses a function call without a semi-colon at the end
+ *
+ * @param start starting index
+ *
+ * @return AST of the function call
+ */
 Node* incomplete_function_call(int start) {
     ind = start;
     char* id = expect_type(T_ID);
@@ -564,8 +650,8 @@ Node* incomplete_function_call(int start) {
         ind = start;
         return NULL;
     }
-    Node* args[1024]; // LIMIT
-    memset(args, 0, 1024); // AND HERE
+    Node* args[1024]; /* LIMIT */
+    memset(args, 0, 1024); /* AND HERE */
     int args_len;
     func_expr_args(ind, args, &args_len);
     consume(T_RIGHT_PAREN, "Expected closing parenthesis\n");
@@ -578,7 +664,13 @@ Node* incomplete_function_call(int start) {
     return (Node*) new_Func_call_node(id, symtab_find_global(id, "func")->type, args);
 }
 
-// Returns the llvm standard value for every type
+/**
+ * @brief Finds the standard value for all of the types
+ *
+ * @param t input type
+ *
+ * @return the standard value for parameter @p t
+ */
 Node* incomplete_initializers(char* t) {
     if (strcmp(t, "int") == 0) {
         return (Node*) new_Integer_node(0);
@@ -592,7 +684,13 @@ Node* incomplete_initializers(char* t) {
     return (Node*) new_Integer_node(0);
 }
 
-// A variable delcaration without a semi-colon
+/**
+ * @brief Parses a variable declaration without a semi-colon
+ *
+ * @param start starting index
+ *
+ * @return AST of the variable declaration
+ */
 Node* incomplete_var_declaration(int start) {
     ind = start;
     char var_type[MAX_TYPE_LEN];
@@ -624,7 +722,13 @@ Node* incomplete_var_declaration(int start) {
     return (Node*) new_Var_declaration_node(var_type, str_format(".%d", id_c++), id, incomplete_initializers(var_type));
 }
 
-// A function call with a semi-colon
+/**
+ * @brief Parses a function call
+ *
+ * @param start starting index
+ *
+ * @return AST for the function call
+ */
 Node* function_call(int start) {
     ind = start;
     char* id = expect_type(T_ID);
@@ -638,8 +742,8 @@ Node* function_call(int start) {
         return NULL;
     }
     int args_len;
-    Node* args[1024]; // LIMIT
-    memset(args, 0, 1024); // AND HERE
+    Node* args[1024]; /* LIMIT */
+    memset(args, 0, 1024); /* AND HERE */
     func_expr_args(ind, args, &args_len);
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments\n");
     consume(T_SEMI_COLON, "Expected semi-colon to complete statement\n");
@@ -658,7 +762,13 @@ Node* function_call(int start) {
     return (Node*) new_Func_call_node(id, symtab_find_global(id, "func")->type, args);
 } 
 
-// A variable declaration with a semi-colon
+/**
+ * @brief Parses a variable declaration
+ *
+ * @param start starting index
+ *
+ * @return AST for the variable declaration
+ */
 Node* var_declaration(int start) {
     ind = start;
     char var_type[MAX_TYPE_LEN];
@@ -706,7 +816,13 @@ Node* var_declaration(int start) {
     return (Node*) new_Var_declaration_node(var_type, str_format(".%d", id_c++), id, expr);
 }
 
-// A variable assignment
+/**
+ * @brief Parses a variable assignment
+ *
+ * @param start starting index
+ *
+ * @return AST for the variable assignment
+ */
 Node* var_assignment(int start) {
     ind = start;
     char* id = expect_type(T_ID);
@@ -735,7 +851,13 @@ void program(Node** ast, int max_len);
 void parse(char* code, Token* toks, Node** program, Symbol** sym_t);
 Node* statement(int start);
 
-// A while-loop
+/**
+ * @brief Parses a while-loop
+ *
+ * @param start starting index
+ *
+ * @return AST for the while-loop
+ */
 Node* while_statement(int start) {
     ind = start;
     char* key = expect_type(T_WHILE);
@@ -769,7 +891,13 @@ Node* while_statement(int start) {
     return (Node*) new_While_loop_node(condition, body, bcgid, ecgid);
 }
 
-// A for-loop
+/**
+ * @brief Parses a for-loop
+ *
+ * @param start starting index
+ *
+ * @return AST for the for-loop
+ */
 Node* for_statement(int start) {
     ind = start;
     char* key = expect_type(T_FOR);
@@ -814,7 +942,13 @@ Node* for_statement(int start) {
     return (Node*) new_For_loop_node(condition, body, bcgid, ecgid);
 }
 
-// Either a break or continue statement
+/**
+ * @brief Parses either a break or continue statement
+ *
+ * @param start starting index
+ *
+ * @return AST for the break/continue statement
+ */
 Node* skip_statement(int start) {
     ind = start;
     char* key = expect_type(T_SKIP);
@@ -830,7 +964,13 @@ Node* skip_statement(int start) {
     return (Node*) new_Skip_node(strcmp(key, "break") == 0 ? 0 : 1, code);
 }
 
-// If statement
+/**
+ * @brief Parses an if-statement
+ *
+ * @param start starting index
+ *
+ * @return AST for the if-statement
+ */
 Node* if_statement(int start) {
     ind = start;
     char* key = expect_type(T_IF);
@@ -862,7 +1002,15 @@ Node* if_statement(int start) {
     return (Node*) new_If_node(condition, body, else_body, bcgid, ecgid, elcgid);
 }
 
-// A statement with multiple statements inside and surrounded by curly braces
+/**
+ * @brief Parses a block statement and starts a new local scope inside of it
+ *
+ * @param start starting index
+ * @param predeclared list of variables that should be automatically declared
+ * @param len_predeclared length of @p predeclared
+ *
+ * @return AST for the block statement
+ */
 Node* block_statement(int start, Symbol** predeclared, int len_predeclared) {
     ind = start;
     char* begin = expect_type(T_LEFT_BRACE);
@@ -871,10 +1019,10 @@ Node* block_statement(int start, Symbol** predeclared, int len_predeclared) {
         return NULL;
     }
     int found_end = 0;
-    Node* statements[1024]; // LIMIT
-    memset(statements, 0, 1024); // AND HERE
-    Token block_tokens[1024]; // LIMIT
-    memset(block_tokens, 0, 1024); // AND HERE
+    Node* statements[1024]; /* LIMIT */
+    memset(statements, 0, 1024); /* AND HERE */
+    Token block_tokens[1024]; /* LIMIT */
+    memset(block_tokens, 0, 1024); /* AND HERE */
     int count = 0;
     int i = 0;
     log_trace("ind %d tokslen %d\n", ind, tokslen(tokens));
@@ -916,13 +1064,19 @@ Node* block_statement(int start, Symbol** predeclared, int len_predeclared) {
         return (Node*) new_Block_node(statements, size);
     } else {
         Error(tokens[ind - 2], "Expected closing brace", 1);
-        return NULL; // To staisfy clang
+        return NULL; /* To staisfy clang */
     }
 }
 
 Node* statement(int start);
 
-// A return statement
+/**
+ * @brief Parses a return statement
+ *
+ * @param start starting index
+ *
+ * @return AST for the return statement
+ */
 Node* return_statement(int start) {
     ind = start;
     char* key = expect_type(T_RETURN);
@@ -944,7 +1098,13 @@ Node* return_statement(int start) {
     return (Node*) new_Return_node(expr);
 }
 
-// A function declaration
+/**
+ * @brief Parses a function declaration
+ *
+ * @param start starting index
+ *
+ * @return AST for the function declaration
+ */
 Node* function_declaration(int start) {
     ind = start;
     char func_type[MAX_TYPE_LEN];
@@ -961,8 +1121,8 @@ Node* function_declaration(int start) {
         Error(tokens[ind - 1], "Expected identifier after type", 1);
     }
     consume(T_LEFT_PAREN, "Expected opening parenthesis after type and id");
-    Node* args[1024]; // LIMIT
-    memset(args, 0, 1024); // AND HERE
+    Node* args[1024]; /* LIMIT */
+    memset(args, 0, 1024); /* AND HERE */
     int args_len = 0;
     func_decl_args(ind, args, &args_len);
     consume(T_RIGHT_PAREN, "Expected closing parenthesis after arguments");
@@ -971,8 +1131,8 @@ Node* function_declaration(int start) {
     }
     in_function = 1;
     strcpy(function_type, func_type);
-    Symbol* predeclared[1024]; // LIMIT
-    memset(predeclared, 0, 1024); // AND HERE
+    Symbol* predeclared[1024]; /* LIMIT */
+    memset(predeclared, 0, 1024); /* AND HERE */
     for (int i = 0; i < args_len; i++) {
         Symbol* sym = malloc(sizeof(Symbol));
         Var_declaration_node* arg = (Var_declaration_node*) args[i];
@@ -994,7 +1154,13 @@ Node* function_declaration(int start) {
     return (Node*) new_Func_decl_node(id, func_type, args, args_len, body);
 }
 
-// Calls all possible statements
+/**
+ * @brief Calls all parsing functions and finds the function that succeeded in parsing
+ *
+ * @param start starting index
+ *
+ * @return function that succeded in parsing
+ */
 Node* statement(int start) {
     ind = start;
     Node* i_var = incomplete_var_declaration(start);
@@ -1049,9 +1215,12 @@ Node* statement(int start) {
     return NULL;
 }
 
-// End statement parsing
-
-// Continually calls the statement() function
+/**
+ * @brief Calls @p statement() repeatedly to find parse the whole code
+ *
+ * @param ast[out] entire code AST that gets filled out
+ * @param max_len tells parser to stop when index reaches this value
+ */
 void program(Node** ast, int max_len) {
     if (max_len == -1) {
         max_len = tokslen(tokens);
@@ -1067,7 +1236,14 @@ void program(Node** ast, int max_len) {
     }
 }
 
-// Calls program()
+/**
+ * @brief Sets up what is needed before and after parsing and calls @p program()
+ *
+ * @param code code that the compiler started with
+ * @param toks tokens that lexer found
+ * @param ast[out] AST that gets filled in during parsing
+ * @param sym_t[out] symbol table that gets filled in during parsing
+ */
 void parse(char* code, Token* toks, Node** ast, Symbol** sym_t) {
     tokens = malloc(strlen(code) * sizeof(Token));
     memset(tokens, 0, strlen(code) * sizeof(Token));
