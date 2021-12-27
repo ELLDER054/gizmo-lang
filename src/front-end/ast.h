@@ -64,8 +64,14 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
+    Node** statements; // The array of statements in the block
+    int ssize; // Length of statements
+} Block_node;
+
+typedef struct {
+    NodeType n_type;
     Node* condition; // Condition of the while loop
-    Node* body; // Body of the while loop
+    Block_node* body; // Body of the while loop
     char* begin_cgid; // Code generation names saved for llvm
     char* end_cgid;
 } For_loop_node;
@@ -135,12 +141,6 @@ typedef struct {
 
 typedef struct {
     NodeType n_type;
-    Node** statements; // The array of statements in the block
-    int ssize; // Length of statements
-} Block_node;
-
-typedef struct {
-    NodeType n_type;
     Node** args; // Arguments of the function
     Node* body; // Body of the function
     int args_len; // Length of the function arguments
@@ -158,7 +158,7 @@ void print_node(FILE* f, Node* n);
 Var_declaration_node* new_Var_declaration_node(char* name, char* codegen_name, char* type, Node* value);
 Var_assignment_node* new_Var_assignment_node(char* name, Node* value, char* cgid);
 While_loop_node* new_While_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid);
-For_loop_node* new_For_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid);
+For_loop_node* new_For_loop_node(Node* condition, Block_node* body, char* bcgid, char* ecgid);
 Skip_node* new_Skip_node(int kind, char* code);
 If_node* new_If_node(Node* condition, Node* body, Node* else_body, char* bcgid, char* ecgid, char* elcgid);
 Operator_node* new_Operator_node(char* oper, Node* left, Node* right);

@@ -413,6 +413,15 @@ void llvm_generate_statement(Node* n, Stream_buf* code) { // generates llvm code
                 Stream_buf_append_str(code, str_format("\tbr label %%%s\n", i->end_cgid));
             }
             Stream_buf_append_str(code, str_format("\n%s:\n", i->end_cgid));
+        } else if (n->n_type == FOR_NODE) {
+            For_loop_node* f = (For_loop_node*) n;
+            llvm_generate_statement(f->body->statements[0], code);
+            char* for_name = generate_expression_llvm(f->condition, type(f->condition), code);
+            Stream_buf_append_str(code, str_format("\tbr i1 %s, label %%%s, label %%%s\n%s:\n", for_name, f->begin_cgid, f->end_cgid, f->begin_cgid));
+            llvm_generate_statement(f->body->statements[1], code);
+            llvm_generate_statement(f->body->statements[2], code);
+            char* for_name2 = generate_expression_llvm(f->condition, type(f->condition), code);
+            Stream_buf_append_str(code, str_format("\tbr i1 %s, label %%%s, label %%%s\n%s:\n", for_name2, f->begin_cgid, f->end_cgid, f->end_cgid));
         } else if (n->n_type == WRITE_NODE) {
             Func_call_node* func = (Func_call_node*) n;
             needs_printf = 1;

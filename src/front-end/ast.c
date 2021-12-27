@@ -80,7 +80,7 @@ void free_While_loop_node(While_loop_node* w) {
     free(w);
 }
 
-For_loop_node* new_For_loop_node(Node* condition, Node* body, char* bcgid, char* ecgid) {
+For_loop_node* new_For_loop_node(Node* condition, Block_node* body, char* bcgid, char* ecgid) {
     For_loop_node* f = malloc(sizeof(For_loop_node));
     memset(f, 0, sizeof(For_loop_node));
 
