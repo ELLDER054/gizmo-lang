@@ -1,5 +1,5 @@
-[![GitHub license](https://img.shields.io/github/license/ELLDER054/gizmo-lang.svg)](https://github.com/ELLDER054/gizmo-lang/blob/master/LICENSE)
-[![Maintenance](https://img.shields.io/badge/Maintained%3F-yes-green.svg)](https://GitHub.com/ELLDER054/gizmo-lang/graphs/commit-activity)
+# FYI
+The Gizmo Programming Language Project has moved from this repo to [this](https://github.com/ELLDER054/rusty-gizmo) repo
 
 **Gizmo** is a fast and user friendly programming language for parsing and manipulating strings.  
 Gizmo code looks like this:  
